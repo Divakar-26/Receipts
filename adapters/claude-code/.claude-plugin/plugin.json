@@ -1,0 +1,6 @@
+{
+  "name": "receipts",
+  "version": "0.1.0",
+  "description": "No claim without proof: verifies the factual claims in Claude's final message with deterministic code.",
+  "license": "MIT"
+}

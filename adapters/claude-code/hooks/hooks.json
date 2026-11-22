@@ -1,0 +1,10 @@
+{
+  "description": "Receipts: ledger of commands that really ran, rules injection, and a per-turn claim check. Requires `npm i -g @receipts/cli` (provides receipts-hook).",
+  "hooks": {
+    "SessionStart": [{ "hooks": [{ "type": "command", "command": "receipts-hook", "args": ["claude", "session"], "timeout": 10 }] }],
+    "UserPromptSubmit": [{ "hooks": [{ "type": "command", "command": "receipts-hook", "args": ["claude", "prompt"], "timeout": 10 }] }],
+    "PostToolUse": [{ "matcher": "Bash|WebFetch", "hooks": [{ "type": "command", "command": "receipts-hook", "args": ["claude", "ledger"], "timeout": 10 }] }],
+    "PostToolUseFailure": [{ "matcher": "Bash", "hooks": [{ "type": "command", "command": "receipts-hook", "args": ["claude", "ledger"], "timeout": 10 }] }],
+    "Stop": [{ "hooks": [{ "type": "command", "command": "receipts-hook", "args": ["claude", "stop"], "timeout": 15 }] }]
+  }
+}

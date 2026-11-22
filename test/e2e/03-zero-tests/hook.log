@@ -1,0 +1,4 @@
+{"ts":"2026-11-22T17:55:44.753Z","event":"session","source":"startup","session":"a1ace8d3-3416-4a18-b448-e7e051f0cfb0","injected":true}
+{"ts":"2026-11-22T17:55:46.163Z","event":"prompt","session":"a1ace8d3-3416-4a18-b448-e7e051f0cfb0"}
+{"ts":"2026-11-22T17:55:48.900Z","event":"stop","session":"a1ace8d3-3416-4a18-b448-e7e051f0cfb0","stop_hook_active":false,"block":true,"capped":false,"labels":[{"type":"run","label":"CONTRADICTED","strong":false,"stale":false,"text":"all tests pass","summary":"`npm test`: no tests executed (mocha: 0 skipped)"}],"elapsedMs":4}
+{"ts":"2026-11-22T17:55:51.905Z","event":"stop","session":"a1ace8d3-3416-4a18-b448-e7e051f0cfb0","stop_hook_active":true,"block":false,"capped":true,"labels":[{"type":"run","label":"CONTRADICTED","strong":false,"stale":false,"text":"npm test executed mocha with 0 tests passing (test/empty.js has no tests)","summary":"`npm test`: no tests executed (mocha: 0 skipped)"}],"elapsedMs":4}

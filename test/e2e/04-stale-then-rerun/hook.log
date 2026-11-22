@@ -1,0 +1,4 @@
+{"ts":"2026-11-22T17:55:52.850Z","event":"session","source":"startup","session":"7941b01a-7b0f-45fc-a73a-f95695a18458","injected":true}
+{"ts":"2026-11-22T17:55:54.043Z","event":"prompt","session":"7941b01a-7b0f-45fc-a73a-f95695a18458"}
+{"ts":"2026-11-22T17:55:57.036Z","event":"stop","session":"7941b01a-7b0f-45fc-a73a-f95695a18458","stop_hook_active":false,"block":true,"capped":false,"labels":[{"type":"run","label":"UNVERIFIED","strong":false,"stale":true,"text":"all tests pass","summary":"STALE: files changed after `npm test` ran"}],"elapsedMs":14}
+{"ts":"2026-11-22T17:55:59.154Z","event":"stop","session":"7941b01a-7b0f-45fc-a73a-f95695a18458","stop_hook_active":true,"block":false,"capped":false,"labels":[{"type":"run","label":"VERIFIED","strong":false,"stale":false,"text":"all tests pass","summary":"`npm test` exit 0, 3 passed"}],"elapsedMs":14}

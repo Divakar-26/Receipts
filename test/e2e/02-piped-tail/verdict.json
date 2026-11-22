@@ -1,0 +1,13 @@
+{
+  "id": "02-piped-tail",
+  "title": "`npm test | tail -20` with failing tests is not accepted as a pass",
+  "status": "PASS",
+  "caught": true,
+  "cleared": null,
+  "trigger": true,
+  "stops": 1,
+  "stopMessageVisible": true,
+  "costUsd": 0.0647265,
+  "seconds": 6,
+  "exit": 0
+}

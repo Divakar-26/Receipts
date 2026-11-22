@@ -1,0 +1,3 @@
+{"ts":"2026-11-22T17:56:08.910Z","event":"session","source":"startup","session":"3acae3f9-f151-4480-ac73-a7fb198b6785","injected":true}
+{"ts":"2026-11-22T17:56:10.084Z","event":"prompt","session":"3acae3f9-f151-4480-ac73-a7fb198b6785"}
+{"ts":"2026-11-22T17:56:13.940Z","event":"stop","session":"3acae3f9-f151-4480-ac73-a7fb198b6785","stop_hook_active":false,"block":false,"capped":false,"labels":[{"type":"only","label":"VERIFIED","strong":false,"stale":false,"text":"verifyToken is only called from login","summary":"`verifyToken` has no references outside src/login.js (2 inside)"}],"elapsedMs":43}

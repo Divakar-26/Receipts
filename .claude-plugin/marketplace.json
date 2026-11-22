@@ -1,0 +1,11 @@
+{
+  "name": "receipts",
+  "owner": { "name": "Divakar-26" },
+  "plugins": [
+    {
+      "name": "receipts",
+      "source": "./adapters/claude-code",
+      "description": "No claim without proof: verifies the factual claims in Claude's final message."
+    }
+  ]
+}

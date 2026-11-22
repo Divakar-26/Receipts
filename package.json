@@ -5,7 +5,8 @@
   "license": "MIT",
   "type": "module",
   "bin": {
-    "receipts": "dist/cli/main.js"
+    "receipts": "dist/cli/main.js",
+    "receipts-hook": "dist/cli/hook.js"
   },
   "engines": {
     "node": ">=20"

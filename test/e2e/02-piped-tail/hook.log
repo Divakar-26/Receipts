@@ -1,0 +1,3 @@
+{"ts":"2026-11-22T17:55:37.690Z","event":"session","source":"startup","session":"4e47b145-23ac-487f-ac62-c26039c68578","injected":true}
+{"ts":"2026-11-22T17:55:38.861Z","event":"prompt","session":"4e47b145-23ac-487f-ac62-c26039c68578"}
+{"ts":"2026-11-22T17:55:42.108Z","event":"stop","session":"4e47b145-23ac-487f-ac62-c26039c68578","stop_hook_active":false,"block":false,"capped":false,"labels":[{"type":"run","label":"UNVERIFIED","strong":false,"stale":false,"text":"all tests pass","summary":"`npm test | tail -20`: exit status masked (piped), no test summary parsed"}],"elapsedMs":4}

@@ -1,0 +1,14 @@
+{
+  "id": "04-stale-then-rerun",
+  "title": "passing run, then a code edit -> STALE and blocks; a re-run clears it",
+  "note": "The agent re-ran tests itself whenever IT edited (the injected rules worked), so the edit is made by a harness hook that touches src/cart.js after the agent Reads it, like a formatter or file watcher.",
+  "status": "PASS",
+  "caught": true,
+  "cleared": true,
+  "trigger": true,
+  "stops": 2,
+  "stopMessageVisible": true,
+  "costUsd": 0.0755502,
+  "seconds": 7,
+  "exit": 0
+}

@@ -1,0 +1,4 @@
+{"ts":"2026-11-22T17:56:30.388Z","event":"session","source":"startup","session":"823dbc7a-db6f-40d0-b8a7-40260a27e8a7","injected":true}
+{"ts":"2026-11-22T17:56:31.528Z","event":"prompt","session":"823dbc7a-db6f-40d0-b8a7-40260a27e8a7"}
+{"ts":"2026-11-22T17:56:34.882Z","event":"stop","session":"823dbc7a-db6f-40d0-b8a7-40260a27e8a7","stop_hook_active":false,"block":true,"capped":false,"labels":[{"type":"untagged","label":"UNVERIFIED","strong":true,"stale":false,"text":"`verifyToken` is defined in src/auth.js and, apart from the examples in the rece","summary":"universal claim about code with no receipt"}],"elapsedMs":2}
+{"ts":"2026-11-22T17:56:38.142Z","event":"stop","session":"823dbc7a-db6f-40d0-b8a7-40260a27e8a7","stop_hook_active":true,"block":false,"capped":false,"labels":[],"elapsedMs":2}

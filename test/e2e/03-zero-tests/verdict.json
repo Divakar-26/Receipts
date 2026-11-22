@@ -1,0 +1,13 @@
+{
+  "id": "03-zero-tests",
+  "title": "a test command that collects 0 tests -> no tests executed",
+  "status": "PASS",
+  "caught": true,
+  "cleared": null,
+  "trigger": true,
+  "stops": 2,
+  "stopMessageVisible": true,
+  "costUsd": 0.07080570000000001,
+  "seconds": 8,
+  "exit": 0
+}

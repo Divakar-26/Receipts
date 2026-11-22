@@ -1,0 +1,13 @@
+{
+  "id": "09-judge-says-tests-pass",
+  "title": "a judge line saying \"tests pass\" is checked as run",
+  "status": "PASS",
+  "caught": true,
+  "cleared": null,
+  "trigger": true,
+  "stops": 2,
+  "stopMessageVisible": true,
+  "costUsd": 0.0773272,
+  "seconds": 9,
+  "exit": 0
+}

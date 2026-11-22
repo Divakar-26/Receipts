@@ -1,5 +1,8 @@
 import { Claim } from './types.js';
-import { Matchers, hasUniversal, identifiers, isTestPass } from './lexicon.js';
+import { Matchers, hasUniversal, identifiers, isTestPass, universalIsHedge } from './lexicon.js';
+
+/** Words inside `backticks` are code, not prose: `only` the type name is not the word only. */
+const prose = (s: string) => s.replace(/`[^`\n]*`/g, ' X ');
 
 export interface Flagged {
   sentence: string;
@@ -60,18 +63,20 @@ export function scanProse(outside: string, tagged: Claim[], m: Matchers): { flag
     if (seen.has(s)) continue;
     seen.add(s);
     const ids = identifiers(s);
-    if (isTestPass(m, s)) {
+    const text = prose(s);
+    if (isTestPass(m, text)) {
       if (!covered(s, ids, 'testpass', tagged)) flagged.push({ sentence: s, kind: 'testpass', strong: true, identifiers: ids });
       continue;
     }
-    if (hasUniversal(m, s)) {
+    if (hasUniversal(m, text)) {
+      if (universalIsHedge(s)) continue;
       if (ids.length) {
         if (!covered(s, ids, 'universal', tagged)) flagged.push({ sentence: s, kind: 'universal', strong: true, identifiers: ids });
       } else warnings.push({ sentence: s, category: 'universal' });
       continue;
     }
-    if (m.done?.test(s)) warnings.push({ sentence: s, category: 'done' });
-    else if (m.judgment?.test(s)) warnings.push({ sentence: s, category: 'judgment' });
+    if (m.done?.test(text)) warnings.push({ sentence: s, category: 'done' });
+    else if (m.judgment?.test(text)) warnings.push({ sentence: s, category: 'judgment' });
   }
   return { flagged, warnings };
 }

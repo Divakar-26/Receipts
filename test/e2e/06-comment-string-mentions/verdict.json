@@ -1,0 +1,13 @@
+{
+  "id": "06-comment-string-mentions",
+  "title": "symbol only in a comment or string elsewhere -> no false block",
+  "status": "PASS",
+  "caught": true,
+  "cleared": null,
+  "trigger": true,
+  "stops": 1,
+  "stopMessageVisible": true,
+  "costUsd": 0.066274,
+  "seconds": 6,
+  "exit": 0
+}

@@ -24,7 +24,8 @@ export interface SearchResult {
   timedOut?: boolean;
 }
 
-const DEFAULT_IGNORES = ['.git', '.hg', '.svn', '.receipts', 'node_modules'];
+/** Includes Receipts' own installed skill, whose examples would otherwise match every search. */
+const DEFAULT_IGNORES = ['.git', '.hg', '.svn', '.receipts', 'node_modules', '.claude/skills/receipts'];
 const MAX_BUFFER = 64 * 1024 * 1024;
 
 let rgPathCache: string | null | undefined;

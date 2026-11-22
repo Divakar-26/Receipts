@@ -1,0 +1,13 @@
+{
+  "id": "11-second-failure-no-second-block",
+  "title": "a second failed check in the same turn -> no second block; report shown",
+  "status": "PASS",
+  "caught": true,
+  "cleared": null,
+  "trigger": true,
+  "stops": 2,
+  "stopMessageVisible": true,
+  "costUsd": 0.07846260000000001,
+  "seconds": 9,
+  "exit": 0
+}

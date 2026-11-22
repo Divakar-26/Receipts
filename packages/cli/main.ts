@@ -3,6 +3,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { parseArgs } from 'node:util';
 import { spawn } from 'node:child_process';
+import { init, uninstall } from './init.js';
 import { check, loadConfig, readLedger, ledgerPath, formatReport, loadState, saveState, statePath, buildShellEntry, appendEntry, Mode } from '../core/index.js';
 
 const USAGE = `receipts — no claim without proof
@@ -11,6 +12,8 @@ const USAGE = `receipts — no claim without proof
                  [--mode block|warn|strict] [--stop-hook-active] [--json] [--no-write]
   receipts run -- <command...>     run a command and log its real exit code to the ledger
   receipts report [--cwd <dir>]    reprint the last report
+  receipts init [--cwd <dir>] [--dry-run]       install for Claude Code at project level
+  receipts uninstall [--cwd <dir>] [--keep-data]  reverse init
 
 Exit codes (check): 0 = ok, 2 = blocked (reason on stderr).`;
 
@@ -117,12 +120,27 @@ function cmdReport(argv: string[]): number {
   }
 }
 
+function cmdInit(argv: string[], un: boolean): number {
+  const { values } = parseArgs({ args: argv, options: { cwd: { type: 'string' }, 'dry-run': { type: 'boolean' }, 'keep-data': { type: 'boolean' } } });
+  const cwd = path.resolve(values.cwd ?? process.cwd());
+  try {
+    const lines = un ? uninstall({ cwd, keepData: values['keep-data'] }) : init({ cwd, dryRun: values['dry-run'] });
+    for (const l of lines) console.log((values['dry-run'] ? '[dry run] ' : '') + '• ' + l);
+    return 0;
+  } catch (e) {
+    console.error(`receipts: ${(e as Error).message}`);
+    return 1;
+  }
+}
+
 const [cmd, ...rest] = process.argv.slice(2);
 const main = async (): Promise<number> => {
   switch (cmd) {
     case 'check': return cmdCheck(rest);
     case 'run': return cmdRun(rest);
     case 'report': return cmdReport(rest);
+    case 'init': return cmdInit(rest, false);
+    case 'uninstall': return cmdInit(rest, true);
     case undefined: case '-h': case '--help': console.log(USAGE); return 0;
     default: console.error(`receipts: unknown command '${cmd}'\n\n${USAGE}`); return 64;
   }

@@ -1,0 +1,13 @@
+{
+  "id": "10-no-claims",
+  "title": "a turn with no claims -> no block, no noise",
+  "status": "PASS",
+  "caught": true,
+  "cleared": null,
+  "trigger": true,
+  "stops": 1,
+  "stopMessageVisible": false,
+  "costUsd": 0.057172200000000006,
+  "seconds": 3,
+  "exit": 0
+}

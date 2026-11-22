@@ -172,6 +172,10 @@ test('lexicon, identifiers, sentences, scanner', () => {
   const ids = identifiers('`verifyToken` in src/auth/login.js and getUser_name, parseJSONThing, console.log, config.yml');
   for (const want of ['verifyToken', 'src/auth/login.js', 'getUser_name', 'console.log', 'config.yml']) assert.ok(ids.includes(want), want);
   assert.deepEqual(identifiers('plain words only, e.g. this'), []);
+  assert.deepEqual(identifiers('see `src/login.js:3` and `src/login.js:3-9` and a.js#L4'), ['src/login.js', 'a.js']);
+  // a prose sentence citing file:line is covered by a tagged claim that names the file
+  const cited = scanProse('The only real call is in `src/login.js:3`.', [{ type: 'only', text: 'verifyToken only from login', fields: { symbol: 'verifyToken', in: 'src/login.js' }, line: 1 }], buildMatchers());
+  assert.equal(cited.flagged.length, 0);
 
   const text = 'I fixed it.\n```\nall tests pass\n```\n> all tests pass quoted\nHe said "all tests pass". Should I run all tests?\nNext, I will fix everything in `a.js`.\n- Tests are green.\n1. `verifyToken` is never null.';
   const ss = sentences(text);
@@ -188,6 +192,30 @@ test('lexicon, identifiers, sentences, scanner', () => {
   assert.equal(runTagged.flagged.length, 0);
   const partial = scanProse('`a` and `b` are only used here.', [{ type: 'only', text: '`a` only used', fields: { symbol: 'a', in: 'x' }, line: 1 }], m);
   assert.equal(partial.flagged.length, 1);
+});
+
+test('scanner: sentences from real Claude sessions are not false positives (and real claims still are)', () => {
+  const m = buildMatchers();
+  const onlySym = [{ type: 'only' as const, text: 'verifyToken is only called from login', fields: { symbol: 'verifyToken', in: 'src/login.js' }, line: 1 }];
+  const flagged = (text: string, tagged = onlySym) => scanProse(text, tagged, m).flagged.length;
+  // hedges, negations and the agent narrowing its own scope (seen in e2e transcripts)
+  for (const ok of [
+    'I ran `npm test | tail -20`, and the tests did not all pass.',
+    'Because of the `tail`, I only saw the last 20 lines.',
+    'The claim is true for `src/cart.js` only.',
+    'The receipts claim covers the whole repo, but I only checked `src/cart.js`.',
+    'I added a `code` receipt for that line and kept the `only` line you specified.',
+    '`verifyToken` is also called from `lib/admin/panel.js`, so `src/login.js` is not the only caller.',
+    '**Real call:** `src/login.js:3` is the only place that calls it (`return verifyToken(t)`).',
+  ]) assert.equal(flagged(ok), 0, ok);
+  // genuine universal claims about code are still strong
+  for (const bad of [
+    '`verifyToken` is defined in src/auth.js and called only from src/login.js.',
+    '`src/cart.js` defines only `total(items)`.',
+    'I removed all `console.log` calls from src/cart.js.',
+    'Every caller of `getUser` now passes an id.',
+  ]) assert.equal(flagged(bad, []), 1, bad);
+  assert.deepEqual(identifiers('see `return verifyToken(t)` and `npm test | tail`'), ['verifyToken']);
 });
 
 test('type gaming rules', () => {
@@ -452,6 +480,8 @@ test('search: git grep fallback and result caps', async () => {
   assert.equal((await search(dir, { pattern: 'needle', ignore: [], deadline, maxHits: 1 })).truncated, true);
   assert.equal((await search(dir, { pattern: '(', ignore: [], deadline })).error !== undefined, true);
   assert.equal((await search(dir, { pattern: 'x', ignore: [], deadline: Date.now() - 1 })).timedOut, true);
+  write(dir, { '.claude/skills/receipts/SKILL.md': 'needle in our own skill\n' });
+  assert.ok(!(await search(dir, { pattern: 'needle', ignore: [], deadline })).hits.some((h) => h.file.startsWith('.claude/skills/receipts')), "Receipts' own skill is never searched");
   const nogit = mkdir();
   write(nogit, { 'a.txt': 'hay needle\n' });
   assert.equal((await search(nogit, { pattern: 'needle', ignore: [], deadline })).hits.length, 1);

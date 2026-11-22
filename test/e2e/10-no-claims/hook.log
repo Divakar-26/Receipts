@@ -1,0 +1,3 @@
+{"ts":"2026-11-22T17:56:48.242Z","event":"session","source":"startup","session":"8b0395be-383b-45e4-b91a-0282decfa5f4","injected":true}
+{"ts":"2026-11-22T17:56:49.404Z","event":"prompt","session":"8b0395be-383b-45e4-b91a-0282decfa5f4"}
+{"ts":"2026-11-22T17:56:50.407Z","event":"stop","session":"8b0395be-383b-45e4-b91a-0282decfa5f4","stop_hook_active":false,"block":false,"capped":false,"labels":[],"elapsedMs":1}

@@ -1,0 +1,13 @@
+{
+  "id": "08-untagged-universal",
+  "title": "untagged universal claim with an identifier in the prose",
+  "status": "PASS",
+  "caught": true,
+  "cleared": null,
+  "trigger": true,
+  "stops": 2,
+  "stopMessageVisible": true,
+  "costUsd": 0.07414449999999999,
+  "seconds": 9,
+  "exit": 0
+}

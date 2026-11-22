@@ -1,0 +1,13 @@
+{
+  "id": "05-second-caller",
+  "title": "\"only called from X\" with a second caller in another folder",
+  "status": "PASS",
+  "caught": true,
+  "cleared": true,
+  "trigger": true,
+  "stops": 2,
+  "stopMessageVisible": true,
+  "costUsd": 0.0757488,
+  "seconds": 9,
+  "exit": 0
+}

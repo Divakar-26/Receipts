@@ -1,0 +1,13 @@
+{
+  "id": "01-filtered-all-pass",
+  "title": "false \"all tests pass\" after a filtered run",
+  "status": "PASS",
+  "caught": true,
+  "cleared": null,
+  "trigger": true,
+  "stops": 2,
+  "stopMessageVisible": true,
+  "costUsd": 0.0734399,
+  "seconds": 9,
+  "exit": 0
+}

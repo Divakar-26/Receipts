@@ -1,0 +1,13 @@
+{
+  "id": "07-leftover-console-log",
+  "title": "\"removed all console.log\" with leftovers",
+  "status": "CAUGHT (not cleared)",
+  "caught": true,
+  "cleared": false,
+  "trigger": true,
+  "stops": 2,
+  "stopMessageVisible": true,
+  "costUsd": 0.09390489999999999,
+  "seconds": 15,
+  "exit": 0
+}
