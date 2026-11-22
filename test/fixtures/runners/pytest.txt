@@ -1,0 +1,4 @@
+============================= test session starts ==============================
+collected 43 items
+
+=========== 1 failed, 41 passed, 1 skipped in 0.52s ===========

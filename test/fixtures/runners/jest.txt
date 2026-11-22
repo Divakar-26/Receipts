@@ -1,0 +1,8 @@
+PASS src/a.test.js
+FAIL src/b.test.js
+  ● b › fails
+
+Test Suites: 1 failed, 1 passed, 2 total
+Tests:       1 failed, 41 passed, 1 skipped, 43 total
+Snapshots:   0 total
+Time:        1.2 s

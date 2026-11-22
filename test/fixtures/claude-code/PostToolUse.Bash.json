@@ -1,0 +1,26 @@
+{
+  "session_id": "f0fdb20d-471b-40c1-a18d-8e5cb5cd9786",
+  "transcript_path": "/home/user/.claude/projects/-work-proj/f0fdb20d-471b-40c1-a18d-8e5cb5cd9786.jsonl",
+  "cwd": "/work/proj",
+  "scratchpad_dir": "/tmp/scratch",
+  "prompt_id": "70429a88-bed5-4917-9072-8d7be5f72aa5",
+  "permission_mode": "default",
+  "effort": {
+    "level": "medium"
+  },
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "echo hi",
+    "description": "Print hi"
+  },
+  "tool_response": {
+    "stdout": "hi",
+    "stderr": "",
+    "interrupted": false,
+    "isImage": false,
+    "noOutputExpected": false
+  },
+  "tool_use_id": "toolu_015uBfXgdyDcz2YWQHaEdDDS",
+  "duration_ms": 34
+}

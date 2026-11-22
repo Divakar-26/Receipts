@@ -1,0 +1,4 @@
+ok  	example.com/app/auth	0.012s
+FAIL	example.com/app/cart	0.020s
+?   	example.com/app/util	[no test files]
+FAIL

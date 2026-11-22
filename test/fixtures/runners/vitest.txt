@@ -1,0 +1,6 @@
+ RUN  v1.6.0 /app
+ ✓ a.test.ts (3 tests) 4ms
+
+ Test Files  1 passed (1)
+      Tests  42 passed | 1 skipped (43)
+   Duration  300ms

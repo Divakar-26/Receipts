@@ -1,0 +1,21 @@
+{
+  "session_id": "f0fdb20d-471b-40c1-a18d-8e5cb5cd9786",
+  "transcript_path": "/home/user/.claude/projects/-work-proj/f0fdb20d-471b-40c1-a18d-8e5cb5cd9786.jsonl",
+  "cwd": "/work/proj",
+  "scratchpad_dir": "/tmp/scratch",
+  "prompt_id": "70429a88-bed5-4917-9072-8d7be5f72aa5",
+  "permission_mode": "default",
+  "effort": {
+    "level": "medium"
+  },
+  "hook_event_name": "PostToolUseFailure",
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "ls /nonexistent_dir",
+    "description": "List a nonexistent directory"
+  },
+  "tool_use_id": "toolu_013SmeoGji3HEJ2Z9ByJnR3G",
+  "error": "Exit code 2\nls: cannot access '/nonexistent_dir': No such file or directory",
+  "is_interrupt": false,
+  "duration_ms": 17
+}

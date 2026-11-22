@@ -1,0 +1,2 @@
+> Task :test FAILED
+42 tests completed, 1 failed, 2 skipped

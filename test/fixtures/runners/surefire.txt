@@ -1,0 +1,4 @@
+[INFO] Running com.app.AuthTest
+[ERROR] Tests run: 2, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.1 s <<< FAILURE!
+[INFO] Results:
+[ERROR] Tests run: 12, Failures: 1, Errors: 0, Skipped: 2

@@ -1,0 +1,16 @@
+{
+  "session_id": "f0fdb20d-471b-40c1-a18d-8e5cb5cd9786",
+  "transcript_path": "/home/user/.claude/projects/-work-proj/f0fdb20d-471b-40c1-a18d-8e5cb5cd9786.jsonl",
+  "cwd": "/work/proj",
+  "scratchpad_dir": "/tmp/scratch",
+  "prompt_id": "70429a88-bed5-4917-9072-8d7be5f72aa5",
+  "permission_mode": "default",
+  "effort": {
+    "level": "medium"
+  },
+  "hook_event_name": "Stop",
+  "stop_hook_active": false,
+  "last_assistant_message": "`echo hi` printed \"hi\", and `ls /nonexistent_dir` failed with exit code 2 because that directory doesn't exist.",
+  "background_tasks": [],
+  "session_crons": []
+}
