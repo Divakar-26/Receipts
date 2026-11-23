@@ -4,7 +4,8 @@ import { loadConfig, detectCommands } from './config.js';
 import { Claim, Config, LedgerEntry, Result } from './types.js';
 import { analyseCommand, isTestCmd, normaliseSegment } from './cmd.js';
 import { buildMatchers, hasUniversal } from './lexicon.js';
-import { scanProse, typeGaming, Warning } from './scanner.js';
+import { scanProse, sentences, typeGaming, Warning } from './scanner.js';
+import { autoClaimForDependency, autoClaimForUniversal } from './autoverify.js';
 import { sessionEntries } from './ledger.js';
 import { takeSnapshot } from './snapshot.js';
 import { Ctx, mk, unverified } from './verifiers/ctx.js';
@@ -108,6 +109,22 @@ export async function check(input: CheckInput): Promise<CheckOutput> {
   // 3. scan prose and unparsed lines
   const unparsedText = parsed.untagged.map((u) => u.text).join('\n');
   const scan = scanProse(parsed.outside + '\n' + unparsedText, tagged, m);
+  // "renamed `a` to `b` everywhere", "`a` no longer appears anywhere", "nothing refers to `a`": prose claims that
+  // name exactly what to search for. The checker runs that search itself instead of reporting "no receipt".
+  const autoChecked = new Set<string>();
+  const taggedText = tagged.filter((t) => t.type === 'absent' || t.type === 'change').map((t) => Object.values(t.fields).join(' '));
+  for (const s of sentences(parsed.outside)) {
+    const auto = autoClaimForUniversal(s);
+    if (!auto) continue;
+    const id = auto.type === 'change' ? auto.fields.old : auto.fields.pattern.replace(/\\b/g, '').replace(/\\(.)/g, '$1');
+    autoChecked.add(s);
+    if (taggedText.some((t) => t.includes(id))) continue; // a receipt line already covers it
+    const r = await verifyOne(auto, ctx);
+    r.checkedAs = auto.type as Result['checkedAs'];
+    r.universal = true;
+    r.note = `no receipt was given; checked by searching the repo. ${r.note}`;
+    results.push(r);
+  }
   for (const f of scan.flagged) {
     const c: Claim = { type: 'untagged', text: f.sentence, fields: {}, line: 0 };
     if (f.kind === 'testpass') {
@@ -124,9 +141,22 @@ export async function check(input: CheckInput): Promise<CheckOutput> {
         continue;
       }
     }
+    if (autoChecked.has(f.sentence)) continue;
     results.push(
       mk(c, 'UNVERIFIED', f.kind === 'testpass' ? 'says tests/build pass, but no `run` receipt' : 'universal claim about code with no receipt', 'the checker found this claim in free text', [], { reason: 'untagged', strong: true, universal: f.kind === 'universal' }),
     );
+  }
+  // "`semver` is already declared": dependency claims in prose, unless a `dep` line already covers that package.
+  const depsTagged = new Set(tagged.filter((t) => t.type === 'dep').map((t) => t.fields.name));
+  const depsSeen = new Set<string>();
+  for (const s of sentences(parsed.outside)) {
+    const auto = autoClaimForDependency(s);
+    if (!auto || depsTagged.has(auto.fields.name) || depsSeen.has(auto.fields.name)) continue;
+    depsSeen.add(auto.fields.name);
+    const r = await verifyOne(auto, ctx);
+    r.checkedAs = 'dep';
+    r.note = `no receipt was given; checked against the manifests. ${r.note}`;
+    results.push(r);
   }
   // Unparseable lines that the scanner didn't flag are still shown, as unverified claims.
   for (const u of parsed.untagged) {

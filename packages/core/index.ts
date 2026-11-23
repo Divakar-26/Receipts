@@ -14,3 +14,4 @@ export * from './check.js';
 export { parseSummary } from './runners/index.js';
 export * from './ledger-hook.js';
 export * from './agents.js';
+export * from './autoverify.js';

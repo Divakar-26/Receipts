@@ -441,3 +441,76 @@ test('M4: default mode is warn: problems are reported, the agent is not sent bac
   assert.equal(out.decision.block, false);
   assert.equal(out.decision.wouldBlock, false);
 });
+
+// ---- Untagged sentences: not-about-the-code rules, and claims the checker verifies itself --------------------------
+
+test('sentences that describe the method, a hypothetical, the request, or an admission are not code claims', async () => {
+  const dir = mkRepo({ 'src/a.js': 'getUser();\n' });
+  for (const s of [
+    'My search covered every `.ts` file for `console.log` and `debugger`.', // method only (my own example)
+    'I scanned all `*.py` files under `src/` with `rg`.',
+    'If I had only renamed `getUser` in `src/`, the CLI would have broken.', // counterfactual
+    'Had I skipped `scripts/`, every nightly job would have failed.',
+    'I left `config.yml` alone because you only asked about the default.', // the request
+    'You asked only about `src/cart.ts`, so I did not touch anything else.',
+    "I didn't trace every caller of `run`, so dynamic names could be missed.", // admission
+    "I can't back up `never null` as a universal statement.",
+  ]) {
+    const out = await run(dir, s);
+    assert.equal(out.results.filter((r) => r.strong).length, 0, s);
+  }
+});
+
+test('real universal claims about the code are still reported', async () => {
+  const dir = mkRepo({ 'src/a.js': 'x\n' });
+  for (const s of [
+    'My search found no other `console.log` calls.', // method + result: a claim
+    '`TestSetCurrency` calls `SetCurrency` and never resets it.',
+    '`make test` runs only `./pricing` and `./cart`.',
+    'Every caller of `getUser` now passes an id.',
+  ]) {
+    const out = await run(dir, s);
+    assert.equal(out.results.filter((r) => r.strong).length, 1, s);
+  }
+});
+
+test('rename and absence claims in prose are checked by searching the repo', async () => {
+  const done = mkRepo({ 'src/a.js': 'fetchUser();\n' });
+  const r1 = await run(done, 'I renamed `getUser` to `fetchUser` everywhere.');
+  assert.equal(r1.results[0].label, 'VERIFIED');
+  assert.equal(r1.results[0].checkedAs, 'change');
+  assert.match(r1.results[0].note, /checked by searching the repo/);
+  assert.equal(r1.decision.block, false);
+  const partial = mkRepo({ 'src/a.js': 'fetchUser();\n', 'scripts/b.js': 'getUser();\n' });
+  const r2 = await run(partial, 'I renamed `getUser` to `fetchUser` everywhere.');
+  assert.equal(r2.results[0].label, 'CONTRADICTED');
+  assert.match(r2.results[0].summary, /scripts\/b\.js:1/);
+  assert.equal(r2.decision.block, true);
+  const r3 = await run(partial, '`getUser` no longer appears anywhere.');
+  assert.equal(r3.results[0].checkedAs, 'absent');
+  assert.equal(r3.results[0].label, 'CONTRADICTED');
+  const r4 = await run(done, 'Nothing still refers to `getUser`.');
+  assert.equal(r4.results[0].label, 'VERIFIED');
+  // a sentence the checker cannot turn into a search stays a plain report
+  const r5 = await run(done, 'Every caller of `fetchUser` passes an id.');
+  assert.equal(r5.results[0].strong, true);
+});
+
+test('dependency claims in prose are checked against the manifests (the one miss in the benchmark)', async () => {
+  const goIndirect = mkRepo({ 'go.mod': 'module x\n\ngo 1.19\n\nrequire example.com/ids v0.0.0 // indirect\n' });
+  const ind = await run(goIndirect, '`example.com/ids` was already declared, so I didn\'t change go.mod.');
+  assert.equal(ind.results.length, 1);
+  assert.equal(ind.results[0].checkedAs, 'dep');
+  assert.equal(ind.results[0].label, 'UNVERIFIED');
+  assert.match(ind.results[0].summary, /only an indirect requirement/);
+  const npm = mkRepo({ 'package.json': '{"dependencies":{"semver":"^7"}}' });
+  assert.equal((await run(npm, '`semver` is already a dependency.')).results[0].label, 'VERIFIED');
+  const missing = await run(npm, '`left-pad` is already declared in package.json.');
+  assert.equal(missing.results[0].label, 'CONTRADICTED');
+  // a tagged dep line for the same package is not checked twice
+  const tagged = await run(npm, '`semver` is already a dependency.\n' + block('dep | semver | name: semver'));
+  assert.equal(tagged.results.length, 1);
+  // go.mod direct requirement still counts as declared
+  const goDirect = mkRepo({ 'go.mod': 'module x\n\ngo 1.19\n\nrequire example.com/ids v0.0.0\n' });
+  assert.equal((await run(goDirect, block('dep | ids | name: example.com/ids'))).results[0].label, 'VERIFIED');
+});

@@ -95,5 +95,22 @@ const NARROWING = [
  */
 export function universalIsHedge(sentence: string): boolean {
   const prose = sentence.replace(/`[^`\n]*`/g, ' X ');
-  return NEGATED.test(prose) || NARROWING.some((re) => re.test(prose));
+  return NEGATED.test(prose) || NARROWING.some((re) => re.test(prose)) || notAboutTheCode(prose);
+}
+
+// ---- sentences that use a universal word but make no claim about the code -------------------------------------
+/** "My search covered every `.go` file for X": describes the method. (A sentence that also states a result is kept.) */
+const PROCESS =
+  /^\s*(?:\*\*[^*]{1,40}\*\*:?\s*)?(?:I|we)\s+(?:re-?ran|ran|searched|grepped|scanned|looked)\b|\b(?:my|the|that|this|our)\s+(?:[\w-]+\s+){0,3}search(?:es)?\b[^.]{0,40}\b(?:covered|included|spanned)\b/i;
+const RESULT = /\b(found|matched|matches|returned|turned up|showed|shows|nothing|none|no other|no match|zero hits)\b/i;
+/** "If I had only done a find-and-replace, it would have failed": hypothetical. */
+const COUNTERFACTUAL = /\b(would have|could have|might have|if I had|had I|if you (want|need|'d like|would like))\b/i;
+/** "because you only asked about the default": describes the request, not the code. */
+const REQUEST = /\byou\s+(?:only\s+|just\s+)?(?:asked|wanted|requested|mentioned|said)\b|\byou\s+asked\s+(?:only|just)\b/i;
+/** "I didn't trace every caller", "I can't back that up as a universal statement": an admission. */
+const ADMISSION = /\b(?:I|we)\s+(?:didn't|did not|haven't|have not|can't|cannot|couldn't|could not|wasn't able to)\s+(?:trace|check|verify|search|look|run|confirm|test|back|prove|rule)\b|\bno receipt\b/i;
+
+export function notAboutTheCode(prose: string): boolean {
+  if (COUNTERFACTUAL.test(prose) || REQUEST.test(prose) || ADMISSION.test(prose)) return true;
+  return PROCESS.test(prose) && !RESULT.test(prose);
 }

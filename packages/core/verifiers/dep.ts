@@ -7,6 +7,8 @@ interface Found {
   file: string;
   line?: number;
   version?: string;
+  /** Go: `require x v1 // indirect`, listed in go.mod but not used directly by the module. */
+  indirect?: boolean;
 }
 export interface DepResult {
   declared: Found[];
@@ -117,7 +119,10 @@ export function findDependency(root: string, name: string): DepResult {
     } else if (base === 'go.mod') {
       text.split('\n').forEach((l, i) => {
         const m = /^\s*(?:require\s+)?(\S+)\s+(v\S+)/.exec(l);
-        if (m && (m[1] === name || m[1].endsWith('/' + name))) res.declared.push({ file: rel, line: i + 1, version: m[2] });
+        if (m && (m[1] === name || m[1].endsWith('/' + name))) {
+          if (/\/\/\s*indirect\b/.test(l)) res.locked.push({ file: rel, line: i + 1, version: m[2], indirect: true });
+          else res.declared.push({ file: rel, line: i + 1, version: m[2] });
+        }
       });
     } else if (base === 'go.sum') {
       const m = new RegExp(`^(\\S*${n})\\s+(v\\S+?)(?:/go.mod)?\\s`, 'm').exec(text);
@@ -168,6 +173,10 @@ export function verifyDep(c: Claim, ctx: Ctx): Result {
       }
     }
     return mk(c, 'VERIFIED', `${where} (declared${d.version ? ' ' + d.version : ''})`, NOTE, r.declared.map((x) => `${x.file}${x.line ? ':' + x.line : ''} ${x.version ?? ''}`.trim()));
+  }
+  if (r.locked.some((l) => l.indirect)) {
+    const l = r.locked.find((x) => x.indirect)!;
+    return unverified(c, 'unprovable', `\`${name}\` is only an indirect requirement (${l.file}:${l.line}, \`// indirect\`), not a direct dependency`, 'go marks a requirement indirect when no package in the module imports it directly', r.locked.map((x) => `${x.file}${x.line ? ':' + x.line : ''} ${x.version ?? ''}`.trim()));
   }
   if (r.locked.length) {
     return unverified(c, 'unprovable', `\`${name}\` is only in ${r.locked[0].file} (transitive?), not declared by the project`, 'a lockfile entry may be a transitive dependency; the manifest does not list it', r.locked.map((x) => `${x.file} ${x.version ?? ''}`.trim()));

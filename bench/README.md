@@ -94,9 +94,31 @@ LLM-graded items: 0.
 | a `run` line recording "I ran this", or saying it failed, was read as "it passed" | 6 | `run` claims now honour a stated failure, and keys-only lines only record the run |
 | `absent` scoped by the agent was searched and judged repo-wide | 3 | `in:` limits what contradicts the claim; hits elsewhere are still reported |
 | `change` used for code snippets | 2 | snippets are checked line by line; only "old present, new missing" contradicts |
-| true untagged universal sentences ("I left the Makefile alone because you only asked about the default") | rest | **not changed**: that would be tuning the lexicon on the test set |
+| true untagged universal sentences ("I left the Makefile alone because you only asked about the default") | rest | sentences about the method, a hypothetical, the request, or an admission are no longer treated as code claims; rename/absence/dependency claims in prose are now verified by the checker itself (see below) |
 | also found: heredoc bodies parsed as commands; an unescaped `\|` in a regex split the pattern | – | fixed |
 
 None of these fixes has been measured: measuring them needs new runs, which cost money and were not approved.
-Known gaps left open: untagged universal sentences still trigger strong-claim reports; "already declared" dependency
-claims in prose are not detected; the trap set is too easy for this model to separate the conditions.
+
+**Follow-up on the untagged sentences (done at the user's request, after the benchmark).** The brief says not to tune
+the lexicon on the test set. These rules were written after reading the test-set messages, so **the M4 tasks can no
+longer measure them without bias**; a fair measurement needs new tasks. What changed:
+- Four general sentence types are no longer treated as claims about the code: a description of the agent's own search
+  method with no result, a hypothetical ("would have"), the user's request ("you only asked about…"), and an admission
+  ("I didn't trace every caller"). Tests include sentences that are not from the benchmark.
+- Prose claims that name exactly what to check are verified by the checker itself: renames ("renamed `a` to `b`
+  everywhere"), absence ("`a` no longer appears anywhere", "nothing refers to `a`") and dependencies ("`x` is already
+  declared"). This also covers the one wrong claim Receipts missed (go-06): Go `// indirect` requirements no longer
+  count as declared.
+
+Free replay of all 76 saved agent messages that reached a Stop hook (`node bench/replay-scanner.mjs main dev-pilot dev-tuned`):
+
+| | sentences reported as "no receipt" | verified by the checker itself |
+| --- | --- | --- |
+| before | 37 | 0 |
+| after | 21 | 5 |
+
+This replay uses the same messages the rules were written from, so it is a regression check, **not** evidence that the
+rules generalise. The 21 that remain are real factual claims about the code ("`make test` runs only `./pricing`"), true
+but stated without a receipt; in the default `warn` mode they are reported, not sent back.
+
+Still open: the trap set is too easy for this model to separate the conditions. Fixing that needs harder tasks and paid runs.
