@@ -1,0 +1,11 @@
+{
+  "name": "receipts",
+  "owner": { "name": "Divakar-26" },
+  "plugins": [
+    {
+      "name": "receipts",
+      "source": "./adapters/codex",
+      "description": "No claim without proof: verifies the factual claims in Codex's final message."
+    }
+  ]
+}

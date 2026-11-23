@@ -30,7 +30,11 @@ test('adapter files: rules <= 15 lines, skill < 150 lines, plugin copy in sync, 
   assert.deepEqual(Object.keys(hooks).sort(), ['PostToolUse', 'PostToolUseFailure', 'SessionStart', 'Stop', 'UserPromptSubmit']);
   assert.equal(hooks.PostToolUse[0].matcher, 'Bash|WebFetch');
   assert.deepEqual(Object.keys(claudeHooks('/x')).sort(), Object.keys(hooks).sort());
-  JSON.parse(fs.readFileSync(path.join(ROOT, '.claude-plugin/marketplace.json'), 'utf8'));
+  // each agent's marketplace file must point at that agent's adapter (Codex also reads the Claude file if its own is missing)
+  const claudeMk = JSON.parse(fs.readFileSync(path.join(ROOT, '.claude-plugin/marketplace.json'), 'utf8'));
+  assert.equal(claudeMk.plugins[0].source, './adapters/claude-code');
+  const codexMk = JSON.parse(fs.readFileSync(path.join(ROOT, '.agents/plugins/marketplace.json'), 'utf8'));
+  assert.equal(codexMk.plugins[0].source, './adapters/codex');
 });
 
 test('codex / gemini / opencode adapter files are in sync with the sources', () => {

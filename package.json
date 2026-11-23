@@ -13,10 +13,14 @@
   },
   "files": [
     "dist",
+    "!dist/**/*.test.js",
+    "!dist/core/testutil.js",
+    "!dist/cli/schema-validate.js",
     "rules",
     "skill",
     "adapters",
-    "grammars"
+    "grammars",
+    "SECURITY.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
