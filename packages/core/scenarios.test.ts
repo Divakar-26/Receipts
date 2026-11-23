@@ -578,3 +578,12 @@ test('hold-out finding: references in gitignored files stop absence and rename c
     else process.env.RECEIPTS_RG = prev;
   }
 });
+
+test("judge evidence does not count Receipts' own files as the agent's changes", async () => {
+  const dir = mkRepo({ 'src/a.js': 'x\n' });
+  write(dir, { '.receipts.json': '{"mode":"warn"}', '.claude/skills/receipts/SKILL.md': 'skill', 'src/b.js': 'y\n' });
+  const out = await run(dir, block('judge | this is safe'));
+  const ev = out.results[0].evidence.join('\n');
+  assert.match(ev, /1 file\(s\) changed: src\/b\.js/);
+  assert.doesNotMatch(ev, /receipts/);
+});

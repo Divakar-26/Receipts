@@ -36,6 +36,10 @@ test('check: report, exit codes, --json, last-report.md, state-based retry cap',
   const j = JSON.parse(json.stdout);
   assert.equal(j.results[0].label, 'CONTRADICTED');
   assert.equal(j.decision.block, false);
+  const forced = node([MAIN, 'check', '--message', msg, '--cwd', dir, '--no-write', '--mode', 'warn'], { env: { FORCE_COLOR: '1' } });
+  assert.match(forced.stdout, /\u001b\[31m/, 'FORCE_COLOR colours the report');
+  const nocolor = node([MAIN, 'check', '--message', msg, '--cwd', dir, '--no-write', '--mode', 'warn'], { env: { FORCE_COLOR: '1', NO_COLOR: '1' } });
+  assert.doesNotMatch(nocolor.stdout, /\u001b\[/, 'NO_COLOR wins');
   const stdin = node([MAIN, 'check', '--message', '-', '--cwd', dir, '--no-write', '--mode', 'warn'], { input: 'hello there' });
   assert.equal(stdin.status, 0);
   assert.match(stdin.stdout, /no claims/);

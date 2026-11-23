@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <circle cx="128" cy="128" r="124" fill="#0B1220"/>
+  <circle cx="128" cy="128" r="122" fill="none" stroke="#2B3A52" stroke-width="4"/>
+  <clipPath id="paper"><circle cx="128" cy="128" r="96"/></clipPath>
+  <g clip-path="url(#paper)"><path d="M236 20 H20 V152 l6 -9 l6 9 l6 -9 l6 9 l6 -9 l6 9 l6 -9 l6 9 l6 -9 l6 9 l6 -9 l6 9 l6 -9 l6 9 l6 -9 l6 9 l6 -9 l6 9 l6 -9 l6 9 l6 -9 l6 9 l6 -9 l6 9 l6 -9 l6 9 l6 -9 l6 9 l6 -9 l6 9 l6 -9 l6 9 l6 -9 l6 9 l6 -9 l6 9 V20 z" fill="#F7F5EE"/></g>
+  <path d="M90 101 l27 27 l50 -56" fill="none" stroke="#16A34A" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M100 186 h56" stroke="#334155" stroke-width="7" stroke-linecap="round"/>
+</svg>

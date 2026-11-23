@@ -66,7 +66,9 @@ async function cmdCheck(argv: string[]): Promise<number> {
   if (values.json) {
     console.log(JSON.stringify({ decision: out.decision, results: out.results, warnings: out.warnings, elapsedMs: out.elapsedMs, report: out.text }, null, 2));
   } else {
-    console.log(formatReport(out.report, !!process.stdout.isTTY));
+    // colour on a TTY; NO_COLOR turns it off, FORCE_COLOR turns it on (https://no-color.org, https://force-color.org)
+    const color = process.env.NO_COLOR ? false : process.env.FORCE_COLOR ? process.env.FORCE_COLOR !== '0' : !!process.stdout.isTTY;
+    console.log(formatReport(out.report, color));
   }
   if (out.decision.block) {
     console.error(out.blockMessage);

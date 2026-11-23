@@ -1,8 +1,11 @@
-<p align="center"><img src="https://raw.githubusercontent.com/Divakar-26/Receipts/main/logo.svg" width="96" alt=""></p>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Divakar-26/Receipts/main/docs/assets/wordmark-dark.svg">
+    <img src="https://raw.githubusercontent.com/Divakar-26/Receipts/main/docs/assets/wordmark-light.svg" alt="Receipts" width="420">
+  </picture>
+</p>
 
-# Receipts
-
-**No claim without proof: Receipts checks what your AI coding agent says about your code, with deterministic code, before you believe it.**
+<p align="center"><b>Receipts checks what your AI coding agent says about your code, with deterministic code, before you believe it.</b></p>
 
 When the agent ends a turn, Receipts reads its final message, finds the factual claims ("removed all `console.log`",
 "all tests pass", "`verifyToken` is only called from login") and checks each one itself: it re-runs the search, reads
@@ -39,8 +42,9 @@ Everything is published: tasks, answer keys, scorer, raw transcripts and both au
 ![A false "only called from" claim is caught, then fixed](https://raw.githubusercontent.com/Divakar-26/Receipts/main/docs/demo.gif)
 
 The agent was handed a false claim (`verifyToken` is only called from login). Receipts searched the repo, found a
-second caller in `lib/admin/panel.js`, sent the agent back once, and the agent withdrew it. This GIF is a replay of a
-real recorded session (`test/e2e/05-second-caller`); the text is real and the timing is synthetic.
+second caller in `lib/admin/panel.js`, sent the agent back once, and the agent withdrew the claim and cited both callers.
+A replay of a recorded session (`test/e2e/05-second-caller`): the text is from that session, cut for length; the timing
+is synthetic.
 
 ## Install
 
@@ -90,15 +94,20 @@ npx @receipts/cli init --agent opencode
 npx skills add Divakar-26/Receipts
 ```
 
-## What a report looks like
+## Usage
+
+![receipts init, then receipts check](https://raw.githubusercontent.com/Divakar-26/Receipts/main/docs/usage.gif)
+
+Real output, captured by `scripts/media/capture-usage.mjs` in a small project: `receipts init` installs the hooks; the
+agent runs only the login tests (through `receipts run`), edits a file afterwards, and claims "all tests pass" and
+"removed all console.logs". The check, which the Stop hook runs at the end of every turn, finds both are false.
 
 ![A Receipts report](https://raw.githubusercontent.com/Divakar-26/Receipts/main/docs/report.png)
 
-Real output of `receipts check` on a demo repo (`node scripts/demo-report.mjs`), rendered without an emoji font, so
-the icons are ✔ ✎ ✘ ⚠. The report is also written to `.receipts/last-report.md`; `receipts report` reprints it and
-`receipts check --json` gives it to scripts.
+The report is also written to `.receipts/last-report.md`. `receipts report` reprints it, `receipts check --json` gives
+it to scripts, and `receipts run -- <cmd>` runs a command and records its real exit code.
 
-The agent states claims in a block at the end of its message; anything it says outside the block is scanned too:
+The agent states its claims in a block at the end of its message. Anything it says outside the block is scanned too:
 
 ```
 <receipts>
@@ -111,6 +120,52 @@ dep    | bcrypt is a dependency                  | name: bcrypt
 judge  | this won't affect other callers
 </receipts>
 ```
+
+## How it works
+
+![How Receipts works](https://raw.githubusercontent.com/Divakar-26/Receipts/main/docs/how-it-works.gif)
+
+**1. The agent works.** Receipts adds nothing to the agent's tools. It runs as hooks: Claude Code and Codex plugins, a
+Gemini CLI extension, an OpenCode plugin, or project hooks written by `receipts init`. At the start of a session the
+hook adds 11 lines of rules to the agent's context: put claims in a `<receipts>` block, cite commands you really ran,
+say what you did not check.
+
+**2. The ledger hook.** After every shell or web tool call, a small hook (about 35 ms) appends one line to
+`.receipts/ledger.jsonl`: the command, its real exit code, whether that exit code can be trusted (`npm test | tail`
+exits 0 even when tests fail), the last 40 lines of output with secrets redacted, the test counts parsed from that
+output (jest, vitest, mocha, node:test, pytest, unittest, go test, cargo, Maven/Gradle, RSpec, PHPUnit), and, for test
+and build commands, a git snapshot taken by a background worker so later edits can be detected.
+
+**3. The turn ends.** The Stop hook (Gemini: `AfterAgent`; OpenCode: the idle hook) receives the agent's final message.
+
+**4. Find the claims.** Each line of the last `<receipts>` block is parsed as `type | claim | key: value`. A line that
+doesn't parse is not dropped; it is scanned as prose. The prose itself is scanned for claims nobody tagged: a universal
+word (all, only, never, everywhere…) next to a code identifier, or a "tests pass" phrase. Some of those name exactly
+what to check ("renamed `a` to `b` everywhere", "`a` no longer appears anywhere", "`x` is already a dependency", "all
+tests passed"), and the checker builds the receipt itself. A claim whose text implies more than its tag (a `code` line
+that says "only called from") is checked as the stronger type.
+
+**5. Check each claim**, with Receipts' own tools and never a model:
+
+| type | what the checker does |
+| --- | --- |
+| `code` | opens the file (only inside the repo), finds the quote within 3 lines of the cited line |
+| `run` | finds the latest matching command in the ledger; checks it passed, ran tests at all, wasn't a filtered subset when the claim is about the whole suite, and that no file changed since |
+| `absent` | searches the whole repo itself with ripgrep and lists every hit; with `in: path`, only hits inside that path contradict the claim |
+| `only` | searches for the symbol everywhere else; tree-sitter drops mentions in comments and strings (JS, TS, Python, Go, Java) |
+| `change` | the old name is gone and the new one exists |
+| `dep` | reads the manifests and lockfiles of npm, pip/Poetry/uv, Go, Cargo, Maven and Gradle |
+| `judge` | can't be proven; lists what evidence exists: changed files, whether tests ran after them, which files reference the symbols, whether a cited URL was fetched |
+
+Searches pass the agent's pattern only as a value (`-e <pattern> --`), never through a shell, with caps and a 10 second
+budget; a check that runs out of time says so and never blocks.
+
+**6. Label.** Every claim gets one of ✅ 📎 ❌ ⚠️, a one-line summary of the evidence, and a note on what the check could
+not cover.
+
+**7. Report or send back.** In the default `warn` mode the report is shown to you and written to
+`.receipts/last-report.md`. In `block` mode, a ❌, a stale test run or an unreceipted strong claim sends the agent back
+once per turn with the exact problems; it can fix the claim or withdraw it, and a second failure is only reported.
 
 ## What Receipts can't do
 

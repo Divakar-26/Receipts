@@ -78,11 +78,14 @@ function mtimeSnapshot(cwd: string, maxFiles = 20000, budgetMs = 1500): string |
   return `mtime:${count}:${newest}`;
 }
 
-/** Files changed against HEAD plus untracked files (repo-relative). Null when not a git repo. */
+/** Receipts' own files: not the agent's changes. */
+const OWN_FILES = [':(exclude).receipts', ':(exclude).receipts.json', ':(exclude).claude/skills/receipts'];
+
+/** Files changed against HEAD plus untracked files (repo-relative), minus Receipts' own files. Null when not a git repo. */
 export async function changedFiles(cwd: string): Promise<string[] | null> {
   const [diff, untracked] = await Promise.all([
-    git(cwd, ['diff', '--name-only', 'HEAD', '--', '.', ':(exclude).receipts']),
-    git(cwd, ['ls-files', '-o', '--exclude-standard', '--', '.', ':(exclude).receipts']),
+    git(cwd, ['diff', '--name-only', 'HEAD', '--', '.', ...OWN_FILES]),
+    git(cwd, ['ls-files', '-o', '--exclude-standard', '--', '.', ...OWN_FILES]),
   ]);
   if (!untracked) return null;
   const list = [...(diff ? diff.toString().split('\n') : []), ...untracked.toString().split('\n')].map((l) => l.trim()).filter(Boolean);
