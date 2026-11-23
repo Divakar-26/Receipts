@@ -1,5 +1,5 @@
 {
-  "_provenance": "CONSTRUCTED from the vendor docs / type definitions, NOT captured from a real agent session. If a real payload disagrees, the real payload wins.",
+  "_provenance": "Payload envelope CONSTRUCTED from the Gemini hooks docs; tool_response.llmContent layout taken from the Gemini CLI 0.70.0 shell tool source. NOT captured from a live session.",
   "session_id": "00000000-0000-4000-8000-000000000001",
   "transcript_path": "/work/t.json",
   "cwd": "/work/proj",
@@ -10,7 +10,7 @@
     "command": "npm test"
   },
   "tool_response": {
-    "llmContent": "Command: npm test\nDirectory: (root)\nOutput: Tests:       3 passed, 3 total\nError: (none)\nExit Code: 0\nSignal: (none)\nBackground PIDs: (none)\nProcess Group PGID: 1234",
+    "llmContent": "Output: Tests:       3 passed, 3 total\n\nProcess Group PGID: 4321",
     "returnDisplay": "Tests:       3 passed, 3 total"
   }
 }

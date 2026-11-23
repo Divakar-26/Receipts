@@ -6,6 +6,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { mkRepo, mkdir, write, JEST_FAIL, JEST_OK } from '../core/testutil.js';
 import { AGENTS, Agent, isBlockOutput, entryFromAgent, entryFromCodex, entryFromGemini, entryFromOpenCode, stopInput, sessionOutput, stopOutput, codexShellResult, geminiShellResult, exitFromText } from '../core/index.js';
+import { validate, stripAnnotations } from './schema-validate.js';
 import { agentHooks, detectAgents, init, uninstall, MARKER, HOOK_FILES } from './init.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -28,7 +29,7 @@ function ledgerPayload(agent: Agent, cwd: string, cmd: string, exit: number | nu
     case 'codex':
       return { session_id: SID, cwd, hook_event_name: 'PostToolUse', tool_name: 'Bash', tool_input: { command: cmd }, tool_response: `Exit code: ${exit}\nWall time: 0.1 seconds\nOutput:\n${out}` };
     case 'gemini':
-      return { session_id: SID, cwd, hook_event_name: 'AfterTool', tool_name: 'run_shell_command', tool_input: { command: cmd }, tool_response: { llmContent: `Command: ${cmd}\nDirectory: (root)\nOutput: ${out}\nError: (none)\nExit Code: ${exit}\nSignal: (none)`, returnDisplay: out } };
+      return { session_id: SID, cwd, hook_event_name: 'AfterTool', tool_name: 'run_shell_command', tool_input: { command: cmd }, tool_response: { llmContent: `Output: ${out || '(empty)'}${exit ? `\nExit Code: ${exit}` : ''}\nProcess Group PGID: 4242`, returnDisplay: out } };
     case 'opencode':
       return { session_id: SID, cwd, tool: 'bash', command: cmd, output: out, exit };
   }
@@ -184,7 +185,9 @@ test('constructed payload fixtures parse into ledger entries', async () => {
   const noExit = (await entryFromCodex(fixture('codex', 'PostToolUse.Bash.object-no-exit.constructed.json')))!;
   assert.ok(noExit.kind === 'shell' && noExit.exit === null && !noExit.exit_trusted && noExit.summary?.passed === 3, 'no exit code: the summary is the evidence');
   const g = (await entryFromGemini(fixture('gemini', 'AfterTool.run_shell_command.constructed.json')))!;
-  assert.ok(g.kind === 'shell' && g.exit === 0 && g.summary?.passed === 3 && g.agent === 'gemini-cli');
+  assert.ok(g.kind === 'shell' && g.exit === 0 && g.exit_trusted && g.summary?.passed === 3 && g.agent === 'gemini-cli');
+  const gf = (await entryFromGemini(fixture('gemini', 'AfterTool.run_shell_command.failed.constructed.json')))!;
+  assert.ok(gf.kind === 'shell' && gf.exit === 1 && gf.summary?.failed === 2);
   const o = (await entryFromOpenCode(fixture('opencode', 'ledger.constructed.json')))!;
   assert.ok(o.kind === 'shell' && o.exit === null && !o.exit_trusted && o.agent === 'opencode');
   assert.equal(await entryFromCodex(fixture('codex', 'Stop.constructed.json')), null);
@@ -211,6 +214,14 @@ test('tool payload edge cases', async () => {
   assert.deepEqual(codexShellResult({ metadata: { exitCode: 1 }, content: 'c' }), { exit: 1, output: 'c' });
   assert.deepEqual(codexShellResult(7), { exit: null, output: '' });
   assert.equal(codexShellResult({ output: 'Exit code: 4\nx' }).exit, 4);
+  // layout from the Gemini CLI 0.70.0 shell tool: Exit Code only when non-zero
+  assert.deepEqual(geminiShellResult({ llmContent: 'Output: hi\nProcess Group PGID: 9' }), { exit: 0, output: 'hi' });
+  assert.deepEqual(geminiShellResult({ llmContent: 'Output: a\nExit Code: 3: not a real line\nb\nExit Code: 3\nProcess Group PGID: 9' }), { exit: 3, output: 'a\nExit Code: 3: not a real line\nb' });
+  assert.deepEqual(geminiShellResult({ llmContent: 'Output: (empty)' }), { exit: 0, output: '' });
+  assert.equal(geminiShellResult({ llmContent: 'Output: x\nError: spawn failed\nProcess Group PGID: 9' }).exit, null);
+  assert.equal(geminiShellResult({ llmContent: 'Output: x\nSignal: SIGKILL' }).exit, null);
+  assert.equal(geminiShellResult({ llmContent: 'Command moved to background (PID: 5). Output hidden. Press Ctrl+B to view.' }).exit, null);
+  assert.equal(geminiShellResult({ llmContent: 'Command was cancelled by user before it could complete. There was no output before it was cancelled.' }).exit, null);
   assert.deepEqual(geminiShellResult({ llmContent: [{ text: 'Exit Code: 2' }], returnDisplay: '' }), { exit: 2, output: 'Exit Code: 2' });
   assert.deepEqual(geminiShellResult({ returnDisplay: 'shown', error: { message: 'boom' } }), { exit: null, output: 'shown' });
   assert.deepEqual(geminiShellResult(null), { exit: null, output: '' });
@@ -287,4 +298,40 @@ test('CLI: init --agent', () => {
   const auto = run('init', '--cwd', mkdir());
   assert.match(auto.stdout, /detected on PATH|no agent CLI found/);
   assert.equal(run('uninstall', '--cwd', dir).status, 0);
+});
+
+const schema = (name: string) => JSON.parse(fs.readFileSync(path.join(FIX, 'codex', 'schemas', `${name}.schema.json`), 'utf8'));
+
+test('codex: fixtures conform to the input schemas extracted from codex 0.171.0', () => {
+  const pairs: [string, string][] = [
+    ['SessionStart.constructed.json', 'session-start.command.input'],
+    ['UserPromptSubmit.constructed.json', 'user-prompt-submit.command.input'],
+    ['PostToolUse.Bash.constructed.json', 'post-tool-use.command.input'],
+    ['PostToolUse.Bash.object-no-exit.constructed.json', 'post-tool-use.command.input'],
+    ['Stop.constructed.json', 'stop.command.input'],
+  ];
+  for (const [file, name] of pairs) assert.deepEqual(validate(schema(name), stripAnnotations(fixture('codex', file))), [], file);
+  // the validator itself rejects bad payloads
+  assert.ok(validate(schema('stop.command.input'), { cwd: 'x' }).length > 3);
+  assert.ok(validate(schema('stop.command.output'), { decision: 'allow' }).length > 0);
+  assert.ok(validate(schema('stop.command.output'), { nope: 1 }).length > 0);
+});
+
+test('codex: what our hooks print conforms to the output schemas extracted from codex 0.171.0', () => {
+  const dir = mkRepo({ 'src/cart.js': 'console.log(1);\n' });
+  const stopFix = stripAnnotations(fixture('codex', 'Stop.constructed.json'));
+  const base = { ...stopFix, cwd: dir };
+  const blocked = JSON.parse(hook('codex', 'stop', { ...base, last_assistant_message: block('absent | removed all console.log | pattern: console\\.log') }).stdout);
+  assert.equal(blocked.decision, 'block');
+  assert.deepEqual(validate(schema('stop.command.output'), blocked), [], 'block output');
+  const report = JSON.parse(hook('codex', 'stop', { ...base, last_assistant_message: block('absent | no zzz | pattern: zzz') }).stdout);
+  assert.deepEqual(validate(schema('stop.command.output'), report), [], 'report output');
+  const ss = JSON.parse(hook('codex', 'session', { ...stripAnnotations(fixture('codex', 'SessionStart.constructed.json')), cwd: dir }).stdout);
+  assert.deepEqual(validate(schema('session-start.command.output'), ss), [], 'session-start output');
+  // a null last_assistant_message (allowed by the schema) is handled quietly
+  const nullMsg = hook('codex', 'stop', { ...base, last_assistant_message: null });
+  assert.equal(nullMsg.status, 0);
+  assert.equal(nullMsg.stdout, '');
+  // the prompt hook prints nothing, which every output schema accepts
+  assert.equal(hook('codex', 'prompt', { ...stripAnnotations(fixture('codex', 'UserPromptSubmit.constructed.json')), cwd: dir }).stdout, '');
 });

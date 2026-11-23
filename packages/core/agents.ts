@@ -72,14 +72,33 @@ export function codexShellResult(resp: unknown): ShellResult {
   return { exit: exit ?? exitFromText(output), output };
 }
 
-/** Gemini `tool_response`: { llmContent, returnDisplay, error? }. The shell tool's llmContent has "Exit Code: N". */
+/**
+ * Gemini `tool_response`: { llmContent, returnDisplay, error? }. Format verified against the Gemini CLI 0.70.0
+ * source (shell tool): `Output: <combined stdout/stderr or (empty)>`, then optional lines `Error:`, `Exit Code:`
+ * (ONLY when non-zero), `Signal:`, `Background PIDs:`, `Process Group PGID:`. A cancelled or backgrounded
+ * command returns free text instead and carries no exit information.
+ */
 export function geminiShellResult(resp: any): ShellResult {
   if (!resp || typeof resp !== 'object') return { exit: null, output: '' };
   const llm = typeof resp.llmContent === 'string' ? resp.llmContent : Array.isArray(resp.llmContent) ? resp.llmContent.map((p: any) => str(p?.text)).join('\n') : '';
-  // llmContent is "Command: …\nDirectory: …\nOutput: <stdout>\nError: …\nExit Code: N\nSignal: …"; keep just the stdout.
-  const stdout = /(?:^|\n)Output: ([\s\S]*?)\n(?:Error|Exit Code|Signal): /.exec(llm)?.[1];
-  const output = stdout ?? (llm || str(resp.returnDisplay) || str(resp.error?.message));
-  return { exit: exitFromText(llm), output };
+  if (!llm.startsWith('Output: ')) {
+    // Unknown layout (cancelled, backgrounded, or a different version): do not guess an exit code.
+    return { exit: exitFromText(llm), output: llm || str(resp.returnDisplay) || str(resp.error?.message) };
+  }
+  const lines = llm.split('\n');
+  let exit: number | null = 0; // "Exit Code" is only printed when non-zero
+  const META = /^(Process Group PGID|Background PIDs|Signal|Exit Code|Error): ?(.*)$/;
+  let hasErrorOrSignal = false;
+  while (lines.length > 1) {
+    const m = META.exec(lines[lines.length - 1]);
+    if (!m) break;
+    if (m[1] === 'Exit Code') exit = parseInt(m[2], 10);
+    if (m[1] === 'Error' || m[1] === 'Signal') hasErrorOrSignal = true;
+    lines.pop();
+  }
+  if (hasErrorOrSignal && exit === 0) exit = null; // process-level error or signal without an exit code
+  const output = lines.join('\n').replace(/^Output: /, '');
+  return { exit, output: output === '(empty)' ? '' : output };
 }
 
 export const SHELL_TOOLS: Record<Agent, RegExp> = {

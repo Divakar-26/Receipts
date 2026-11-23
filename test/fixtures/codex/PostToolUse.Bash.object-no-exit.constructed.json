@@ -1,5 +1,5 @@
 {
-  "_provenance": "CONSTRUCTED from the vendor docs / type definitions, NOT captured from a real agent session. If a real payload disagrees, the real payload wins.",
+  "_provenance": "Envelope built from the Codex hooks docs and VALIDATED against the JSON Schemas embedded in codex 0.171.0 (test/fixtures/codex/schemas). tool_response content is a guess: the schema leaves it untyped. NOT captured from a live session.",
   "session_id": "00000000-0000-4000-8000-000000000001",
   "transcript_path": null,
   "cwd": "/work/proj",
@@ -13,5 +13,6 @@
   },
   "tool_response": {
     "output": "Tests:       3 passed, 3 total\n"
-  }
+  },
+  "permission_mode": "default"
 }

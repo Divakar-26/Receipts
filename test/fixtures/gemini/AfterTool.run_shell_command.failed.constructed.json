@@ -1,0 +1,16 @@
+{
+  "_provenance": "Payload envelope CONSTRUCTED from the Gemini hooks docs; tool_response.llmContent layout taken from the Gemini CLI 0.70.0 shell tool source. NOT captured from a live session.",
+  "session_id": "00000000-0000-4000-8000-000000000001",
+  "transcript_path": "/work/t.json",
+  "cwd": "/work/proj",
+  "timestamp": "2026-11-23T10:00:00Z",
+  "hook_event_name": "AfterTool",
+  "tool_name": "run_shell_command",
+  "tool_input": {
+    "command": "npm test"
+  },
+  "tool_response": {
+    "llmContent": "Output: Tests:       2 failed, 40 passed, 42 total\nExit Code: 1\nProcess Group PGID: 4321",
+    "returnDisplay": "Tests:       3 passed, 3 total"
+  }
+}
