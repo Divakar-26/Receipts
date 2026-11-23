@@ -85,6 +85,10 @@ def write_all(root):
             fh.write("\n")
         for sub, files in (("overlay", t.get("files", {})), ("solution", t.get("solution_files", {})), ("naive", t.get("naive_files", {})), ("hidden", t.get("hidden_files", {}))):
             for p, c in files.items():
+                # a task's own .gitignore is stored as dot.gitignore, or git would apply it to THIS repo and drop
+                # the very files it ignores (bench/lib.mjs renames it back when building the workspace)
+                if os.path.basename(p) == ".gitignore":
+                    p = os.path.join(os.path.dirname(p), "dot.gitignore")
                 f = os.path.join(d, sub, p)
                 os.makedirs(os.path.dirname(f), exist_ok=True)
                 with open(f, "w") as fh:

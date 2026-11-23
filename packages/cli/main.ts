@@ -100,7 +100,8 @@ async function cmdRun(argv: string[]): Promise<number> {
       process.stderr.write(`receipts run: ${e.message}\n`);
       res(127);
     });
-    child.on('close', (c, sig) => res(c ?? (sig ? 128 : 1)));
+    // On Windows a missing command also emits 'close' (code 1); no pid means it never started: 127, like a shell.
+    child.on('close', (c, sig) => res(child.pid === undefined ? 127 : (c ?? (sig ? 128 : 1))));
   });
   const cfg = loadConfig(cwd);
   const e = await buildShellEntry({ session, agent: process.env.RECEIPTS_AGENT ?? 'receipts-run', cmd: args.join(' '), exit: code, output: out, cwd, testCommand: cfg.testCommand, buildCommand: cfg.buildCommand });

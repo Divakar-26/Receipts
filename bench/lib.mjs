@@ -28,6 +28,15 @@ export function copyTree(src, dst) {
   fs.cpSync(src, dst, { recursive: true });
 }
 
+/** Task overlays store their .gitignore as dot.gitignore (see bench/gen/common.py). */
+function restoreDotfiles(dir) {
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory() && e.name !== '.git' && e.name !== 'node_modules') restoreDotfiles(p);
+    else if (e.name === 'dot.gitignore') fs.renameSync(p, path.join(dir, '.gitignore'));
+  }
+}
+
 const run = (cmd, args, cwd) => execFileSync(cmd, args, { cwd, stdio: 'ignore' });
 
 /** Base repo + overlay (the planted trap), committed to git. */
@@ -35,6 +44,7 @@ export function buildWorkspace(task, dir) {
   fs.mkdirSync(dir, { recursive: true });
   copyTree(path.join(REPOS_DIR, task.repo), dir);
   copyTree(path.join(task.dir, 'overlay'), dir);
+  restoreDotfiles(dir);
   run('git', ['init', '-q'], dir);
   run('git', ['add', '-A'], dir);
   run('git', ['-c', 'user.email=b@b', '-c', 'user.name=bench', '-c', 'commit.gpgsign=false', 'commit', '-q', '-m', 'task start'], dir);

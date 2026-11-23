@@ -10,6 +10,19 @@ const scopeOf = (c: Claim): string[] =>
     .map((p) => p.trim().replace(/:\d+(?:-\d+)?$/, '').replace(/^\.\//, '').replace(/\/+$/, ''))
     .filter(Boolean);
 const inScope = (file: string, scope: string[]) => scope.some((s) => file === s || file.startsWith(s + '/'));
+/**
+ * Hits that exist only in gitignored files (a local config loaded at runtime, or stale build output). They do not
+ * contradict the claim, but they stop it from being verified: the agent's own search usually skipped them too.
+ */
+async function ignoredOnlyHits(ctx: Ctx, pattern: string, o: { fixed?: boolean; word?: boolean }, seen: Hit[]): Promise<Hit[]> {
+  const r = await search(ctx.root, { pattern, ...o, includeIgnored: true, ignore: ctx.config.ignore, deadline: ctx.deadline, maxHits: 50 });
+  if (r.error || r.timedOut) return [];
+  const key = (h: Hit) => `${h.file}:${h.line}`;
+  const known = new Set(seen.map(key));
+  return r.hits.filter((h) => !known.has(key(h)));
+}
+const ignoredNote = (hits: Hit[]) => `${hits.length} hit${hits.length === 1 ? '' : 's'} in gitignored files: ${listHits(hits)}`;
+
 const hitLines = (hits: Hit[]) => hits.slice(0, 10).map((h) => `${h.file}:${h.line}: ${h.text.trim().slice(0, 100)}`);
 
 /**
@@ -25,7 +38,13 @@ export async function verifyAbsent(c: Claim, ctx: Ctx): Promise<Result> {
   const shown = `/${pattern}/`;
   if (r.timedOut) return unverified(c, 'timeout', `${shown}: search timed out`, NOTE_ABSENT);
   if (r.error) return unverified(c, 'invalid', `${shown}: ${r.error}`, NOTE_ABSENT);
-  if (!r.hits.length) return mk(c, 'VERIFIED', `${shown} → 0 hits`, NOTE_ABSENT);
+  if (!r.hits.length) {
+    const hidden = await ignoredOnlyHits(ctx, pattern, {}, []);
+    const scoped = scopeOf(c);
+    const relevant = scoped.length ? hidden.filter((h) => inScope(h.file, scoped)) : hidden;
+    if (relevant.length) return unverified(c, 'unchecked', `${shown} → 0 hits in tracked files, but ${ignoredNote(relevant)}`, 'gitignored files can be local config loaded at runtime, or build output; check them', hitLines(relevant));
+    return mk(c, 'VERIFIED', `${shown} → 0 hits`, NOTE_ABSENT);
+  }
   const scope = scopeOf(c);
   const plural = (n: number) => (n === 1 ? '' : 's');
   if (scope.length) {
@@ -64,6 +83,8 @@ async function verifyRename(c: Claim, ctx: Ctx, oldName: string, newName: string
   if (o.error || n.error) return unverified(c, 'invalid', `${oldName} → ${newName}: ${o.error ?? n.error}`, note);
   if (o.hits.length) return mk(c, 'CONTRADICTED', `old name \`${oldName}\` still appears ${o.hits.length}${o.truncated ? '+' : ''}×: ${listHits(o.hits)}`, note, hitLines(o.hits));
   if (!n.hits.length) return mk(c, 'CONTRADICTED', `new name \`${newName}\` not found anywhere`, note);
+  const hidden = await ignoredOnlyHits(ctx, oldName, { fixed: true, word: word(oldName) }, []);
+  if (hidden.length) return unverified(c, 'unchecked', `\`${oldName}\` → 0 hits in tracked files, but ${ignoredNote(hidden)}`, 'gitignored files can be local config loaded at runtime, or build output; check them', hitLines(hidden));
   return mk(c, 'VERIFIED', `\`${oldName}\` → 0 hits; \`${newName}\` → ${n.hits.length}${n.truncated ? '+' : ''} hits`, note);
 }
 

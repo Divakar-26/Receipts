@@ -15,6 +15,8 @@ export interface SearchOptions {
   /** Absolute epoch ms after which we give up. */
   deadline: number;
   maxHits?: number;
+  /** Also search files that .gitignore excludes (default ignores such as node_modules still apply). */
+  includeIgnored?: boolean;
 }
 export interface SearchResult {
   hits: Hit[];
@@ -119,6 +121,7 @@ export async function search(cwd: string, o: SearchOptions): Promise<SearchResul
     ];
     if (o.fixed) args.push('--fixed-strings');
     if (o.word) args.push('--word-regexp');
+    if (o.includeIgnored) args.push('--no-ignore-vcs');
     for (const ig of ignores) args.push('--glob', '!' + ig.replace(/^\//, ''));
     args.push('-e', o.pattern, '--', '.');
     const r = await run(rg, args, cwd, remaining);
@@ -135,6 +138,7 @@ export async function search(cwd: string, o: SearchOptions): Promise<SearchResul
   }
   // Fallback: git grep
   const args = ['grep', '-n', '-I', '-z', '--untracked', '--no-color'];
+  if (o.includeIgnored) args.push('--no-exclude-standard');
   if (o.fixed) args.push('-F');
   else args.push('-E');
   if (o.word) args.push('-w');

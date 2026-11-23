@@ -554,3 +554,27 @@ test('untaggedClaims: "report" lets block mode stop only on evidence', async () 
   const spec = await run(dir, '`verifyToken` is only called from login.js.');
   assert.equal(spec.decision.block, true, 'default follows the spec');
 });
+
+test('hold-out finding: references in gitignored files stop absence and rename claims from verifying', async () => {
+  const dir = mkRepo({ '.gitignore': 'config/local.json\ndist/\n', 'src/a.js': 'renderPrice();\n' });
+  write(dir, { 'config/local.json': '{"/price": "formatPrice"}\n' });
+  const rename = await run(dir, block('change | renamed | old: formatPrice | new: renderPrice'));
+  assert.equal(rename.results[0].label, 'UNVERIFIED');
+  assert.match(rename.results[0].summary, /gitignored files: config\/local\.json:1/);
+  assert.equal(rename.decision.block, false, 'gitignored hits never block: they may be build output');
+  const absent = await run(dir, block('absent | formatPrice is gone | pattern: formatPrice'));
+  assert.equal(absent.results[0].label, 'UNVERIFIED');
+  const scopedOut = await run(dir, block('absent | gone from src | pattern: formatPrice | in: src'));
+  assert.equal(scopedOut.results[0].label, 'VERIFIED', 'an ignored hit outside the stated scope does not matter');
+  const clean = mkRepo({ '.gitignore': 'dist/\n', 'src/a.js': 'renderPrice();\n' });
+  assert.equal((await run(clean, block('change | renamed | old: formatPrice | new: renderPrice'))).results[0].label, 'VERIFIED');
+  const prev = process.env.RECEIPTS_RG;
+  process.env.RECEIPTS_RG = '/nonexistent/rg';
+  try {
+    const viaGit = await run(dir, block('absent | formatPrice is gone | pattern: formatPrice'));
+    assert.equal(viaGit.results[0].label, 'UNVERIFIED', 'git grep fallback also sees ignored files');
+  } finally {
+    if (prev === undefined) delete process.env.RECEIPTS_RG;
+    else process.env.RECEIPTS_RG = prev;
+  }
+});

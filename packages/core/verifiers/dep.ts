@@ -35,7 +35,7 @@ function findFiles(root: string, maxDepth = 2): string[] {
     for (const e of ents) {
       if (e.isDirectory()) {
         if (depth < maxDepth && !['node_modules', '.git', '.receipts', 'dist', 'target', 'vendor', '.venv', 'venv'].includes(e.name)) walk(path.join(dir, e.name), depth + 1);
-      } else if (MANIFESTS.has(e.name) || /^requirements.*\.txt$/.test(e.name)) out.push(path.relative(root, path.join(dir, e.name)));
+      } else if (MANIFESTS.has(e.name) || /^requirements.*\.txt$/.test(e.name)) out.push(path.relative(root, path.join(dir, e.name)).split(path.sep).join('/'));
     }
   };
   walk(root, 0);

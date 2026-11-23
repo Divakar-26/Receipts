@@ -16,8 +16,9 @@ const FIX = path.join(ROOT, 'test', 'fixtures');
 const fixture = (agent: string, name: string) => JSON.parse(fs.readFileSync(path.join(FIX, agent, name), 'utf8'));
 
 const SID = 'contract-session';
+// RECEIPTS_SNAPSHOT=inline: these tests edit files right after the ledger hook; a real agent needs a model turn first.
 const hook = (agent: Agent, kind: string, payload: unknown) =>
-  spawnSync(process.execPath, [HOOK, agent, kind], { input: JSON.stringify(payload), encoding: 'utf8' });
+  spawnSync(process.execPath, [HOOK, agent, kind], { input: JSON.stringify(payload), encoding: 'utf8', env: { ...process.env, RECEIPTS_SNAPSHOT: 'inline' } });
 
 /** The ledger payload each agent would send after a shell command. Codex/Gemini/OpenCode shapes are doc-derived. */
 function ledgerPayload(agent: Agent, cwd: string, cmd: string, exit: number | null, out: string): unknown {

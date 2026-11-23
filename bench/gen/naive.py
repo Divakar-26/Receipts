@@ -46,6 +46,13 @@ NAIVE = {
     "dev-py-2-rename-with-script": R("with_tax", "add_tax", ["shop", "tests"]),
     "dev-go-1-limit-everywhere": P(("limits/limits.go", "= 10", "= 20"), ("limits/limits_test.go", "(10)", "(20)")),
     "dev-go-2-rename-with-command": R("WithTax", "AddTax", ["pricing", "cart", "cmd"]),
+    # hold-out: the naive change misses the gitignored local config / the basis-points duplicate
+    "holdout-ts-1-ignored-config": R("formatPrice", "renderPrice", ["src", "test", "config/routes.json"]),
+    "holdout-py-1-ignored-config": R("format_price", "render_price", ["shop", "tests", "config/routes.json"]),
+    "holdout-go-1-ignored-config": R("FormatPrice", "RenderPrice", ["pricing", "router", "config/routes.json"]),
+    "holdout-ts-2-semantic-duplicate": P(("src/pricing.ts", "0.07", "0.08"), ("test/unit/pricing.test.ts", "107", "108"), ("test/unit/cart.test.ts", "107", "108")),
+    "holdout-py-2-semantic-duplicate": P(("shop/pricing.py", "0.07", "0.08"), ("tests/unit/test_pricing.py", "107", "108"), ("tests/unit/test_cart.py", "107", "108")),
+    "holdout-go-2-semantic-duplicate": P(("pricing/pricing.go", "0.07", "0.08"), ("pricing/pricing_test.go", "107", "108"), ("cart/cart_test.go", "107", "108")),
 }
 
 

@@ -1,3 +1,6 @@
 node_modules
 dist
 .receipts
+
+# benchmark fixtures that vendor a package on purpose
+!bench/tasks/*/overlay/node_modules/

@@ -1,0 +1,4 @@
+{
+  "/price": "format_price",
+  "/total": "with_tax"
+}
