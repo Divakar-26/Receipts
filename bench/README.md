@@ -53,7 +53,7 @@ python3 bench/gen/main.py          # regenerate tasks/ from bench/gen/*.py
 node bench/validate.mjs            # prove all 36 tasks are sound (no LLM)
 node bench/run.mjs --split test --conditions A,B,C --runs 2 --tag mytag   # real Claude Code runs; costs money
 node bench/score.mjs mytag
-node bench/chart.mjs mytag
+python3 scripts/media/results-card.py mytag
 ```
 
 ## Results (PARTIAL: stopped at 97 of 180 runs)
