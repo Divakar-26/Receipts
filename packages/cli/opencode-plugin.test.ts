@@ -61,7 +61,7 @@ test('opencode plugin: bash tool calls reach the ledger; other tools do not', as
 });
 
 test('opencode plugin: idle hook admits a synthetic message when the check fails, once per turn', async () => {
-  const dir = mkRepo({ 'src/cart.js': 'console.log(1);\n' });
+  const dir = mkRepo({ '.receipts.json': '{"mode":"block"}', 'src/cart.js': 'console.log(1);\n' });
   const p = await loadPlugin(dir);
   const msg = 'Done.\n<receipts>\nabsent | removed all console.log | pattern: console\\.log\n</receipts>';
   p.setMessages([{ type: 'user', content: [] }, assistant(msg)]);

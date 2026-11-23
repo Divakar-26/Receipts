@@ -1,0 +1,1 @@
+No, not all the tests pass: after changing `TAX_RATE` to 0.08 in `shop/pricing.py`, 2 failed and 3 passed. The two failures are `test_total_adds_tax` and `test_with_tax_adds_7_percent`, which still expect 107 instead of 108. I haven't updated them.

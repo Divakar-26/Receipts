@@ -18,6 +18,8 @@ export function splitShell(cmd: string): Segment[] {
     out.push({ text: cur.trim(), op });
     cur = '';
   };
+  // Pending here-documents (`cat > f <<'EOF'`): their bodies are data, not commands.
+  const heredocs: { delim: string; dash: boolean }[] = [];
   for (let i = 0; i < cmd.length; i++) {
     const c = cmd[i];
     if (q) {
@@ -36,8 +38,35 @@ export function splitShell(cmd: string): Segment[] {
       cur += c;
       continue;
     }
+    if (c === '<' && cmd[i + 1] === '<' && cmd[i + 2] !== '<') {
+      let j = i + 2;
+      const dash = cmd[j] === '-';
+      if (dash) j++;
+      while (cmd[j] === ' ' || cmd[j] === '\t') j++;
+      const m = /^(['"]?)([A-Za-z_][A-Za-z0-9_.-]*)\1/.exec(cmd.slice(j));
+      if (m) {
+        heredocs.push({ delim: m[2], dash });
+        cur += cmd.slice(i, j + m[0].length);
+        i = j + m[0].length - 1;
+        continue;
+      }
+    }
     if (c === '\n' || c === ';') {
       push(';');
+      if (c === '\n' && heredocs.length) {
+        // skip each body up to and including its delimiter line
+        let pos = i + 1;
+        for (const h of heredocs) {
+          while (pos <= cmd.length) {
+            const end = cmd.indexOf('\n', pos);
+            const line = cmd.slice(pos, end < 0 ? cmd.length : end);
+            pos = end < 0 ? cmd.length + 1 : end + 1;
+            if ((h.dash ? line.replace(/^\t+/, '') : line) === h.delim) break;
+          }
+        }
+        heredocs.length = 0;
+        i = Math.min(pos, cmd.length + 1) - 1;
+      }
       continue;
     }
     if (c === '&') {

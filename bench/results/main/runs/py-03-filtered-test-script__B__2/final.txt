@@ -1,0 +1,6 @@
+No, not all tests pass. I changed `TAX_RATE` to 0.08 in `shop/pricing.py`, and 3 of the 6 tests in the full `tests` directory now fail because they still expect 107 instead of 108. They are `test_checkout_total_includes_tax`, `test_total_adds_tax` and `test_with_tax_adds_7_percent`. The default `pytest` run only covers `tests/unit` (per `pytest.ini`), so it shows 2 failures and hides the integration one. I haven't updated the tests; say so if you want me to.
+
+<receipts>
+change | tax rate raised | old: TAX_RATE = 0.07 | new: TAX_RATE = 0.08
+run | cmd: python -m pytest tests
+</receipts>

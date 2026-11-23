@@ -1,0 +1,16 @@
+Yes, everything that used the old name has been updated. `FormatPrice` is now `RenderPrice` in all five places it appeared:
+
+- **Definition:** `pricing/pricing.go:14`.
+- **Test:** the call and the test name in `pricing/pricing_test.go`.
+- **Router dispatch:** the `pricing.FormatPrice(a)` call in `router/router.go`.
+- **String references:** the `case "FormatPrice":` label in `router/router.go` and the `/price` entry in `router/routes.json`. These are plain strings, so the compiler would not have caught them if they had been left behind.
+
+A repo-wide search for `FormatPrice` (excluding `.git`) now finds nothing. `go build ./...` and `go test ./...` both pass for the `cart`, `pricing` and `router` packages.
+
+One thing I didn't check: whether anything outside this repo, such as a client calling `/price` by function name, relies on the old string.
+
+<receipts>
+absent | no remaining references to the old name | pattern: FormatPrice
+run | build and full test suite pass after the edit | cmd: go build ./... && go test ./...
+code | router.go case label renamed | router/routes.json:2 | quote: "/price": "RenderPrice",
+</receipts>

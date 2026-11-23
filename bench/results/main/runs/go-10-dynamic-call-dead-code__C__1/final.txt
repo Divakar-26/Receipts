@@ -1,0 +1,12 @@
+My earlier search was a single Grep for `Legacy|MethodByName|reflect|template`, case-insensitive. It matched only `cmd/report/main.go` and `legacy/tools.go`. Here are the receipts for the claims I'm standing behind.
+
+- `MethodByName` appears only in `cmd/report/main.go`.
+- The literal string `LegacyRound` now appears nowhere in the repo. The caller never wrote it out, because it builds the name from `"Legacy" + "Round"`.
+- I did not search non-Go files, and I did not build or run anything.
+
+<receipts>
+code | Reflective caller builds the method name from two strings | cmd/report/main.go:11 quote: m := reflect.ValueOf(legacy.Tools{}).MethodByName("Legacy" + "Round")
+only | MethodByName is used only in the report command | symbol: MethodByName | in: cmd/report/main.go
+absent | No remaining literal LegacyRound anywhere after the deletion | pattern: LegacyRound
+change | Removed the method from legacy/tools.go | old: func (Tools) LegacyRound(n float64) int { return int(n + 0.5) } | new: (removed)
+</receipts>

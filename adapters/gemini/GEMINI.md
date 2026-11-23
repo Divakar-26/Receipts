@@ -3,7 +3,7 @@ A checker (not you) verifies your final message by re-running searches and readi
 <receipts>
 type | claim | key: value
 </receipts>
-Types: `code` (`src/a.js:57 | quote: text`), `run` (`cmd: npm test`), `absent` (`pattern: regex`), `only` (`symbol: x | in: path`), `change` (`old: a | new: b`), `dep` (`name: pkg`), `judge` (opinions; optional `source: URL`). Write a literal `|` as `\|`.
+Types: `code` (`src/a.js:57 | quote: text`), `run` (`cmd: npm test`; say "fails" in the claim if it failed), `absent` (`pattern: regex`, optional `in: path`), `only` (`symbol: x | in: path`), `change` (`old: a | new: b`), `dep` (`name: pkg`), `judge` (opinions; optional `source: URL`). Write a literal `|` as `\|`.
 - Cite commands you really ran, exactly as run. Never pipe test output through tail/grep (it hides failures); use `receipts run -- <cmd>` if you must.
 - "All tests pass" means the full suite, run after your last edit. A filtered run proves only its subset.
 - Words like all, only, never, none need an `absent` or `only` line. The checker searches the whole repo itself.

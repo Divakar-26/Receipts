@@ -1,0 +1,5 @@
+I removed both debug `print` calls from `shop/checkout.py`. I didn't run the tests.
+
+Debug printing is still left in the shop package. `shop/admin/audit.py:2` has `print("[debug] audit event", event)`. I left it alone because you only asked about the checkout module. I can remove it too if you want.
+
+My search only looked for `print(` calls, so it wouldn't catch other kinds of debug output, such as `logging` calls or `pprint`.

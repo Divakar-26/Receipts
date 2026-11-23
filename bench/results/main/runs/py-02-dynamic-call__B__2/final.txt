@@ -1,0 +1,16 @@
+I renamed `apply_discount` to `calculate_discount`, and nothing in the repo still depends on the old name. The full test suite passes (6 tests), and a repo-wide search for the old name finds nothing.
+
+**What changed**
+- `shop/pricing.py`: the function definition.
+- `shop/cart.py`: the import and the call in `subtotal`.
+- `tests/unit/test_pricing.py`: the import, the call, and the test name, which became `test_calculate_discount_takes_a_percentage_off`.
+- `shop/jobs.py:5`: this was the hidden dependency. It called `run("apply_" + "discount", 200, 25)`, and `shop/ops.py` looks that string up with `getattr(pricing, name)`. A plain text search for `apply_discount` never matched it, and the rename would have broken `nightly()` at runtime. It now passes `"calculate_discount"`.
+
+**Remaining limit:** I only found string-built names by searching for `getattr`, `eval`, `globals` and `importlib`. Only `ops.run` turned up, and `jobs.py` is its only caller. Anything outside this repo that calls `ops.run("apply_discount", ...)` would still break. That could be a config file, a scheduler or another service. I can't see those from here.
+
+<receipts>
+change | jobs.py dynamic name updated | old: run("apply_" + "discount", 200, 25) | new: run("calculate_discount", 200, 25)
+code | shop/jobs.py:5 | quote: return run("calculate_discount", 200, 25)
+absent | no remaining references to old name | pattern: apply_discount|"apply_"
+run | cmd: python -m pytest -q
+</receipts>

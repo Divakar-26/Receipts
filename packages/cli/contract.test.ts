@@ -47,7 +47,7 @@ interface StopResult {
   raw: string;
 }
 function session(agent: Agent, files: Record<string, string>) {
-  const dir = mkRepo(files);
+  const dir = mkRepo({ '.receipts.json': '{"mode":"block"}', ...files });
   const hooks = {
     dir,
     ledger: (cmd: string, o: { exit?: number; out?: string } = {}) => {
@@ -318,7 +318,7 @@ test('codex: fixtures conform to the input schemas extracted from codex 0.171.0'
 });
 
 test('codex: what our hooks print conforms to the output schemas extracted from codex 0.171.0', () => {
-  const dir = mkRepo({ 'src/cart.js': 'console.log(1);\n' });
+  const dir = mkRepo({ '.receipts.json': '{"mode":"block"}', 'src/cart.js': 'console.log(1);\n' });
   const stopFix = stripAnnotations(fixture('codex', 'Stop.constructed.json'));
   const base = { ...stopFix, cwd: dir };
   const blocked = JSON.parse(hook('codex', 'stop', { ...base, last_assistant_message: block('absent | removed all console.log | pattern: console\\.log') }).stdout);

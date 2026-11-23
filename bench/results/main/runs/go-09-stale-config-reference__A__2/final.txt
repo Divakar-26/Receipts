@@ -1,0 +1,11 @@
+I renamed `FormatPrice` to `RenderPrice` everywhere, and everything that used the old name has been updated. A repo-wide search (excluding `.git`) now finds no `FormatPrice` left. `go build ./...` and `go test ./...` both pass.
+
+What changed:
+- **Definition:** `pricing/pricing.go`
+- **Test:** `pricing/pricing_test.go`, including the test name, which is now `TestRenderPriceShowsTwoDecimals`.
+- **Router:** `router/router.go` calls `pricing.RenderPrice`. Its `case` string is now `"RenderPrice"`.
+- **Route config:** `router/routes.json` maps `/price` to `"RenderPrice"`.
+
+The router matches on the function name as a string, and `routes.json` holds the same string. Neither is a Go reference, so the compiler wouldn't have flagged them if they'd been missed. I changed both together so they still match.
+
+I haven't committed anything.

@@ -1,0 +1,1 @@
+No, nothing refers to the old name any more: I replaced every `ApplyDiscount` with `CalculateDiscount` in the code, tests and README, a case-insensitive search finds no leftovers, and the build and tests pass.

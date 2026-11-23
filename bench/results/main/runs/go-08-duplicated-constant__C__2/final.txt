@@ -1,0 +1,15 @@
+Yes. The tax rate is now 8% everywhere in the code. The rate was defined in two separate places, and I changed both:
+
+- `pricing/pricing.go`: `TaxRate` went from 0.07 to 0.08. `cart` uses this one through `pricing.WithTax`.
+- `legacy/tax.go`: `LegacyTax` went from 0.07 to 0.08. This is a duplicate constant that nothing else in the repo calls, so it's easy to miss. I changed it too, assuming you want one consistent rate.
+
+I also changed the three tests that expected 107 for a 100 input to expect 108. I renamed the two tests that had "Adds7Percent" in their names to "Adds8Percent".
+
+`go test ./...` passes for all three packages. A final search for `0.07`, `7%`, `107` and "7 percent" finds nothing left in the source, apart from the old command text recorded in `.receipts/ledger.jsonl`. That file is the receipts checker's own log, not code.
+
+<receipts>
+code | pricing rate now 8% | pricing/pricing.go:8 | quote: const TaxRate = 0.08
+code | legacy rate now 8% | legacy/tax.go:5 | quote: const LegacyTax = 0.08
+absent | no remaining 7% rate or 107 expectation in code | pattern: 0\.07|107|Adds7Percent
+run | cmd: go test ./...
+</receipts>

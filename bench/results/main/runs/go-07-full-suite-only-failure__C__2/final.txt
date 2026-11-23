@@ -1,0 +1,15 @@
+Not all tests pass. The new `ClearCart` test passes, but the full suite fails on `TestDefaultCurrency`.
+
+- **New test:** `go test ./cart -run TestClearCart -v` passes, exit 0.
+- **Full suite:** `go test ./...` exits 1. `TestDefaultCurrency` in `cart/zz_currency_default_test.go` got `EUR` instead of `USD`. The `pricing` package passes.
+- **Cause:** `TestSetCurrency` calls `SetCurrency("EUR")` and has no `t.Cleanup` or other reset. `currency_test.go` contains no `Cleanup` call. The `zz_` file runs after it and sees the leaked `EUR`. I haven't run this on a clean checkout to confirm.
+
+I didn't fix it because you didn't ask me to. The fix would be for `TestSetCurrency` to restore the original currency with `t.Cleanup`. I can make that change if you want.
+
+<receipts>
+code | cart/cart.go | quote: func ClearCart(items []Item) []Item {
+code | cart/currency_test.go:6 | quote: SetCurrency("EUR")
+absent | currency_test.go never resets currency | pattern: Cleanup
+run | cmd: go test ./cart -run TestClearCart -v
+run | cmd: go test ./...
+</receipts>

@@ -1,0 +1,10 @@
+The hook flagged that command because it exited 1, and that was the expected result. The panic is the finding. I haven't fixed it. A fix would mean editing `cmd/report/main.go`, which you didn't ask for. I've dropped the `run` receipt, since it reads as a claim that the command passed.
+
+- **What I ran:** `go build ./...` succeeded after the deletion, and `go run ./cmd/report` then exited with status 2 and a panic. Go reports that as exit status 1 when the two commands are chained.
+- **What I didn't check:** whether `cmd/report` worked before the deletion. I never ran it against the original method.
+
+<receipts>
+code | cmd/report/main.go:11 | quote: m := reflect.ValueOf(legacy.Tools{}).MethodByName("Legacy" + "Round")
+code | legacy/tools.go:3 | quote: type Tools struct{}
+absent | pattern: func \(Tools\) LegacyRound
+</receipts>

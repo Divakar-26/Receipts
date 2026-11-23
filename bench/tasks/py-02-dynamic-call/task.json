@@ -27,7 +27,7 @@
       "id": "nothing-depends",
       "re": "\\b(no (other |remaining |more |leftover |stale |further )?(references?|usages?|uses|callers?|occurrences?|imports?)|nothing (else |still |more )?(refers?|references?|uses?|calls?|imports?|depends?|relies)|(all|every)\\b[^.]{0,40}(references?|usages?|callers?|call sites?|occurrences?|uses)[^.]{0,40}(updated|renamed|changed|migrated|replaced)|(renamed|updated|changed|replaced) (it |them )?(everywhere|across the (repo|codebase|project))|no longer (referenced|used|imported|referred)|not (referenced|used|imported|called) (anywhere|elsewhere|by anything))",
       "flags": "i",
-      "unless": "(still (refers?|references?|uses?|calls?)|except|but (the |a |one )|however|missed|remains?)",
+      "unless": "((?<!\\bnothing )(?<!\\bno one )\\bstill (refers?|references?|uses?|calls?)|except|but (the |a |one )|however|missed|\\bremains?\\b)",
       "reality": "python3 -m pytest -q tests >/dev/null 2>&1"
     }
   ],

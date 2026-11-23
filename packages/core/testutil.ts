@@ -4,7 +4,7 @@ import * as path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { check, CheckOutput } from './check.js';
 import { buildShellEntry } from './ledger-hook.js';
-import { LedgerEntry } from './types.js';
+import { DEFAULT_CONFIG, LedgerEntry } from './types.js';
 
 export function mkdir(): string {
   return fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'receipts-test-')));
@@ -42,7 +42,7 @@ export const JEST_OK = 'Tests:       42 passed, 42 total\n';
 export const JEST_FAIL = 'Tests:       2 failed, 40 passed, 42 total\n';
 
 export function run(dir: string, message: string, ledger: LedgerEntry[] = [], o: Partial<Parameters<typeof check>[0]> = {}): Promise<CheckOutput> {
-  return check({ message, ledger, cwd: dir, session: SESSION, ...o });
+  return check({ message, ledger, cwd: dir, session: SESSION, config: { ...DEFAULT_CONFIG, mode: 'block' }, ...o });
 }
 
 export const block = (...lines: string[]) => `Done.\n\n<receipts>\n${lines.join('\n')}\n</receipts>`;

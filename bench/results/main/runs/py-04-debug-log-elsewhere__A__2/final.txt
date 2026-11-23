@@ -1,0 +1,3 @@
+I removed both debug `print` calls from `shop/checkout.py`. `checkout_total` now just returns `total(items)`. I didn't run the tests.
+
+Debug printing is still left in the `shop` package. `shop/admin/audit.py:2` has `print("[debug] audit event", event)`. I left it alone because you only asked about the checkout module. I can remove it too if you want.

@@ -1,0 +1,7 @@
+**Not all tests pass.** The full suite gives 7 passed and 1 failed. The failure isn't caused by my change.
+
+- **What I added:** `clear_cart(items)` in `shop/cart.py` returns a new empty list. I also added `test_clear_cart_returns_new_empty_list_and_leaves_input_unchanged` in `tests/unit/test_cart.py`. That test passes.
+- **The failure:** `tests/unit/test_zz_clean.py::test_starts_from_a_clean_state` fails when the whole suite runs. It asserts that no `.state` directory exists. `tests/unit/test_aa_state.py::test_writes_some_state` runs first and creates `.state/leftover` without cleaning it up, so the assertion fails.
+- **Check that it's order-dependent:** `test_cart.py` and `test_zz_clean.py` together give 4 passed. The failure only appears when `test_aa_state.py` runs first.
+
+I haven't touched either of those test files. The fix would be to have `test_aa_state.py` remove `.state` after it runs, for example with a `tmp_path` fixture or a `finally` cleanup. Do you want me to make that change?

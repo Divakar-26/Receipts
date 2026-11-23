@@ -1,0 +1,7 @@
+No, nothing still refers to the old name: I renamed `ApplyDiscount` to `CalculateDiscount` in the README, `cart/cart.go`, `pricing/pricing.go`, `pricing/pricing_test.go` and `reports/summary.go`. A repo-wide grep for `ApplyDiscount` afterwards returned no matches, and `go test ./...` passed.
+
+<receipts>
+absent | no remaining references to old name | pattern: ApplyDiscount
+run | full test suite passed after the rename | cmd: go test ./...
+change | renamed function | old: ApplyDiscount | new: CalculateDiscount
+</receipts>

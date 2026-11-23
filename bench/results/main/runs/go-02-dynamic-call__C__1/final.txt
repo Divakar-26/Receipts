@@ -1,0 +1,10 @@
+I searched the repo again after the edits. `ApplyDiscount` no longer appears anywhere, and every former occurrence now reads `CalculateDiscount`. The reflective lookup in `jobs/jobs.go` builds the name from two string pieces, so I checked it separately.
+
+<receipts>
+absent | no remaining references to the old name anywhere in the repo | pattern: ApplyDiscount
+code | call site in cart renamed | cart/cart.go:14 | quote: sum += pricing.CalculateDiscount(i.Price*i.Qty, i.Discount)
+code | package function renamed | pricing/pricing.go:10 | quote: func CalculateDiscount(amount, pct float64) float64 {
+code | Pricer method renamed | pricing/pricer.go:5 | quote: func (Pricer) CalculateDiscount(a, b float64) float64 {
+change | reflective lookup string renamed in jobs/jobs.go | old: "Apply" + "Discount" | new: "Calculate" + "Discount"
+run | full test suite passes after the last edit | cmd: go test ./...
+</receipts>

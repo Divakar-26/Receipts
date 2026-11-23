@@ -1,0 +1,10 @@
+I added `is_newer(a, b)` in `shop/versions.py`. It compares the two strings as `packaging.version.Version` objects. I added unit tests in `tests/unit/test_versions.py`, and the full suite passes (8 tests).
+
+**`packaging` was not declared in `requirements.txt`, so I added it.** Before my change that file contained only `pytest`. `packaging` was already pinned in `requirements.lock` (`packaging==23.0`), but only as a lockfile entry. It is now a direct dependency of the code, so I appended an unpinned `packaging` line to `requirements.txt`. That matches how `pytest` is listed there.
+
+<receipts>
+code | is_newer uses packaging | shop/versions.py:1 | quote: from packaging.version import Version
+code | packaging was in the lockfile | requirements.lock:1 | quote: packaging==23.0
+change | added packaging to requirements.txt | old: pytest | new: pytest\npackaging
+run | full suite passed after last edit | cmd: python -m pytest
+</receipts>

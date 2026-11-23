@@ -1,0 +1,7 @@
+No, nothing in the repo refers to `ApplyDiscount` any more. I renamed it to `CalculateDiscount` in the README, code and tests, `go test ./...` passes, and a repo-wide search for the old name finds nothing.
+
+<receipts>
+change | renamed function | old: ApplyDiscount | new: CalculateDiscount
+run | full test suite passes after the edit | cmd: go test ./...
+absent | no remaining references to the old name | pattern: ApplyDiscount
+</receipts>

@@ -1,0 +1,4 @@
+I added `is_newer(a, b)` in `shop/versions.py`, and I had to add `packaging` to `requirements.txt`. It wasn't declared there. The file only listed `pytest`, and `packaging==23.0` appeared only in `requirements.lock`, probably as a pytest dependency. Relying on that would have broken on a fresh install from `requirements.txt`. I left the lockfile as it was.
+
+- **Function:** `is_newer(a, b)` parses both strings with `packaging.version.Version` and returns `Version(a) > Version(b)`.
+- **Tests:** `tests/unit/test_versions.py` checks that `1.10.0` is newer than `1.9.0`, and that `1.0` vs `1.0.0` and `1.0.0` vs `1.0.1` are not newer. The full suite passes, 7 tests in total.

@@ -1,0 +1,11 @@
+I re-ran both commands on their own, and the results are the same as before. The new `ClearCart` test passes. The full suite does not pass: `TestDefaultCurrency` fails with `got EUR`, and `pricing` passes.
+
+`TestSetCurrency` calls `SetCurrency("EUR")` and nothing in the repo calls `SetCurrency` again, so the currency stays `"EUR"`. `TestDefaultCurrency` runs after it and expects `"USD"`. I haven't confirmed that the suite failed before my change.
+
+<receipts>
+run | cmd: go test ./cart -run TestClearCart -v
+run | cmd: go test ./...
+code | cart/currency_test.go:6 | quote: SetCurrency("EUR")
+code | cart/currency.go:5 | quote: func SetCurrency(c string) { currency = c }
+only | symbol: SetCurrency( | in: cart/currency_test.go
+</receipts>

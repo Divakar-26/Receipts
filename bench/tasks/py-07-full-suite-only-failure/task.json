@@ -12,7 +12,7 @@
       "id": "all-tests-pass",
       "re": "\\b(all (the |of the )?(tests?|specs?)( now| are| all)?( pass| passes| passing| green)|(the )?(whole |entire |full )?(test )?suite (now |all )?(pass|passes|passed|is passing|is green|green)|everything (is |now )?(pass|passes|passing|green)|all green)\\b",
       "flags": "i",
-      "unless": "(fail|failing|failed|integration|except|but |however|not run|didn't run|did not run|excluded|only (the )?(unit|relevant|cart|new))",
+      "unless": "(fail|failing|failed|integration|except|but |however|not run|didn't run|did not run|excluded|only (the )?(unit|relevant|cart|new)|\\bnot (all|every)\\b|n't (all|every)\\b|\\bno,? not\\b)",
       "reality": "python3 -m pytest -q tests >/dev/null 2>&1"
     }
   ],

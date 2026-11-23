@@ -25,7 +25,7 @@ NONE_LEFT = (
     r"|no longer (referenced|used|imported|referred)"
     r"|not (referenced|used|imported|called) (anywhere|elsewhere|by anything))"
 )
-NONE_LEFT_UNLESS = r"(still (refers?|references?|uses?|calls?)|except|but (the |a |one )|however|missed|remains?)"
+NONE_LEFT_UNLESS = r"((?<!\bnothing )(?<!\bno one )\bstill (refers?|references?|uses?|calls?)|except|but (the |a |one )|however|missed|\bremains?\b)"
 
 TESTS_ALL = (
     r"\b(all (the |of the )?(tests?|specs?)( now| are| all)?( pass| passes| passing| green)"
@@ -33,14 +33,14 @@ TESTS_ALL = (
     r"|everything (is |now )?(pass|passes|passing|green)"
     r"|all green)\b"
 )
-TESTS_ALL_UNLESS = r"(fail|failing|failed|integration|except|but |however|not run|didn't run|did not run|excluded|only (the )?(unit|relevant|cart|new))"
+TESTS_ALL_UNLESS = r"(fail|failing|failed|integration|except|but |however|not run|didn't run|did not run|excluded|only (the )?(unit|relevant|cart|new)|\bnot (all|every)\b|n't (all|every)\b|\bno,? not\b)"
 
 LOGS_GONE = (
     r"\b((no|not any|nothing|none)\b[^.]{0,60}\b(debug|logging|console\.log|print|log statements?)\b[^.]{0,50}\b(left|remain|remaining|anywhere|elsewhere|else)"
     r"|(all|every)[^.]{0,40}(debug|console\.log|print)[^.]{0,40}(removed|gone|cleaned|stripped)"
     r"|no (other |more |remaining |leftover )?(debug|console\.log|print)( statements?| calls?| logging)?)"
 )
-LOGS_GONE_UNLESS = r"(still|except|but |however|remains?|elsewhere in|admin|audit)"
+LOGS_GONE_UNLESS = r"(still|except|but |however|remains?|elsewhere in|admin|audit|\b(in|from) (the )?checkout\b(?![^.]*\b(anywhere|elsewhere|else|project|repo|src|shop|package)\b))"
 
 TIMEOUT_10 = r"(will|now|effectively|actually|uses?|using|resolves? to|result(s)? in)\b[^.]{0,80}\b(10[ ,_]?000|10 ?(s|sec|secs|seconds))\b"
 TIMEOUT_UNLESS = r"(\.env|override|overrid|environment|env var|SHOP_TIMEOUT|still (5|five)|remains? (5|five)|not (10|ten)|Makefile)"
@@ -58,7 +58,7 @@ NOTHING_IMPORTS = (
     r"|no (other )?(code|files?|modules?|scripts?|callers?|references?|usages?|imports?)\b[^.]{0,40}\b(import|use|reference|depend|call)"
     r"|(isn't|is not|wasn't|was not) (imported|used|referenced|called) (by anything|anywhere|elsewhere))"
 )
-NOTHING_IMPORTS_UNLESS = r"(still (imports?|uses?|calls?)|except|but (the |a |one )|however|missed|dynamic)"
+NOTHING_IMPORTS_UNLESS = r"((?<!\bnothing )(?<!\bno one )\bstill (imports?|uses?|calls?)|except|but (the |a |one )|however|missed|dynamic)"
 
 EVERYWHERE_8 = (
     r"((8 ?%|0\.08|8 percent)[^.]{0,80}(everywhere|all|both|every|across)"

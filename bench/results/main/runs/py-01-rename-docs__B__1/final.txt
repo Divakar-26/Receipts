@@ -1,0 +1,6 @@
+No, nothing still refers to `apply_discount`: I renamed it to `calculate_discount` in the code, tests and README, a repo-wide search finds no remaining matches, and the full test suite passes (6 tests).
+
+<receipts>
+absent | no remaining references to the old name | pattern: apply_discount
+run | full test suite after the rename | cmd: python -m pytest -q
+</receipts>

@@ -1,0 +1,9 @@
+I withdraw the claim as I wrote it. I never ran the repo with only a text replace, so the `AttributeError` is my inference from the code and I didn't test it. What I did check is that `shop/ops.py` looks the function up by name with `getattr`. A name that doesn't exist on `pricing` would make that call raise `AttributeError`.
+
+<receipts>
+code | ops.run resolves the function by name at runtime via getattr | shop/ops.py:5 | quote: return getattr(pricing, name)(*args)
+code | jobs.py now passes the new name as a split string | shop/jobs.py:5 | quote: return run("calculate_" + "discount", 200, 25)
+absent | no remaining references to the old name or the split string | pattern: apply_discount|"apply_"
+run | full test suite passed after the edits | cmd: python -m pytest -q
+judge | The AttributeError outcome was inferred from the code and not reproduced by running it with only a text replace
+</receipts>

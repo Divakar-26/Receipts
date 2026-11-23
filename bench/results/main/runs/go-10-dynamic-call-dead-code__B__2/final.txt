@@ -1,0 +1,17 @@
+I deleted `LegacyRound`, but it wasn't dead code, and removing it breaks `cmd/report`.
+
+`cmd/report/main.go:11` calls it by name through reflection:
+```go
+m := reflect.ValueOf(legacy.Tools{}).MethodByName("Legacy" + "Round")
+```
+The name is built from two concatenated strings, so a plain search for `LegacyRound` doesn't find the call. `go build ./...` still succeeds, but `go run ./cmd/report` now panics with `reflect: call of reflect.Value.Call on zero Value`.
+
+I didn't touch `cmd/report/main.go`, so the repo is currently in the broken state. You can either restore the method, or update `cmd/report` to stop calling it (for example, call the rounding directly) and keep the deletion. Tell me which one and I'll do it.
+
+I only searched for `MethodByName`, `reflect`, `Legacy` and `"Round`. I didn't look for other ways the method could be reached, such as calls from outside the repo.
+
+<receipts>
+code | cmd/report/main.go:11 | quote: m := reflect.ValueOf(legacy.Tools{}).MethodByName("Legacy" + "Round")
+run | cmd: cd /work/proj && go build ./... && go run ./cmd/report 2>&1 | head -5
+absent | pattern: func \(Tools\) LegacyRound
+</receipts>

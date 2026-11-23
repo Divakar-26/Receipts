@@ -1,0 +1,9 @@
+I'm narrowing my earlier claim. The checkout package has no debug prints left, but the project as a whole still has one, in `admin/audit.go`. I re-ran the search over all `*.go` files for `fmt.Print*`, `println(`, `log.Print*`, `spew`, `pp.Print*`, `os.Stderr` and `os.Stdout`. It returned one hit, `admin/audit.go:6`, and nothing in `checkout`.
+
+I have not removed the `admin` print, since you only asked about checkout.
+
+<receipts>
+code | the only remaining debug print | admin/audit.go:6 | quote: fmt.Println("[debug] audit event", event)
+only | fmt.Println is called only in admin/audit.go, so none are left in checkout | symbol: fmt.Println | in: admin/audit.go
+run | cmd: go test ./...
+</receipts>

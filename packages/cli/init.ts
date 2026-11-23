@@ -125,12 +125,12 @@ export function init(o: InitOptions): string[] {
   const cfgFile = path.join(cwd, '.receipts.json');
   if (!fs.existsSync(cfgFile)) {
     const d = detectCommands(cwd);
-    const cfg: Record<string, unknown> = { mode: 'block' };
+    const cfg: Record<string, unknown> = { mode: 'warn' };
     if (d.test) cfg.testCommand = d.test;
     if (d.build) cfg.buildCommand = d.build;
     write(cfgFile, JSON.stringify(cfg, null, 2) + '\n');
     m.createdConfig = true;
-    changes.push(`created .receipts.json (${JSON.stringify(cfg)})`);
+    changes.push(`created .receipts.json (${JSON.stringify(cfg)}); mode "warn" reports only, set "block" to send the agent back once per turn`);
   } else changes.push('kept existing .receipts.json');
 
   // 2. .gitignore

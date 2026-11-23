@@ -1,0 +1,6 @@
+No, nothing still refers to the old name: I renamed `ApplyDiscount` to `CalculateDiscount` in the README, code and tests, a case-insensitive grep for `applydiscount` finds nothing, and `go test ./...` passes.
+
+<receipts>
+absent | no remaining references to old name | pattern: (?i)applydiscount
+run | full test suite after the edit | cmd: go test ./...
+</receipts>

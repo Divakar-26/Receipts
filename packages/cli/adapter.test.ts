@@ -70,7 +70,7 @@ test('session hook injects the rules, resets state; prompt hook resets the retry
 });
 
 test('stop hook: blocks once with a JSON decision, then reports without blocking', () => {
-  const dir = mkRepo({ 'src/cart.js': 'console.log(1);\n' });
+  const dir = mkRepo({ '.receipts.json': '{"mode":"block"}', 'src/cart.js': 'console.log(1);\n' });
   const payload = { ...fixture('Stop.json'), cwd: dir, last_assistant_message: 'Done.\n<receipts>\nabsent | removed all console.log | pattern: console\\.log\n</receipts>' };
   const first = hook('stop', payload);
   assert.equal(first.status, 0);
@@ -122,7 +122,7 @@ test('init / uninstall: reversible, merges existing settings, idempotent', () =>
   const lines = init({ cwd: dir });
   assert.ok(lines.some((l) => l.includes('created .receipts.json')));
   const cfg = JSON.parse(fs.readFileSync(path.join(dir, '.receipts.json'), 'utf8'));
-  assert.deepEqual([cfg.mode, cfg.testCommand, cfg.buildCommand], ['block', 'npm test', 'npm run build']);
+  assert.deepEqual([cfg.mode, cfg.testCommand, cfg.buildCommand], ['warn', 'npm test', 'npm run build']);
   assert.match(fs.readFileSync(path.join(dir, '.gitignore'), 'utf8'), /^\.receipts\/$/m);
   const s = JSON.parse(fs.readFileSync(path.join(dir, '.claude/settings.json'), 'utf8'));
   assert.equal(s.model, 'x');

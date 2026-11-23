@@ -3,6 +3,7 @@ import * as assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { block, JEST_FAIL, JEST_OK, mkRepo, run, shellEntry, write, mkdir } from './testutil.js';
+import { check } from './check.js';
 
 const PKG = JSON.stringify({ name: 'x', scripts: { test: 'jest', build: 'tsc' } });
 
@@ -358,4 +359,85 @@ test('a differently-spelled command for the same runner is not accused of being 
   // but a filter is still a contradiction
   const filt = await run(dir, block('run | all tests pass | cmd: python3 -m pytest tests/test_a.py'), [await shellEntry(dir, 'python3 -m pytest tests/test_a.py', { out: PYOUT })]);
   assert.equal(filt.results[0].label, 'CONTRADICTED');
+});
+
+test('a run result names the command that matched, not the heredoc it was chained after', async () => {
+  const dir = mkRepo({ 'package.json': PKG });
+  const e = await shellEntry(dir, "cat > notes.txt <<'EOF'\nhello\nEOF\nnpm test", { out: JEST_OK });
+  const out = await run(dir, block('run | all tests pass | cmd: npm test'), [e]);
+  assert.equal(out.results[0].label, 'VERIFIED');
+  assert.match(out.results[0].summary, /^`npm test` exit 0/);
+});
+
+// ---- Regressions from the M4 benchmark block audit (bench/results/main/audit-blocks.json): all 18 blocks were false.
+
+test('M4: a keys-only run line records a run; it is not a claim that the run passed', async () => {
+  const dir = mkRepo({ 'package.json': PKG });
+  const failing = [await shellEntry(dir, 'make test', { exit: 2, out: 'FAIL\n' })];
+  const out = await run(dir, 'No, the tests don\'t all pass.\n' + block('run | cmd: make test'), failing);
+  assert.equal(out.results[0].label, 'VERIFIED');
+  assert.match(out.results[0].summary, /ran; failed \(exit 2\)/);
+  assert.equal(out.decision.block, false);
+  const never = await run(dir, block('run | cmd: make lint'), failing);
+  assert.equal(never.results[0].label, 'CONTRADICTED', 'claiming a command ran that never ran is still caught');
+});
+
+test('M4: a run line that says it failed is checked as a failure', async () => {
+  const dir = mkRepo({ 'package.json': PKG });
+  const failing = [await shellEntry(dir, 'npm test', { exit: 1, out: JEST_FAIL })];
+  const stated = await run(dir, block('run | full suite: 2 failed, 40 passed | cmd: npm test'), failing);
+  assert.equal(stated.results[0].label, 'VERIFIED');
+  assert.match(stated.results[0].summary, /as stated/);
+  assert.equal(stated.decision.block, false);
+  const passing = [await shellEntry(dir, 'npm test', { out: JEST_OK })];
+  const wrong = await run(dir, block('run | npm test fails | cmd: npm test'), passing);
+  assert.equal(wrong.results[0].label, 'CONTRADICTED');
+  assert.match(wrong.results[0].summary, /said .* failed, but it passed/);
+  const masked = await run(dir, block('run | npm test fails | cmd: npm test'), [await shellEntry(dir, 'npm test | tail', { out: 'noise\n' })]);
+  assert.equal(masked.results[0].label, 'UNVERIFIED');
+});
+
+test('M4: "No, not all the tests pass" in prose is an admission, not a pass claim', async () => {
+  const dir = mkRepo({ 'package.json': PKG });
+  for (const msg of ['No, not all the tests pass.', 'Not all tests pass: one fails.', 'The tests failed after the change.']) {
+    const out = await run(dir, msg, [await shellEntry(dir, 'npm test', { exit: 1, out: JEST_FAIL })]);
+    assert.equal(out.decision.block, false, msg);
+    assert.equal(out.results.filter((r) => r.label === 'CONTRADICTED' || r.strong).length, 0, msg);
+  }
+});
+
+test('M4: absent with an in: scope only counts hits inside the scope, and still reports the rest', async () => {
+  const dir = mkRepo({ 'shop/checkout.py': 'def total():\n    return 1\n', 'shop/admin/audit.py': 'print("[debug] audit")\n' });
+  const scoped = await run(dir, block('absent | no print calls left in checkout | pattern: print\\( | in: shop/checkout.py'));
+  assert.equal(scoped.results[0].label, 'VERIFIED');
+  assert.match(scoped.results[0].summary, /0 hits in shop\/checkout\.py/);
+  assert.match(scoped.results[0].note, /outside that scope: shop\/admin\/audit\.py:1/);
+  assert.equal(scoped.decision.block, false);
+  const wide = await run(dir, block('absent | no print calls anywhere | pattern: print\\('));
+  assert.equal(wide.results[0].label, 'CONTRADICTED', 'without in:, the whole repo still counts');
+  const insideHit = await run(dir, block('absent | nothing in admin | pattern: print\\( | in: shop/admin/'));
+  assert.equal(insideHit.results[0].label, 'CONTRADICTED');
+});
+
+test('M4: change used for a code edit checks the snippet, not a rename', async () => {
+  const dir = mkRepo({ 'requirements.txt': 'pytest\npackaging\n', 'shop/checkout.py': 'def total(items):\n    return sum(items)\n' });
+  const added = await run(dir, block('change | added packaging to requirements.txt | old: pytest | new: pytest\\npackaging'));
+  assert.equal(added.results[0].label, 'VERIFIED', added.results[0].summary);
+  const edited = await run(dir, block('change | simplified | old: t = total(items); return t | new: return sum(items)'));
+  assert.equal(edited.results[0].label, 'VERIFIED');
+  const notFound = await run(dir, block('change | simplified | old: x = 1 | new: t = total(items); return t'));
+  assert.equal(notFound.results[0].label, 'UNVERIFIED');
+  assert.equal(notFound.decision.block, false);
+  const reverted = await run(dir, block('change | swapped | old: return sum(items) | new: return max(items)'));
+  assert.equal(reverted.results[0].label, 'CONTRADICTED');
+  // plain renames keep the strict semantics
+  assert.equal((await run(dir, block('change | renamed | old: pytest | new: packaging'))).results[0].label, 'CONTRADICTED');
+});
+
+test('M4: default mode is warn: problems are reported, the agent is not sent back', async () => {
+  const dir = mkRepo({ 'src/cart.js': 'console.log(1);\n' });
+  const out = await check({ message: block('absent | removed all console.log | pattern: console\\.log'), ledger: [], cwd: dir });
+  assert.equal(out.results[0].label, 'CONTRADICTED');
+  assert.equal(out.decision.block, false);
+  assert.equal(out.decision.wouldBlock, false);
 });

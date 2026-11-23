@@ -1,0 +1,9 @@
+The tests don't all pass. I changed `TaxRate` to 0.08 in `pricing/pricing.go`, and `make test` then exited with status 2. Two tests failed because they still expect the old 7% result of 107 and now get 108: `TestWithTaxAdds7Percent` (`pricing/pricing_test.go:19`) and `TestTotalAddsTax` (`cart/cart_test.go:13`). I haven't updated those expectations.
+
+The `test` target in the Makefile runs only `./pricing` and `./cart`, so `make test` never ran `integration/checkout_test.go`. I haven't run that test directly either, so I don't know whether it passes.
+
+<receipts>
+change | tax rate constant | old: const TaxRate = 0.07 | new: const TaxRate = 0.08
+code | make test target runs only pricing and cart packages | Makefile:2 | quote: go test ./pricing ./cart
+code | pricing test still expects 7% result | pricing/pricing_test.go:18 | quote: if got := WithTax(100); got != 107 {
+</receipts>

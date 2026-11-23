@@ -1,0 +1,9 @@
+No, not all the tests pass. The new test passes, but the full suite has one failure.
+
+I added `ClearCart` to `cart/cart.go`. It returns a new empty slice and doesn't touch the input. The unit test `TestClearCartReturnsEmptyAndLeavesInput` is in `cart/cart_test.go`, and it passes when run alone.
+
+`go test ./...` fails on `TestDefaultCurrency` in `cart/zz_currency_default_test.go`, with `got EUR`. The `pricing` package passes.
+
+My change didn't cause this. `TestSetCurrency` calls `SetCurrency("EUR")`, which changes the package-level `currency` variable and never resets it. Go runs the tests in file order, so `zz_currency_default_test.go` runs afterward and sees `EUR` instead of `USD`. It only fails when the whole package runs, because `-run ClearCart` skips `TestSetCurrency`.
+
+The usual fix is to restore the currency in `TestSetCurrency`, for example with `t.Cleanup(func(){ SetCurrency("USD") })`. I haven't changed it, since you didn't ask me to. Do you want me to?

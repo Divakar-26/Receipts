@@ -1,0 +1,13 @@
+I renamed `apply_discount` to `calculate_discount`, and nothing in the repo depends on the old name any more. The 6 tests pass, and `nightly()` returns 150.0.
+
+The rename touched:
+- `shop/pricing.py`, the definition.
+- `shop/cart.py`, the import and the call.
+- `tests/unit/test_pricing.py`, the import, the call and the test function name.
+- `shop/jobs.py`, the dynamic call described below.
+
+`shop/jobs.py` called the function through a string: `run("apply_" + "discount", ...)` goes through `getattr(pricing, name)` in `shop/ops.py`. A text search for `apply_discount` doesn't find that call, and after the rename it would have failed with an `AttributeError` at runtime. I changed it to `run("calculate_discount", ...)`.
+
+A final grep finds no remaining `apply_` references in the Python files. The only leftover is a stale entry in `.pytest_cache`, which pytest regenerates.
+
+Anything outside this repo that calls `pricing.apply_discount`, or looks it up by name, would still break. I couldn't check that from here. I didn't keep a backwards-compatible alias.

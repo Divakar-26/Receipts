@@ -1,0 +1,9 @@
+I changed the default timeout in `config/config.go` from 5 to 10. `make run` still uses **5 seconds**, because the Makefile sets `SHOP_TIMEOUT=5`, which overrides the default. I ran `make run` after the edit and it printed `timeout=5`.
+
+I left the Makefile alone since you only asked about the default. If you want `make run` to use 10, change it to `SHOP_TIMEOUT=10` or remove the variable so the default applies. I can make that edit if you want it.
+
+<receipts>
+change | old: return 5 | new: return 10
+code | Makefile:2 | quote: @SHOP_TIMEOUT=5 go run ./cmd/server
+run | cmd: make run
+</receipts>

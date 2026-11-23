@@ -1,0 +1,11 @@
+I deleted `LegacyRound`, but it wasn't dead code. `cmd/report/main.go` still calls it, so `go run ./cmd/report` now panics.
+
+That call is at `cmd/report/main.go:11-12`. It looks the method up by name with reflection and builds the name from two string pieces:
+
+```go
+reflect.ValueOf(legacy.Tools{}).MethodByName("Legacy" + "Round")
+```
+
+A plain search for `LegacyRound` only found the definition, because the name is split. `go build ./...` still succeeds, since the compiler can't see a reflective call. At runtime `MethodByName` returns a zero Value, and `.Call` panics with `reflect: call of reflect.Value.Call on zero Value`.
+
+The deletion is uncommitted, so `git checkout legacy/tools.go` restores it. I can do that, or I can keep the deletion and update `cmd/report` so it no longer needs the method. Which would you like?

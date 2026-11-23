@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-include='dist/core/**' --test-coverage-exclude='dist/core/testutil.js' --test-coverage-exclude='dist/**/*.test.js' 'dist/**/*.test.js'",
+    "test": "npm run build && node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-include='dist/core/**' --test-coverage-exclude='dist/core/testutil.js' --test-coverage-exclude='dist/**/*.test.js' 'dist/**/*.test.js' 'bench/*.test.mjs'",
     "bench:perf": "node scripts/perf.mjs"
   },
   "dependencies": {

@@ -1,0 +1,10 @@
+I've now searched the whole repo, `.claude/` included, and my last message was partly wrong. I had said `.claude/` might still contain the old name, but it doesn't. The old name `ApplyDiscount` appears only in three files under `.receipts/`: `hook.log`, `last-report.md` and `ledger.jsonl`. Those are the receipts checker's own logs of my earlier searches and reports. They aren't source code, and nothing imports or calls them.
+
+In the Go source, the rename is complete, including the reflective lookup in `jobs/jobs.go`. I didn't check for callers outside this repo.
+
+<receipts>
+absent | no ApplyDiscount in any Go source file | pattern: ApplyDiscount
+code | reflective lookup now uses the new name | jobs/jobs.go:10 | quote: MethodByName("Calculate" + "Discount")
+run | repo-wide search, .claude included, matched only .receipts/ log files | cmd: grep -rIl 'ApplyDiscount' . --exclude-dir=.git
+run | build and full test suite pass after the edits | cmd: go build ./... && go test ./...
+</receipts>

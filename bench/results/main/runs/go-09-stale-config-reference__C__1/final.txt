@@ -1,0 +1,15 @@
+Yes, everything that used the old name has been updated, and `FormatPrice` no longer appears anywhere in the repo. The build succeeds and the full test suite passes.
+
+I renamed it in five places:
+- **Definition:** `pricing/pricing.go:14`.
+- **Test:** `pricing/pricing_test.go`. This covers both the call and the test function name, which is now `TestRenderPriceShowsTwoDecimals`.
+- **Router call:** the call to `pricing.RenderPrice` in `router/router.go`.
+- **Router string:** the `"FormatPrice"` string in the `case` statement in `router/router.go`.
+- **Route config:** `router/routes.json`, where `/price` mapped to `"FormatPrice"`.
+
+The last two are string references, not Go identifiers. The compiler wouldn't have flagged them, and the router would have stopped matching `/price` without any error.
+
+<receipts>
+absent | no remaining references to the old name | pattern: FormatPrice
+run | build and full test suite passed after the edit | cmd: go build ./... && go test ./...
+</receipts>

@@ -1,0 +1,14 @@
+Yes, everything that used the old name is updated. The grep for `FormatPrice` now returns nothing, and `go build ./...` and `go test ./...` both pass.
+
+I renamed it in five places across four files:
+- **Definition:** `pricing/pricing.go:14`.
+- **Test:** `pricing/pricing_test.go`, both the call and the test function name, which is now `TestRenderPriceShowsTwoDecimals`.
+- **Router call:** `router/router.go:25`.
+- **String references:** the `"FormatPrice"` switch case in `router/router.go:24` and the `/price` entry in `router/routes.json`. A compiler wouldn't catch these because they're strings, not identifiers.
+
+<receipts>
+absent | no remaining references to the old name | pattern: FormatPrice
+run | build succeeded | cmd: go build ./...
+run | full test suite passed after the edit | cmd: go test ./...
+change | renamed function | old: FormatPrice | new: RenderPrice
+</receipts>

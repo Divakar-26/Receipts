@@ -1,0 +1,16 @@
+Yes, the tax rate is now 8% everywhere I found it in the code, and `go test ./...` passes.
+
+The 7% rate was defined in two places, and I changed both:
+- `pricing/pricing.go`: `TaxRate` is now `0.08`. `cart` uses this one.
+- `legacy/tax.go`: `LegacyTax` is now `0.08`. Nothing else in the repo calls `LegacyWithTax`, but I changed it so the two rates don't disagree.
+
+I also updated three tests that expected 107 on a 100 input. They now expect 108, and I renamed two of them from `Adds7Percent` to `Adds8Percent`.
+
+I only searched the Go code and tests. I didn't check docs, config files or anything outside the repo.
+
+<receipts>
+code | pricing rate now 8% | pricing/pricing.go:8 | quote: const TaxRate = 0.08
+code | legacy rate now 8% | legacy/tax.go:5 | quote: const LegacyTax = 0.08
+run | full suite passes after edits | cmd: go test ./...
+absent | no remaining 7% rate constants | pattern: 0\.07
+</receipts>

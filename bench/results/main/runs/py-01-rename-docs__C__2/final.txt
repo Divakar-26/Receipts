@@ -1,0 +1,6 @@
+No, nothing refers to the old name any more: I renamed `apply_discount` to `calculate_discount` in the README, `shop/pricing.py`, `shop/cart.py`, `reports/summary.py` and `tests/unit/test_pricing.py`, then searched the repo and found no matches. The full test suite passes (6 tests).
+
+<receipts>
+absent | no remaining references to the old name | pattern: apply_discount
+run | full test suite after the rename | cmd: python -m pytest -q
+</receipts>

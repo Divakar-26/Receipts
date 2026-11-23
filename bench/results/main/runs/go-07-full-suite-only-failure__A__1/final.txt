@@ -1,0 +1,9 @@
+No, not all the tests pass. The new test passes, but the full suite has one failure.
+
+I added `ClearCart` to `cart/cart.go`. It returns a new empty, non-nil slice and doesn't touch the input. The unit test is in `cart/cart_test.go`. `go test ./cart -run ClearCart` passes.
+
+`go test ./...` fails in `cart`:
+- **Failing test:** `TestDefaultCurrency` in `zz_currency_default_test.go` reports `got EUR`.
+- **Cause:** `TestSetCurrency` calls `SetCurrency("EUR")` and never resets it. `currency` is a package-level variable, so the value carries over, and `zz_currency_default_test.go` runs after it.
+- **Relation to my change:** none. `ClearCart` doesn't touch the currency, and the failure comes from test-order dependence that was already there. I haven't confirmed it by running the suite without my change.
+- **Fix:** have `TestSetCurrency` restore the original value, for example with `defer SetCurrency("USD")` or `t.Cleanup`. I left it alone since you didn't ask for it. Want me to make that change?

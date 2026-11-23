@@ -1,0 +1,12 @@
+Both points are fair. My `absent` receipt was scoped wrongly: the checker searches the whole repo, and `admin/audit.go:6` still matches. I've narrowed the claims to what I can back up.
+
+- **Checkout:** I removed the two `fmt.Println` calls and the `fmt` import. `checkout/checkout.go` now contains only `return cart.Total(items)` in `Total`.
+- **Rest of the project:** `fmt.Println` appears in one place in the Go code, `admin/audit.go:6`. I left it in place because you asked only about checkout.
+- **Other print forms:** My first search also covered `println(`, `print(`, `log.Print*`, `spew.` and `pp.Print`, and none of them matched. I'm not adding a receipt for those. The only repo-wide receipt I'm adding is for `fmt.Println`.
+
+<receipts>
+change | removed debug prints from checkout | old: fmt.Println("[debug] items", len(items)) | new: return cart.Total(items)
+only | fmt.Println is called only in admin/audit.go | symbol: fmt.Println | in: admin/audit.go
+code | remaining debug print | admin/audit.go:6 | quote: fmt.Println("[debug] audit event", event)
+run | cmd: go build ./... && go test ./...
+</receipts>

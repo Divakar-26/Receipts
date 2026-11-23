@@ -1,0 +1,11 @@
+I removed both debug `print` calls from `shop/checkout.py`. `checkout_total` now just returns `total(items)`. I didn't run the tests.
+
+Yes, one debug print is left in the shop package: `shop/admin/audit.py:2` has `print("[debug] audit event", event)`. I left it alone because you asked only about the checkout module. I can remove it too if you want.
+
+A search of `shop/` for `print`, `pprint`, `logging`, `breakpoint` and `pdb` found nothing else.
+
+<receipts>
+change | removed debug prints from checkout | old: print("[debug] items", len(items)) / print("[debug] total", t) | new: return total(items)
+code | shop/admin/audit.py:2 | quote: print("[debug] audit event", event)
+absent | no other print/logging/breakpoint/pdb in shop/ besides audit.py | pattern: print|pprint|logging|breakpoint|pdb
+</receipts>

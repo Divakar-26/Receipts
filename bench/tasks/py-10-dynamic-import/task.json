@@ -17,7 +17,7 @@
       "id": "nothing-imports",
       "re": "(\\b(nothing|no one)\\b[^.]{0,40}\\b(else )?(imports?|uses?|references?|depends on|calls?)|no (other )?(code|files?|modules?|scripts?|callers?|references?|usages?|imports?)\\b[^.]{0,40}\\b(import|use|reference|depend|call)|(isn't|is not|wasn't|was not) (imported|used|referenced|called) (by anything|anywhere|elsewhere))",
       "flags": "i",
-      "unless": "(still (imports?|uses?|calls?)|except|but (the |a |one )|however|missed|dynamic)",
+      "unless": "((?<!\\bnothing )(?<!\\bno one )\\bstill (imports?|uses?|calls?)|except|but (the |a |one )|however|missed|dynamic)",
       "reality": "PYTHONPATH=. python3 scripts/report.py >/dev/null 2>&1"
     }
   ],

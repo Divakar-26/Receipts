@@ -1,0 +1,13 @@
+I narrowed both claims to what I checked.
+
+- **Default:** `shop/config.py` is the only place that reads `SHOP_TIMEOUT`. The 10 second default applies whenever that variable isn't set in the environment. `make run` sets it to 5 through the `Makefile`. I didn't run `python3 -m shop.server` directly.
+- **Makefile:** `git diff --stat` shows my edit touched only `shop/config.py`, so the `Makefile` is unchanged. The reason I left it alone is a judgment call, not something the code shows.
+
+<receipts>
+change | default timeout in config | old: os.environ.get("SHOP_TIMEOUT", "5") | new: os.environ.get("SHOP_TIMEOUT", "10")
+code | Makefile:1 | quote: export SHOP_TIMEOUT=5
+only | SHOP_TIMEOUT is read only by the config module | symbol: os.environ.get("SHOP_TIMEOUT" | in: shop/config.py
+run | cmd: make run
+run | cmd: git diff --stat -- Makefile shop/config.py
+judge | I left the Makefile alone because only the default was requested
+</receipts>

@@ -1,0 +1,9 @@
+I checked the callers of `run`. In the repo's Python files, `shop/jobs.py:5` is the only call, and it passes the literal `"calculate_discount"`. No other code passes it a name, so nothing in the repo still reaches the old name. I only searched `*.py` files, so a non-Python caller such as a config or script would not appear in these results.
+
+<receipts>
+absent | no remaining reference to the old name | pattern: apply_discount
+absent | no string-built "apply_" name remains | pattern: "apply_"
+code | the only call to run() passes the new literal name | shop/jobs.py:5 | quote: return run("calculate_discount", 200, 25)
+only | run is called only from jobs.py within Python files | symbol: run | in: shop/jobs.py
+run | full suite after last edit | cmd: python -m pytest -q
+</receipts>

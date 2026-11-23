@@ -276,12 +276,12 @@ test('config: defaults, validation, detection', () => {
   const d = mkdir();
   assert.deepEqual(loadConfig(d), normaliseConfig(null));
   write(d, { '.receipts.json': '{ bad json' });
-  assert.equal(loadConfig(d).mode, 'block');
+  assert.equal(loadConfig(d).mode, 'warn', 'default mode is warn (M4 ship rule)');
   write(d, { '.receipts.json': JSON.stringify({ mode: 'strict', testCommand: ' npm test ', buildCommand: 5, ignore: ['dist/**', 3], lexicon: { extraUniversal: ['x'], extraJudge: 'no' }, maxRetries: 9 }) });
   const c = loadConfig(d);
   assert.deepEqual([c.mode, c.testCommand, c.buildCommand, c.ignore, c.lexicon.extraUniversal, c.lexicon.extraJudge, c.maxRetries], ['strict', 'npm test', undefined, ['dist/**'], ['x'], [], 2]);
   assert.equal(normaliseConfig({ mode: 'nope', maxRetries: -3 }).maxRetries, 0);
-  assert.equal(normaliseConfig('x').mode, 'block');
+  assert.equal(normaliseConfig('x').mode, 'warn');
   const j = mkdir();
   write(j, { 'package.json': '{"scripts":{"test":"jest","build":"tsc"}}' });
   assert.deepEqual(detectCommands(j), { test: 'npm test', build: 'npm run build' });
@@ -326,7 +326,8 @@ test('policy: modes, caps, reasons', () => {
   const claim = { type: 'absent' as const, text: 't', fields: {}, line: 1 };
   const bad = { claim, label: 'CONTRADICTED' as const, summary: 'found 2', evidence: [], note: '' };
   const ok = { claim, label: 'VERIFIED' as const, summary: 's', evidence: [], note: '' };
-  const cfg = { ...DEFAULT_CONFIG };
+  const cfg = { ...DEFAULT_CONFIG, mode: 'block' as const };
+  assert.equal(DEFAULT_CONFIG.mode, 'warn');
   assert.equal(decide([ok], cfg, { blocksSoFar: 0 }).block, false);
   assert.equal(decide([bad], cfg, { blocksSoFar: 0 }).block, true);
   assert.equal(decide([bad], { ...cfg, maxRetries: 2 }, { blocksSoFar: 1 }).block, true);
@@ -556,4 +557,30 @@ test('judge ledger helpers', async () => {
   const dir = mkRepo({ 'package.json': '{"scripts":{"test":"jest"}}' });
   const e = await shellEntry(dir, 'npm test', { out: JEST_OK });
   assert.ok(e.kind === 'shell' && e.summary?.passed === 42 && typeof e.snap === 'string');
+});
+
+test('heredoc bodies are data, not commands (seen in real benchmark runs)', () => {
+  const cmd = "cat > cart/orderid.go <<'EOF'\npackage cart\nnpm test -- login\nfunc X() {}\nEOF\ngo test ./...";
+  const segs = analyseCommand(cmd).map((s) => s.norm);
+  assert.deepEqual(segs, ["cat > cart/orderid.go <<'EOF'", 'go test ./...']);
+  assert.equal(analyseCommand(cmd)[1].masked, false);
+  // <<- strips leading tabs from the delimiter line; several heredocs on one line are all skipped
+  assert.deepEqual(analyseCommand('cat <<-END\n\tbody | tail\n\tEND\nnpm test').map((s) => s.norm), ['cat <<-END', 'npm test']);
+  assert.deepEqual(analyseCommand('cat <<A <<"B"\na\nA\nb\nB\nls').map((s) => s.norm), ['cat <<A <<"B"', 'ls']);
+  // not heredocs: here-strings, quoted <<, arithmetic shifts
+  assert.deepEqual(analyseCommand("grep x <<< 'y'; ls").map((s) => s.norm), ["grep x <<< 'y'", 'ls']);
+  assert.deepEqual(analyseCommand('echo "<<EOF"\nls').map((s) => s.norm), ['echo "<<EOF"', 'ls']);
+  assert.deepEqual(analyseCommand('echo $((1 << 2))\nls').map((s) => s.norm), ['echo $((1 << 2))', 'ls']);
+  // an unterminated heredoc swallows the rest (as bash would)
+  assert.deepEqual(analyseCommand('cat <<EOF\nnpm test').map((s) => s.norm), ['cat <<EOF']);
+});
+
+test('an unescaped | inside a value is glued back (regex alternation in a real run)', () => {
+  const c = parseLine('absent | no debug prints | pattern: \\[debug\\] (items|total)', 1);
+  assert.equal(c.type, 'absent');
+  assert.equal(c.fields.pattern, '\\[debug\\] (items|total)');
+  const j = parseLine('judge | a | b stays text', 1);
+  assert.equal(j.text, 'a|b stays text');
+  const code = parseLine('code | x | src/a.js:3 | quote: a | b', 1);
+  assert.deepEqual([code.loc, code.fields.quote], ['src/a.js:3', 'a|b']);
 });

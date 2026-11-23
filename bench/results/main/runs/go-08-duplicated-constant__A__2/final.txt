@@ -1,0 +1,9 @@
+Yes, the tax rate is now 8% everywhere in the code, and `go test ./...` passes.
+
+The rate was defined in two separate places, and I changed both:
+- `pricing/pricing.go`: `TaxRate` went from 0.07 to 0.08. `cart` uses this one.
+- `legacy/tax.go`: `LegacyTax` went from 0.07 to 0.08. It's a duplicate constant, and nothing imports the `legacy` package.
+
+I also updated the tests that expected 107 on a 100 input, so they now expect 108. The affected tests are in `cart/cart_test.go`, `pricing/pricing_test.go` and `legacy/tax_test.go`. Two were renamed from `...Adds7Percent` to `...Adds8Percent`.
+
+A search of the repo found no other tax-rate values. I haven't committed anything.

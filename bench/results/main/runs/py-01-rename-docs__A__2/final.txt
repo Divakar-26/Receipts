@@ -1,0 +1,1 @@
+I renamed all 9 occurrences of `apply_discount` to `calculate_discount` across 5 files (`README.md`, `reports/summary.py`, `shop/cart.py`, `shop/pricing.py` and `tests/unit/test_pricing.py`). A follow-up grep, including case and separator variants, found nothing still using the old name. I didn't run the tests.

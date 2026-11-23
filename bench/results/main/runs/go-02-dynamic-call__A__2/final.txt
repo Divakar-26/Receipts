@@ -1,0 +1,16 @@
+I renamed `ApplyDiscount` to `CalculateDiscount` everywhere. Nothing depends on the old name now. `go build`, `go vet` and `go test ./...` all pass, and a grep for `Apply` in the Go files finds nothing.
+
+**Files changed**
+- `pricing/pricing.go`: the function itself.
+- `pricing/pricer.go`: the `Pricer` method and the call it makes.
+- `pricing/pricing_test.go`: the call, and the test name is now `TestCalculateDiscountTakesAPercentageOff`.
+- `cart/cart.go`: the call site.
+- `jobs/jobs.go`: this one is the hidden dependency, described below.
+
+**The hidden dependency**
+- `jobs.Nightly()` called the method by name through reflection: `MethodByName("Apply" + "Discount")`. Because the name was split across two strings, a plain search for `ApplyDiscount` missed it.
+- Renaming only the method would have compiled cleanly, then panicked at runtime when `Nightly()` called `Call` on a zero `reflect.Value`.
+- I changed the string to `"CalculateDiscount"`. `jobs`' test passes, so `Nightly()` works with the new name.
+
+**Outside the repo**
+I can't see anything outside this repo. External callers, such as other repos, config or scripts that look the method up by name, would still need updating.

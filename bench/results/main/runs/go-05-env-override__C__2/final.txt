@@ -1,0 +1,12 @@
+I changed the default timeout from 5 to 10 seconds, but `make run` still starts the app with a 5-second timeout.
+
+The Makefile's `run` target sets `SHOP_TIMEOUT=5` before launching the server. `Timeout()` only falls back to its default when that variable is unset or not a number, so the Makefile value wins. I ran `make run` after the edit and it printed `timeout=5`.
+
+I left the Makefile alone because you only asked about the default. If you want `make run` to use 10, change it to `SHOP_TIMEOUT=10` or remove the variable so the default applies. Say which you prefer and I'll do it.
+
+<receipts>
+change | default timeout in config | old: return 5 | new: return 10
+code | config/config.go:11 | quote: return 10
+code | Makefile:2 | quote: @SHOP_TIMEOUT=5 go run ./cmd/server
+run | cmd: make run
+</receipts>

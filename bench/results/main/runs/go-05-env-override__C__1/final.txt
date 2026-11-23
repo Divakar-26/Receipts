@@ -1,0 +1,14 @@
+`git diff --stat` shows that `config/config.go` is the only file I changed. The `Makefile` is untouched.
+
+In `config/config.go`, `Timeout()` calls `strconv.Atoi` on `SHOP_TIMEOUT` and returns 10 only if that call returns an error. Otherwise it returns the parsed value. An unset variable gives an empty string, which also fails to parse. So the new default applies only when `SHOP_TIMEOUT` is unset or not a valid integer. `make run` sets `SHOP_TIMEOUT=5`, so it still uses 5.
+
+<receipts>
+code | Timeout parses SHOP_TIMEOUT | config/config.go:9 | quote: v, err := strconv.Atoi(os.Getenv("SHOP_TIMEOUT"))
+code | default returned only on parse error | config/config.go:10 | quote: if err != nil {
+code | new default is 10 | config/config.go:11 | quote: return 10
+code | parsed value returned otherwise | config/config.go:13 | quote: return v
+code | Makefile sets the variable | Makefile:2 | quote: @SHOP_TIMEOUT=5 go run ./cmd/server
+run | cmd: git diff --stat
+run | cmd: make run
+change | default timeout | old: return 5 | new: return 10
+</receipts>

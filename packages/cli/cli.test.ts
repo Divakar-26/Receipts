@@ -15,7 +15,7 @@ const node = (args: string[], o: { cwd?: string; input?: string; env?: NodeJS.Pr
   spawnSync(process.execPath, args, { cwd: o.cwd, input: o.input, encoding: 'utf8', env: { ...process.env, ...o.env } });
 
 test('check: report, exit codes, --json, last-report.md, state-based retry cap', () => {
-  const dir = mkRepo({ 'src/cart.js': 'console.log(1);\n' });
+  const dir = mkRepo({ '.receipts.json': '{"mode":"block"}', 'src/cart.js': 'console.log(1);\n' });
   const msg = path.join(dir, 'msg.txt');
   fs.writeFileSync(msg, 'Done.\n<receipts>\nabsent | removed all console.log | pattern: console\\.log\n</receipts>\n');
   fs.mkdirSync(path.join(dir, '.receipts'));

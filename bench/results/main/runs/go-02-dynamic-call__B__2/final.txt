@@ -1,0 +1,15 @@
+I renamed `ApplyDiscount` to `CalculateDiscount` everywhere, and nothing still depends on the old name. The build and the full test suite pass after the edit, and a final grep for `ApplyDiscount` finds nothing.
+
+- **Where it changed:**
+  - the package function in `pricing/pricing.go`
+  - the `Pricer` method in `pricing/pricer.go`
+  - the call in `cart/cart.go`
+  - the call and test name in `pricing/pricing_test.go`
+- **Reflective lookup:** `jobs/jobs.go` finds the method by name with `MethodByName("Apply" + "Discount")`. That string would not show up in a search for `ApplyDiscount`, and the compiler wouldn't catch it. I changed it to `"Calculate" + "Discount"`. Without that change, `jobs.Nightly()` would have panicked at runtime, because `Call` on an invalid method value panics.
+- **Not checked:** I only looked inside this repo. Code outside it that imports `pricing` and uses the old name would break.
+
+<receipts>
+absent | no remaining references to the old name | pattern: ApplyDiscount
+code | jobs/jobs.go:10 | quote: m := reflect.ValueOf(pricing.Pricer{}).MethodByName("Calculate" + "Discount")
+run | cmd: go build ./... && go test ./...
+</receipts>

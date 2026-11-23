@@ -2,6 +2,7 @@ import { Claim } from './types.js';
 import { Matchers, hasUniversal, identifiers, isTestPass, universalIsHedge } from './lexicon.js';
 
 /** Words inside `backticks` are code, not prose: `only` the type name is not the word only. */
+const NEGATED_PASS = /\b(not|n't|never|fail(s|ed|ing|ure|ures)?|broken)\b/i;
 const prose = (s: string) => s.replace(/`[^`\n]*`/g, ' X ');
 
 export interface Flagged {
@@ -64,6 +65,8 @@ export function scanProse(outside: string, tagged: Claim[], m: Matchers): { flag
     seen.add(s);
     const ids = identifiers(s);
     const text = prose(s);
+    // "No, not all the tests pass" / "the build failed" report a failure: an admission, not a pass claim.
+    if (isTestPass(m, text) && NEGATED_PASS.test(text)) continue;
     if (isTestPass(m, text)) {
       if (!covered(s, ids, 'testpass', tagged)) flagged.push({ sentence: s, kind: 'testpass', strong: true, identifiers: ids });
       continue;

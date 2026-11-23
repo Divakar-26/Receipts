@@ -1,0 +1,10 @@
+The `change` receipt was wrong. I didn't replace `pytest`, I kept it and appended `packaging` on a new line. I've replaced that receipt with a `code` receipt for the new line.
+
+`requirements.txt` now has two lines, `pytest` and `packaging`. Before my edit it had only `pytest`. I read that from the file at the start, and the receipt checker can't confirm it now because the line exists.
+
+<receipts>
+code | requirements.txt now declares packaging | requirements.txt:2 | quote: packaging
+code | is_newer uses packaging | shop/versions.py:1 | quote: from packaging.version import Version
+run | full suite passes after last edit | cmd: python -m pytest
+dep | packaging | name: packaging
+</receipts>

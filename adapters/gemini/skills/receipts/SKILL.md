@@ -27,10 +27,10 @@ as free text, so a malformed line never lowers the level of checking.
 | type | write | the checker does | best result |
 | --- | --- | --- | --- |
 | `code` | `code \| claim \| src/a.js:57 \| quote: return null` | opens the file, finds the quote within 3 lines of that line | 📎 cited (it does not judge what the line means) |
-| `run` | `run \| claim \| cmd: npm test` | finds the latest matching command this session, its exit code, parsed test counts, whether files changed since | ✅ |
-| `absent` | `absent \| claim \| pattern: console\.log` | greps the WHOLE repo itself, whatever scope you named | ✅ zero hits |
+| `run` | `run \| claim \| cmd: npm test` | finds the latest matching command this session, its exit code, parsed test counts, whether files changed since. A claim that says it *failed* ("2 failed", "make test fails") is checked as a failure; `run \| cmd: x` with no claim only records that it ran | ✅ |
+| `absent` | `absent \| claim \| pattern: console\.log` (optional `in: src/checkout`) | greps the WHOLE repo itself and reports every hit; with `in:` only hits inside that path contradict the claim | ✅ zero hits |
 | `only` | `only \| claim \| symbol: verifyToken \| in: src/login.js` | greps the whole repo for the symbol outside `in:` and the definition | ✅ |
-| `change` | `change \| claim \| old: getUser \| new: fetchUser` | old name gone, new name present | ✅ |
+| `change` | `change \| claim \| old: getUser \| new: fetchUser` | names: old gone everywhere, new present. Code snippets (`old: x = 1 \| new: x = 2`): new lines present, old lines gone | ✅ |
 | `dep` | `dep \| claim \| name: bcrypt` (optional `version:`) | reads manifests and lockfiles | ✅ "declared" |
 | `judge` | `judge \| claim` (optional `source: URL`) | cannot prove it; lists the evidence that exists | ⚠️ always |
 
@@ -89,5 +89,6 @@ searches the whole repo. Write an `only` line with `symbol:` and `in:`.
   `receipts run -- npm test`, which records the real exit code.
 - Edits after a test run make that run stale. Re-run before claiming it passes.
 - Say plainly what you did not check. An honest ⚠️ costs nothing; a false ✅ gets caught.
-- If the checker sends you back, fix the claim or withdraw it. It only does this once per turn.
+- Reporting a failure honestly is fine: `run | 2 tests fail | cmd: npm test` is verified as a failure.
+- By default Receipts only reports (mode `warn`). In mode `block` it sends you back once per turn; then fix the claim or withdraw it.
 - Turns with no factual claims (plans, questions) need no block.

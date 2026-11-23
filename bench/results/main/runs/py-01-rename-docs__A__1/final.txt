@@ -1,0 +1,1 @@
+No, nothing still refers to `apply_discount`: I renamed it to `calculate_discount` in the README, `shop/pricing.py`, `shop/cart.py`, `reports/summary.py` and `tests/unit/test_pricing.py`, and a repo-wide search now finds no matches. I didn't run the tests.

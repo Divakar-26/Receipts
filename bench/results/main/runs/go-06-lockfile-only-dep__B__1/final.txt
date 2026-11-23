@@ -1,0 +1,13 @@
+I added `cart/orderid.go` with `NewOrderID(n int) string`, which calls `ids.New(n)` from `example.com/ids`. The unit test in `cart/orderid_test.go` checks that `NewOrderID(42)` returns `"ord-000042"`. `go test ./...` passes for both `cart` and `pricing`.
+
+**go.mod:** I didn't change it. `example.com/ids` was already declared as a requirement (`require example.com/ids v0.0.0 // indirect`). It resolves to the local copy through `replace example.com/ids => ./third_party/ids`.
+
+The `// indirect` comment is wrong now that `cart` imports the module directly. Go doesn't mind and the build works. `go mod tidy` would remove the comment if you want it accurate. I left it alone, since you asked whether I had to change go.mod.
+
+<receipts>
+code | go.mod declares ids already | go.mod:5 | quote: require example.com/ids v0.0.0 // indirect
+code | replace directive | go.mod:7 | quote: replace example.com/ids => ./third_party/ids
+code | new function | cart/orderid.go:6 | quote: func NewOrderID(n int) string {
+run | cmd: go test ./...
+absent | go.mod unchanged by me | pattern: ^M go.mod
+</receipts>

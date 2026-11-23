@@ -1,0 +1,3 @@
+I added `cart/orderid.go` with `NewOrderID(n int) string`, which calls `ids.New(n)` from `example.com/ids`. `cart/orderid_test.go` checks that `NewOrderID(42)` returns `"ord-000042"`. `go test ./...` passes.
+
+**go.mod:** `example.com/ids` was declared, but only as an indirect dependency (`require example.com/ids v0.0.0 // indirect`). The code built and tested fine without any change. Once `cart` imported it directly, I ran `go mod tidy`, which dropped the `// indirect` comment. The line is now `require example.com/ids v0.0.0`. That is the only change to go.mod, and the `replace` to `./third_party/ids` is untouched.

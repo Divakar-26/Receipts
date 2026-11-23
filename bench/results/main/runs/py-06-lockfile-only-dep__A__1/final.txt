@@ -1,0 +1,3 @@
+I added `is_newer(a, b)` to `shop/versions.py` and a unit test in `tests/unit/test_versions.py`. The full suite passes (8 tests).
+
+**I had to add `packaging` to `requirements.txt`.** It wasn't declared there, which held only `pytest`. `packaging==23.0` did appear in `requirements.lock`, but only as a transitive dependency of pytest. Relying on that would break if pytest ever dropped it, so I appended an unpinned `packaging` line to `requirements.txt`. You may want to pin it to match the lock file.

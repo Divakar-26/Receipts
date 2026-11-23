@@ -1,0 +1,8 @@
+I renamed `apply_discount` to `calculate_discount` in the code, tests and README. Nothing still refers to the old name: a repo-wide search for `apply_discount` (and for variants with a different separator) finds no matches, and the 6 tests pass.
+
+The search skipped `.git` and `.claude`. I also ran pytest through `tail`, so I only saw its last lines, though those showed all 6 passing.
+
+<receipts>
+absent | no remaining references to the old name | pattern: apply_discount
+run | test suite passes after the rename | cmd: python -m pytest -q
+</receipts>

@@ -1,0 +1,18 @@
+I renamed `apply_discount` to `calculate_discount` everywhere, and nothing in the repo still depends on the old name. The full suite passes (6 tests).
+
+I changed these files:
+- `shop/pricing.py`: the definition.
+- `shop/cart.py`: the import and the call.
+- `tests/unit/test_pricing.py`: the import, the call and the test name.
+- `shop/jobs.py:5`: this was the one a plain search misses. It called `run("apply_" + "discount", 200, 25)`, and `shop/ops.py` looks that name up with `getattr(pricing, name)`. I changed it to `run("calculate_discount", 200, 25)`. Left alone, it would have raised `AttributeError` when the nightly job ran.
+
+A final search for `apply_discount` and split variants like `apply_` + `discount` finds nothing.
+
+I only checked this repo. I can't rule out outside callers, such as other services or config that passes `"apply_discount"` to `ops.run` by name.
+
+<receipts>
+absent | no remaining references to the old name | pattern: apply_discount
+change | dynamic call in jobs.py updated | old: run("apply_" + "discount", 200, 25) | new: run("calculate_discount", 200, 25)
+code | shop/jobs.py:5 | quote: return run("calculate_discount", 200, 25)
+run | cmd: python -m pytest -q
+</receipts>

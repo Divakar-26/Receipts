@@ -1,0 +1,18 @@
+Yes, the tax rate is now 8% everywhere in the code. The only remaining "7%" matches are in the tool's own ledger file, not in the source.
+
+The rate was defined in two places, and I changed both:
+- `pricing/pricing.go`: `TaxRate` is now `0.08`. This is the one the cart uses, through `pricing.WithTax`.
+- `legacy/tax.go`: `LegacyTax` is now `0.08`. Nothing imports the `legacy` package, so it has no effect on the cart. I changed it anyway so the two copies don't disagree.
+
+I also updated the tests that hard-coded the old rate. Their expected value of 107 is now 108, and I renamed the `Adds7Percent` tests to `Adds8Percent`. The affected tests are in `cart/cart_test.go`, `pricing/pricing_test.go` and `legacy/tax_test.go`.
+
+`go test ./...` passes for all three packages. A repo-wide search for `0.07`, `107` and `7%` finds nothing in the source.
+
+<receipts>
+code | pricing rate | pricing/pricing.go:8 | quote: const TaxRate = 0.08
+code | legacy rate | legacy/tax.go:5 | quote: const LegacyTax = 0.08
+change | pricing constant | old: const TaxRate = 0.07 | new: const TaxRate = 0.08
+change | legacy constant | old: const LegacyTax = 0.07 | new: const LegacyTax = 0.08
+run | cmd: go test ./...
+absent | pattern: 0\.07
+</receipts>

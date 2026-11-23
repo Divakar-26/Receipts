@@ -52,21 +52,30 @@ export function parseLine(raw: string, lineNo: number): Claim {
   if (!text) return untagged();
   let rest = parts.slice(2);
   // `only | symbol: x | in: y` (keys where the claim text belongs): the intent is clear, so keep it.
+  let textless = false;
   if (KEY_RE.test(text)) {
     rest = [text, ...rest];
     text = `${type} ${text}`;
+    textless = true;
   }
   const fields: Record<string, string> = {};
   let loc: string | undefined;
+  // A part that is neither `key: value` nor a code location came from an unescaped `|` (e.g. a regex
+  // alternation in `pattern: (a|b)`): glue it back onto the value it was split from.
+  let last: string | null = null;
   for (const p of rest) {
     const k = KEY_RE.exec(p);
-    if (k) fields[k[1]] = k[2].trim();
-    else if (type === 'code' && !loc && LOC_RE.test(p)) loc = p;
+    if (k) {
+      fields[k[1]] = k[2].trim();
+      last = k[1];
+    } else if (type === 'code' && !loc && LOC_RE.test(p)) loc = p;
+    else if (last) fields[last] = `${fields[last]}|${p}`;
+    else text = `${text}|${p}`;
   }
   if (type === 'code' && !loc) return { ...untagged(), text: raw.trim() };
   for (const key of REQUIRED[type]) if (!fields[key]) return untagged();
   if (type === 'code' && !fields.quote) return untagged();
-  return { type, text, fields, loc, line: lineNo };
+  return { type, text, fields, loc, line: lineNo, ...(textless ? { textless } : {}) };
 }
 
 export function parseMessage(message: string): ParsedMessage {

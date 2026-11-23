@@ -1,0 +1,14 @@
+I haven't deleted `LegacyRound`, because it isn't dead code.
+
+`cmd/report/main.go:11` calls it through reflection:
+
+```go
+m := reflect.ValueOf(legacy.Tools{}).MethodByName("Legacy" + "Round")
+out := m.Call([]reflect.Value{reflect.ValueOf(2.6)})
+```
+
+The method name is built by string concatenation, so a plain search for `LegacyRound` doesn't find it. If I deleted the method, the code would still compile. `MethodByName` would then return an invalid `Value`, and `m.Call` would panic at runtime. The compiler and `go vet` wouldn't warn you.
+
+Nothing else in the repo references it. I only searched by text, so I can't rule out callers outside this repo.
+
+To remove it safely, I'd change `cmd/report/main.go` to call `legacy.Tools{}.LegacyRound(2.6)` directly, or drop that call if it's obsolete. Then I'd delete the method. Do you want me to do that, or leave it as it is?

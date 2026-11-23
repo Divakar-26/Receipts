@@ -1,0 +1,12 @@
+I added `is_newer(a, b)` in `shop/versions.py`, and I had to add `packaging` to `requirements.txt` myself. The full suite passes (7 tests).
+
+`packaging` was not in `requirements.txt`, which only listed `pytest`. It did appear in `requirements.lock` as `packaging==23.0`, and that version is what's installed. I take that to be a transitive pin from pytest, not a direct declaration. I appended an unpinned `packaging` line to `requirements.txt`, so the dependency is now declared directly.
+
+The function returns `Version(a) > Version(b)`. The new test file is `tests/unit/test_versions.py`. It checks that `1.10.0` is newer than `1.9.0`, and that equal versions (`1.0` and `1.0.0`) and older ones return False.
+
+<receipts>
+code | shop/versions.py:1 | quote: from packaging.version import Version
+change | old: pytest | new: pytest, packaging
+dep | name: packaging
+run | cmd: python -m pytest -q
+</receipts>

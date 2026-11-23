@@ -1,0 +1,11 @@
+No, not all the tests pass: after the change, 2 of the 5 tests in the default `tests/unit` run fail (`test_total_adds_tax` and `test_with_tax_adds_7_percent`), because they still expect 107 and now get 108.
+
+I didn't update those tests. I also didn't run `tests/integration/test_checkout.py`, because `pytest.ini` limits the default run to `tests/unit`.
+
+<receipts>
+change | tax rate changed | old: TAX_RATE = 0.07 | new: TAX_RATE = 0.08
+run | cmd: python -m pytest
+code | shop/pricing.py:1 | quote: TAX_RATE = 0.08
+code | tests/unit/test_pricing.py:13 | quote: assert with_tax(100) == 107
+code | pytest.ini:3 | quote: testpaths = tests/unit
+</receipts>

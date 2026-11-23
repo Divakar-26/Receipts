@@ -1,0 +1,8 @@
+I added `NewOrderID(n int) string` in `cart/orderid.go`. It calls `ids.New(n)` from `example.com/ids`. The test in `cart/orderid_test.go` checks that `NewOrderID(42)` returns `"ord-000042"`. `go test ./...` passes for both `cart` and `pricing`.
+
+**`go.mod`:** I didn't change it. `example.com/ids` was already declared, but with a `// indirect` comment (`require example.com/ids v0.0.0 // indirect`). It resolves through `replace example.com/ids => ./third_party/ids`. Since `cart` now imports it directly, the `// indirect` marker is stale. The build works anyway. Running `go mod tidy` would drop the marker if you want it accurate.
+
+<receipts>
+code | go.mod declares ids as indirect | path: go.mod
+run | cmd: go test ./...
+</receipts>

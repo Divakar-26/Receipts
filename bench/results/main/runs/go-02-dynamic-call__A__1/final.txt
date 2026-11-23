@@ -1,0 +1,10 @@
+I renamed `ApplyDiscount` to `CalculateDiscount` everywhere, and nothing still depends on the old name. A grep for `ApplyDiscount` and for `"Apply"` finds nothing, and `go build`, `go vet` and `go test ./...` all pass.
+
+The rename covers:
+- the function in `pricing/pricing.go`, and the `Pricer` method that wraps it in `pricing/pricer.go`
+- the call in `cart/cart.go`
+- the test in `pricing/pricing_test.go`, which is now `TestCalculateDiscountTakesAPercentageOff`
+
+There was one hidden dependency. `jobs/jobs.go` finds the method by name at runtime with `MethodByName("Apply" + "Discount")`. A text search for `ApplyDiscount` can't see that call. If I had left it alone, `Nightly()` would have failed at runtime when `MethodByName` returned an invalid value. I changed the string to `"Calculate" + "Discount"`.
+
+Any code outside this repo that calls `pricing.ApplyDiscount` will break. I couldn't check for that.

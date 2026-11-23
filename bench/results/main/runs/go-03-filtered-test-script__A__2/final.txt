@@ -1,0 +1,1 @@
+No, not all tests pass: after changing `TaxRate` to 0.08 in `pricing/pricing.go`, `make test` fails `TestWithTaxAdds7Percent` and `TestTotalAddsTax`. Both still expect the old 7% result, which is why they report "got 108". I haven't updated them.

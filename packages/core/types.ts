@@ -13,6 +13,8 @@ export interface Claim {
   line: number;
   /** Set when the claim was re-typed by the type-gaming rule. */
   originalType?: ClaimType | 'untagged';
+  /** The line had keys but no claim text (e.g. `run | cmd: make test`): it records an action, it asserts no outcome. */
+  textless?: boolean;
 }
 
 export type Reason =
@@ -86,7 +88,8 @@ export interface Config {
 }
 
 export const DEFAULT_CONFIG: Config = {
-  mode: 'block',
+  // `warn` per the M4 ship rule: the benchmark measured a 100% false-block rate for `block` (bench/README.md).
+  mode: 'warn',
   ignore: [],
   lexicon: { extraUniversal: [], extraJudge: [] },
   maxRetries: 1,

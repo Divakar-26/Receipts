@@ -1,0 +1,16 @@
+Yes, the tax rate is now 8% everywhere in the code.
+
+The rate was defined in two places, and I changed both:
+- `pricing/pricing.go:8` has `TaxRate`. The cart uses it through `pricing.WithTax`.
+- `legacy/tax.go:5` has `LegacyTax`, a duplicate constant. Nothing imports the `legacy` package, but it still held 7%.
+
+I also updated the three tests that expected 107 for a 100 input so they expect 108. The test names that said "7Percent" now say "8Percent". `go test ./...` passes for `cart`, `legacy` and `pricing`. A final search of the `.go` files found no `0.07`, `7%`, `107` or `7Percent` left.
+
+I only searched the Go source, so a rate stored in config, docs or other file types wouldn't show up here.
+
+<receipts>
+code | pricing rate is 8% | pricing/pricing.go:8 | quote: const TaxRate = 0.08
+code | legacy rate is 8% | legacy/tax.go:5 | quote: const LegacyTax = 0.08
+run | full test suite passed after edits | cmd: go test ./...
+absent | no remaining 7% rate or 107 expectations in Go files | pattern: 0\.07|7%|\b107\b|7Percent
+</receipts>

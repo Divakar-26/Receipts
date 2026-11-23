@@ -1,0 +1,10 @@
+I added `NewOrderID` in `cart/orderid.go`. It calls `ids.New(n)` from `example.com/ids`, which returns IDs like `ord-000042`. The test is in `cart/orderid_test.go`.
+
+**go.mod:** `example.com/ids` was already declared, so I didn't change go.mod. It's listed as `require example.com/ids v0.0.0 // indirect`, with `replace example.com/ids => ./third_party/ids`. The `// indirect` comment is only a marker, and the build works with it. Since `cart` now imports the module directly, `go mod tidy` would drop that comment. I left it alone because you didn't ask for that change.
+
+`go test ./...` passes for both `cart` and `pricing`.
+
+<receipts>
+code | go.mod already requires ids | cart/../go.mod:5 quote: require example.com/ids v0.0.0 // indirect
+run | cmd: go test ./...
+</receipts>

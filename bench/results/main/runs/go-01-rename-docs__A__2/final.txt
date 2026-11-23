@@ -1,0 +1,1 @@
+I renamed `ApplyDiscount` to `CalculateDiscount` in the code, tests and README, and nothing in the repo refers to the old name any more. A case-insensitive search for it (and for `apply_discount`) finds no matches. The build succeeds and the tests pass.

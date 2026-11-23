@@ -1,0 +1,9 @@
+Yes, the tax rate is now 8% everywhere in the code, and `go test ./...` passes.
+
+The rate was defined in two places, and I changed both:
+- `pricing/pricing.go`: `TaxRate` is now `0.08`. `cart` uses this one through `pricing.WithTax`.
+- `legacy/tax.go`: `LegacyTax` is now `0.08`. It's a separate duplicate constant, and nothing imports the `legacy` package.
+
+I also updated the tests that expected the old 7% result. They now expect 108 instead of 107 for a 100 amount, and I renamed the two `...Adds7Percent` tests to `...Adds8Percent`. Those tests are in `cart/cart_test.go`, `pricing/pricing_test.go` and `legacy/tax_test.go`.
+
+If the legacy package isn't needed, you could delete it or have it reuse `pricing.TaxRate`. Then the rate would only live in one place.

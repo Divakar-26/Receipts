@@ -1,0 +1,9 @@
+No, nothing in the repo refers to `ApplyDiscount` any more. I renamed it to `CalculateDiscount` in the README, `cart/cart.go`, `pricing/pricing.go`, `pricing/pricing_test.go` and `reports/summary.go`. A repo-wide grep (excluding `.git`) found no matches afterward, and `go test ./...` passed.
+
+I did not rename the test function `TestApplyDiscountTakesAPercentageOff`, because the grep pattern was case-insensitive and the sed was not. The `sed` replaced it too, so it is now `TestCalculateDiscountTakesAPercentageOff`.
+
+<receipts>
+absent | no remaining references to old name | pattern: ApplyDiscount
+run | full test suite passed after the edit | cmd: go test ./...
+change | renamed function everywhere | old: ApplyDiscount | new: CalculateDiscount
+</receipts>

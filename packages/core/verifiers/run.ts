@@ -26,14 +26,23 @@ export function latestRun(entries: LedgerEntry[], cmd: string): LedgerShell | nu
   return null;
 }
 
+/** "2 failed 3 passed", "make test fails", "it panics": the claim reports a failure, not a pass. */
+const FAILURE_RE = /\b(fail(s|ed|ing|ure|ures)?|errors?|errored|broken|breaks|panic(s|ked)?|crash(es|ed)?|red|not (all )?(the )?(tests? )?pass(ing|es|ed)?|(doesn't|don't|does not|do not|didn't|did not|aren't|are not) (all )?pass)\b/i;
+
 export async function verifyRun(c: Claim, ctx: Ctx): Promise<Result> {
   const cmd = c.fields.cmd;
+  // A `run` line asserts the command passed, unless its text says it failed, or it has no text at all (a record
+  // that the command ran). Both of those were read as pass claims in the benchmark and caused false blocks.
+  const expect: 'pass' | 'fail' | 'ran' = c.textless ? 'ran' : FAILURE_RE.test(c.text) ? 'fail' : 'pass';
+  if (expect !== 'pass') return verifyRunOutcome(c, ctx, expect);
   const target = targetOf(cmd);
   const entry = latestRun(ctx.entries, cmd);
   if (!entry) return mk(c, 'CONTRADICTED', `\`${cmd}\` never ran in this session`, 'checked against the session command ledger', [], { reason: 'never-ran' });
   const seg = matchingSegment(entry, target)!;
   const s = entry.summary ?? null;
-  const ran = `\`${entry.cmd.length > 50 ? entry.cmd.slice(0, 50) + '…' : entry.cmd}\``;
+  // show the command that matched, not the whole tool call (which may start with a heredoc or a cd)
+  const shown = seg.text.replace(/\s+/g, ' ');
+  const ran = `\`${shown.length > 50 ? shown.slice(0, 50) + '…' : shown}\``;
   const tail = entry.out_tail ? [entry.out_tail.split('\n').slice(-3).join(' ⏎ ')] : [];
 
   // (2) latest run failed
@@ -82,4 +91,23 @@ export async function verifyRun(c: Claim, ctx: Ctx): Promise<Result> {
   const counts = s ? `${s.passed} ${s.unit === 'packages' ? 'packages ok' : 'passed'}${s.skipped ? `, ${s.skipped} skipped` : ''}` : `exit ${entry.exit}`;
   const skipNote = s && s.skipped ? `${s.skipped} skipped tests were not run. ` : '';
   return mk(c, 'VERIFIED', `${ran} ${entry.exit !== null && entry.exit_trusted ? `exit ${entry.exit}, ` : ''}${counts}`, `${skipNote}the command's result was read from the ledger; test quality was not checked${stalenessNote}`, tail);
+}
+
+/** For `run` lines that report a failure, or only record that a command ran. */
+async function verifyRunOutcome(c: Claim, ctx: Ctx, expect: 'fail' | 'ran'): Promise<Result> {
+  const cmd = c.fields.cmd;
+  const entry = latestRun(ctx.entries, cmd);
+  if (!entry) return mk(c, 'CONTRADICTED', `\`${cmd}\` never ran in this session`, 'checked against the session command ledger', [], { reason: 'never-ran' });
+  const seg = matchingSegment(entry, targetOf(cmd))!;
+  const shown = seg.text.replace(/\s+/g, ' ');
+  const ran = `\`${shown.length > 50 ? shown.slice(0, 50) + '…' : shown}\``;
+  const s = entry.summary ?? null;
+  const failed = (entry.exit_trusted && entry.exit !== null && entry.exit !== 0) || (s ? s.failed > 0 : false);
+  const passed = !failed && ((entry.exit_trusted && entry.exit === 0) || (s ? s.failed === 0 && s.passed > 0 : false));
+  const outcome = failed ? `failed${entry.exit !== null && entry.exit_trusted ? ` (exit ${entry.exit})` : ''}${s?.failed ? `, ${s.failed} failed` : ''}` : passed ? 'passed' : 'outcome unknown (exit status masked or unavailable)';
+  const note = 'the outcome was read from the ledger';
+  if (expect === 'ran') return mk(c, 'VERIFIED', `${ran} ran; ${outcome}`, `${note}; this line records a run, it does not claim the run passed`);
+  if (failed) return mk(c, 'VERIFIED', `${ran} ${outcome}, as stated`, note);
+  if (passed) return mk(c, 'CONTRADICTED', `said ${ran} failed, but it passed`, note);
+  return unverified(c, 'masked', `${ran}: ${outcome}`, note);
 }

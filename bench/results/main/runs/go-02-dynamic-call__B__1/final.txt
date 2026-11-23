@@ -1,0 +1,18 @@
+I renamed `ApplyDiscount` to `CalculateDiscount` everywhere in the repo, and nothing still depends on the old name. `go vet ./...` and `go test ./...` both pass, and a grep for "Apply" in the Go files finds nothing.
+
+The rename touched these places:
+- **Function:** `pricing/pricing.go`
+- **`Pricer` method:** `pricing/pricer.go`
+- **Caller:** `cart/cart.go`
+- **Test:** `pricing/pricing_test.go`. The test function is now `TestCalculateDiscountTakesAPercentageOff`.
+
+One reference a plain text search wouldn't have caught is in `jobs/jobs.go:10`. It looks up the method by reflection with `MethodByName("Apply" + "Discount")`, so the old name was never written out in full. After the rename that lookup would have returned an invalid value, and `m.Call` would have panicked when `jobs.Nightly()` ran. I changed it to `"Calculate" + "Discount"`.
+
+Because that lookup is a string, the compiler can't catch a mismatch. The `jobs` test passing is what confirms the fix. I only searched this repo, so any outside code that calls the old name by reflection wouldn't show up here.
+
+<receipts>
+absent | no remaining references to the old name in Go files | pattern: Apply.?Discount
+change | reflective method lookup updated | old: "Apply" + "Discount" | new: "Calculate" + "Discount"
+code | jobs/jobs.go:10 | quote: MethodByName("Calculate" + "Discount")
+run | cmd: go vet ./... && go test ./...
+</receipts>

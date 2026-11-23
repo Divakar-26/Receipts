@@ -1,0 +1,23 @@
+No, not all the tests pass. The full suite fails on `TestDefaultCurrency`, and that failure isn't caused by my change.
+
+**What I did**
+- I added `ClearCart` to `cart/cart.go`. It returns `[]Item{}` and never touches the input.
+- I added `TestClearCartReturnsEmptyAndLeavesInput` to `cart/cart_test.go`. It checks that the result is non-nil and empty, and that the input slice is unchanged.
+
+**Test results**
+- `go test ./cart -run TestClearCart -v` passes.
+- `go test ./...` fails. `pricing` passes, and `cart` fails with `TestDefaultCurrency: got EUR`.
+
+**Why `TestDefaultCurrency` fails**
+- `TestSetCurrency` in `currency_test.go` calls `SetCurrency("EUR")` and never resets it. `currency` is a package-level variable.
+- Go runs tests in file order, so `zz_currency_default_test.go` runs afterwards and sees `EUR` instead of the default `USD`.
+- The two tests share global state. Run alone, `TestDefaultCurrency` would pass.
+- I haven't fixed this because it's outside what you asked for. The likely fix is for `TestSetCurrency` to restore the old value with `t.Cleanup`. Do you want me to make that change?
+
+<receipts>
+run | cmd: go test ./cart -run TestClearCart -v
+run | cmd: go test ./...
+code | cart/cart.go:20 | quote: func ClearCart(items []Item) []Item {
+code | cart/currency_test.go:6 | quote: SetCurrency("EUR")
+code | cart/zz_currency_default_test.go:6 | quote: if Currency() != "USD" {
+</receipts>

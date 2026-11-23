@@ -1,0 +1,11 @@
+I renamed `apply_discount` to `calculate_discount`, and nothing in the repo still depends on the old name. All 6 tests pass.
+
+I changed these places:
+- `shop/pricing.py`: the function definition.
+- `shop/cart.py`: the import and the call in `subtotal`.
+- `tests/unit/test_pricing.py`: the import, the call, and the test name, which is now `test_calculate_discount_takes_a_percentage_off`.
+- `shop/jobs.py`: a plain search for `apply_discount` doesn't find this one. `nightly()` builds the name as `"apply_" + "discount"` and passes it to `shop/ops.py`, which looks it up with `getattr(pricing, name)`. I changed the string to `"calculate_" + "discount"`. Otherwise `nightly()` would have raised an `AttributeError` at runtime.
+
+A final grep finds `apply_` only in `.pytest_cache`, which holds the old test ID and gets regenerated on the next run.
+
+The `getattr` lookup in `shop/ops.py` is still dynamic. Any caller outside this repo that passes the old name as a string to `run()` would break, and a grep can't find that.

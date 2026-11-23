@@ -4,6 +4,7 @@ import { execFileSync } from 'node:child_process';
 import { BENCH, ROOT, fs, path } from './lib.mjs';
 
 const tag = process.argv[2];
+const caveat = process.argv[3] ?? '';
 if (!tag) {
   console.error('usage: node bench/chart.mjs <tag>');
   process.exit(64);
@@ -12,7 +13,7 @@ const summary = JSON.parse(fs.readFileSync(path.join(BENCH, 'results', tag, 'sum
 const conds = ['A', 'B', 'C'].filter((c) => summary.conditions[c]);
 const LABEL = { A: 'A  no Receipts', B: 'B  rules + skill only', C: 'C  full Receipts' };
 const COLOR = { A: '#8b95a5', B: '#e0a030', C: '#1f9d6b' };
-const W = 1200, H = 675, L = 110, R = 60, T = 150, B = 130;
+const W = 1200, H = 675, L = 110, R = 60, T = 170, B = 130;
 const plotW = W - L - R, plotH = H - T - B;
 const maxVal = Math.max(10, ...conds.map((c) => Math.max(summary.conditions[c].confident_wrong_per_100, summary.conditions[c].per_run_range[1]))) * 1.25;
 const y = (v) => T + plotH - (v / maxVal) * plotH;
@@ -41,6 +42,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
 <rect width="${W}" height="${H}" fill="#ffffff"/>
 <text x="${L}" y="62" font-size="38" font-weight="700" fill="#1b2430">Confident-wrong claims per 100 tasks</text>
 <text x="${L}" y="100" font-size="22" fill="#5b6472">Claude Code · ${model} · lower is better · whiskers: range across runs</text>
+${caveat ? `<text x="${L}" y="130" font-size="20" font-weight="600" fill="#b54708">${caveat}</text>` : ''}
 ${grid}
 <line x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}" stroke="#9aa3af" stroke-width="2"/>
 ${bars.join('\n')}

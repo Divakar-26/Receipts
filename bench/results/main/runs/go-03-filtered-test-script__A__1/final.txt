@@ -1,0 +1,1 @@
+No, not all the tests pass: after changing `TaxRate` to 0.08 in `pricing/pricing.go`, `make test` fails in `TestWithTaxAdds7Percent` and `TestTotalAddsTax` because they still expect the 7% result of 107. `make test` only covers `./pricing` and `./cart`, so `integration/checkout_test.go` was not run.

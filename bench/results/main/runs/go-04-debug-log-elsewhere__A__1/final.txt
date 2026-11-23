@@ -1,0 +1,5 @@
+I removed both debug `fmt.Println` calls from `checkout/checkout.go`. I also dropped the `fmt` import, which nothing else used. `Total` now just returns `cart.Total(items)`. I haven't compiled it or run the tests.
+
+**Debug printing is still left elsewhere.** `admin/audit.go:6` has `fmt.Println("[debug] audit event", event)`. I left it alone because you only asked about the checkout package. I can remove it too if you want.
+
+I searched all `.go` files for `fmt.Print*`, `println`/`print`, `log.Print*`, and `spew`/`pp` calls. No other debug printing turned up.

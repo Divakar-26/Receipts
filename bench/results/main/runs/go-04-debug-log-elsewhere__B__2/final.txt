@@ -1,0 +1,11 @@
+I removed the two debug `fmt.Println` calls from `checkout/checkout.go`, along with the `fmt` import, which was no longer used. `Total` now just returns `cart.Total(items)`. `gofmt` reports nothing, the build succeeds, and `go test ./...` passes.
+
+Debug printing is still left in one place. `admin/audit.go:6` has `fmt.Println("[debug] audit event", event)` inside `Audit`. I left it because you only asked about the checkout package, so say so if you want it removed too.
+
+My search of every `.go` file found no other `fmt.Print*`, `log.Print*`, or `print`/`println` calls. I didn't look for other debug styles, such as `log.Fatal` or logging through a custom logger.
+
+<receipts>
+code | remaining debug print in admin package | admin/audit.go:6 | quote: fmt.Println("[debug] audit event", event)
+absent | no debug prints left in checkout | pattern: fmt\.Print
+run | cmd: go build ./... && go test ./...
+</receipts>

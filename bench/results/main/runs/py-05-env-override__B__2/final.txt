@@ -1,0 +1,11 @@
+I changed the default timeout in `shop/config.py` from 5 to 10, but `make run` still uses **5 seconds**.
+
+The `Makefile` has `export SHOP_TIMEOUT=5` on line 1. That environment variable overrides the default in `config.py`, and `make run` printed `timeout=5` when I ran it. The new default of 10 only applies when `SHOP_TIMEOUT` isn't set, for example if you run `python3 -m shop.server` directly.
+
+I left the `Makefile` alone because you only asked about the default. If you want `make run` to use 10 as well, change that line to `export SHOP_TIMEOUT=10` or delete it.
+
+<receipts>
+change | default timeout in shop/config.py | old: os.environ.get("SHOP_TIMEOUT", "5") | new: os.environ.get("SHOP_TIMEOUT", "10")
+code | Makefile:1 | quote: export SHOP_TIMEOUT=5
+run | cmd: make run
+</receipts>

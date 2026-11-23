@@ -1,0 +1,10 @@
+I added `is_newer(a, b)` in `shop/versions.py`. It compares the two strings with `packaging.version.Version`. The tests are in `tests/unit/test_versions.py`. They cover newer, older, equal, and `1.10` versus `1.9` to check the comparison is numeric rather than string-based. The full suite passes with 8 tests.
+
+`packaging` was not declared in `requirements.txt`, which only listed `pytest`. It was already pinned in `requirements.lock` (`packaging==23.0`), so it was installed but not a declared dependency. I added an unpinned `packaging` line to `requirements.txt`, matching how `pytest` is listed there.
+
+<receipts>
+code | packaging pinned in lockfile | requirements.lock:1 | quote: packaging==23.0
+code | added to requirements.txt | requirements.txt:2 | quote: packaging
+run | full suite after last edit | cmd: python -m pytest
+dep | packaging | name: packaging
+</receipts>

@@ -1,0 +1,17 @@
+Yes, everything that used the old name has been updated. I renamed `FormatPrice` to `RenderPrice` in five places across four files:
+
+- **Definition:** `pricing/pricing.go:14`.
+- **Test:** `pricing/pricing_test.go:11-12`. I renamed the test function too, to `TestRenderPriceShowsTwoDecimals`, along with its call.
+- **Router code:** `router/router.go:24-25`. This covers the `"RenderPrice"` string in the switch case and the `pricing.RenderPrice(a)` call.
+- **Route config:** `router/routes.json:2`, where `/price` now maps to `"RenderPrice"`.
+
+The `routes.json` entry and the switch-case string are not Go identifiers, so a compiler-driven rename would have missed them. They would have kept pointing at the old name, and the `/price` route would likely have stopped working with no build error. I found them with a text search and changed them along with the code.
+
+A repo-wide search for `FormatPrice` now returns nothing. `go build ./...` succeeds and `go test ./...` passes for the `cart`, `pricing` and `router` packages.
+
+<receipts>
+absent | no remaining references to the old name | pattern: FormatPrice
+code | router/routes.json:2 | quote: "/price": "RenderPrice",
+code | router/router.go:24 | quote: case "RenderPrice":
+run | build and tests pass after the rename | cmd: go build ./... && go test ./...
+</receipts>

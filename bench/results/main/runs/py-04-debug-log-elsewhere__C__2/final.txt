@@ -1,0 +1,9 @@
+I'm narrowing that claim. My search was a single Grep for `print(`, `pprint`, `breakpoint()` and `console.log`. It returned `shop/admin/audit.py:2`, the two lines in `shop/checkout.py` that I then removed, and one documentation example in `.claude/skills/receipts/SKILL.md`. I didn't search for other kinds of debug output, such as `logging` calls or `sys.stdout.write`.
+
+I removed the two debug `print` calls from `shop/checkout.py`. `shop/admin/audit.py:2` still has a debug print, and I haven't touched it.
+
+<receipts>
+code | Remaining debug print in shop package | shop/admin/audit.py:2 | quote: print("[debug] audit event", event)
+absent | No debug prints left in checkout module | pattern: \[debug\] (items|total)
+change | checkout_total simplified | old: t = total(items) | new: return total(items)
+</receipts>

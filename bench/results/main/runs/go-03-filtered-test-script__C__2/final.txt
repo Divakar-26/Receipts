@@ -1,0 +1,13 @@
+Yes, all the tests now pass, but only after I updated three tests that still expected the old 7% result of 107.
+
+- **Rate change:** `TaxRate` in `pricing/pricing.go` is now 0.08.
+- **Test updates:** `pricing_test.go`, `cart_test.go` and `integration/checkout_test.go` now expect 108. I also renamed `TestWithTaxAdds7Percent` to `TestWithTaxAdds8Percent`.
+- **Test commands:** The README's `make test` runs only `./pricing` and `./cart`. It passed after my edits to the first two files, and I ran `go test ./...` separately to cover the rest.
+- **Integration test:** `make test` skips `./integration`, and that test also failed until I updated it. The `checkout` package has no test files.
+- **Final runs:** `go test ./...` passed after my last edit. I didn't re-run `make test` after the `integration` edit, because that edit doesn't affect the packages it covers.
+
+<receipts>
+change | tax rate constant | old: const TaxRate = 0.07 | new: const TaxRate = 0.08
+code | make test target only covers two packages | Makefile:2 | quote: go test ./pricing ./cart
+run | cmd: go test ./...
+</receipts>

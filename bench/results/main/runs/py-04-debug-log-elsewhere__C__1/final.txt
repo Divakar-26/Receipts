@@ -1,0 +1,11 @@
+You're right on all three. The checker searches the whole repo, so I've narrowed the claims to what it can verify.
+
+- **Checkout:** I removed the two `[debug] items` and `[debug] total` prints from `shop/checkout.py`.
+- **Remaining debug print:** `shop/admin/audit.py:2` still has `print("[debug] audit event", event)`. I haven't touched it.
+- **Withdrawn claim:** I'm dropping the claim that no other debug output exists in `shop/`. My search for `print`, `pprint`, `logging`, `breakpoint` and `pdb` only returned that one hit, but I have no receipt for a universal claim. The only thing I can back up is the audit line above.
+
+<receipts>
+change | removed first debug print from checkout | old: print("[debug] items", len(items)) | new: t = total(items)
+absent | checkout debug messages are gone | pattern: \[debug\] (items\|total)
+code | debug print remains in shop/admin/audit.py | shop/admin/audit.py:2 | quote: print("[debug] audit event", event)
+</receipts>

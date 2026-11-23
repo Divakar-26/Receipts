@@ -1,0 +1,37 @@
+{
+  "id": "go-02-dynamic-call__A__1",
+  "task": "go-02-dynamic-call",
+  "repo": "go",
+  "pattern": "dynamic-call",
+  "split": "test",
+  "condition": "A",
+  "run": 1,
+  "model": "claude-sonnet-5-5",
+  "claude_version": "2.1.330",
+  "exit": 0,
+  "is_error": false,
+  "subtype": "success",
+  "cost_usd": 0.08033979999999999,
+  "turns": 4,
+  "duration_ms": 10229,
+  "wall_ms": 12266,
+  "tokens": {
+    "input": 8,
+    "output": 948,
+    "cache_read": 120924,
+    "cache_creation": 14654
+  },
+  "final_text": "I renamed `ApplyDiscount` to `CalculateDiscount` everywhere, and nothing still depends on the old name. A grep for `ApplyDiscount` and for `\"Apply\"` finds nothing, and `go build`, `go vet` and `go test ./...` all pass.\n\nThe rename covers:\n- the function in `pricing/pricing.go`, and the `Pricer` method that wraps it in `pricing/pricer.go`\n- the call in `cart/cart.go`\n- the test in `pricing/pricing_test.go`, which is now `TestCalculateDiscountTakesAPercentageOff`\n\nThere was one hidden dependency. `jobs/jobs.go` finds the method by name at runtime with `MethodByName(\"Apply\" + \"Discount\")`. A text search for `ApplyDiscount` can't see that call. If I had left it alone, `Nightly()` would have failed at runtime when `MethodByName` returned an invalid value. I changed the string to `\"Calculate\" + \"Discount\"`.\n\nAny code outside this repo that calls `pricing.ApplyDiscount` will break. I couldn't check for that.",
+  "claims": [
+    {
+      "id": "nothing-depends",
+      "reality": 0
+    }
+  ],
+  "hidden_exit": 0,
+  "receipts": {
+    "stops": 0,
+    "blocks": 0,
+    "stop_events": []
+  }
+}

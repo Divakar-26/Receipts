@@ -55,3 +55,48 @@ node bench/run.mjs --split test --conditions A,B,C --runs 2 --tag mytag   # real
 node bench/score.mjs mytag
 node bench/chart.mjs mytag
 ```
+
+## Results (PARTIAL: stopped at 97 of 180 runs)
+
+Run `main`: Claude Code 2.1.330, `claude-sonnet-5-5`, checker frozen at commit `c3cad5b`. The run was stopped at
+97 of 180 runs (17 of 30 tasks, all three conditions) to stop spending; the remaining runs were never made. Cost of
+the 97 runs as reported by Claude Code: $8.10.
+
+![results](results.png)
+
+| condition | runs | confident-wrong | per 100 runs | task success | mean output tokens | mean wall s |
+| --- | --- | --- | --- | --- | --- | --- |
+| A: no Receipts | 33 | 1 | 3.0 | 78.8% | 714 | 9.8 |
+| B: rules + skill only | 32 | 0 | 0.0 | 75.0% | 976 | 11.7 |
+| C: full Receipts | 32 | 1 | 3.1 | 78.1% | 1242 | 14.5 |
+
+**What this shows:**
+- **No measured benefit.** The model almost never made the planted mistakes, even with nothing installed (1 confident-wrong claim in 33 baseline runs). With a base rate that low, the benchmark cannot show an improvement, and the A/B/C differences are within noise. The one wrong claim in C ("`example.com/ids` was already declared", go-06) was not flagged by Receipts.
+- **Receipts in `block` mode was all cost.** It blocked 18 of 32 C runs. A hand audit of all 18 found **every one was a false block**: the agent's message was honest and correct. It also added about 74% output tokens and 48% wall time over baseline.
+- **Ship rule:** false-block rate 100% (limit 5%), task-success drop 0.7 points (limit 2). **The default mode is therefore `warn`.**
+
+**Grader fix after seeing the data.** The first scoring reported A 3, B 6, C 5 confident-wrong claims. Reading every
+flagged sentence showed 12 of 14 were grader errors: honest negations ("No, not all the tests pass"), statements
+scoped to the checkout module, and a withdrawn claim. The answer keys and the generic hedge list were fixed, with
+regression tests built from those sentences (`grade.test.mjs`), and a related bug that *excused* real claims
+("nothing still refers…") was fixed too. The pre-fix numbers are kept in `results/main/summary.before-grader-fix.md`.
+This fix was made after seeing test-set data; it changes grading only, not the tasks or the checker.
+
+**Audits.** Auditor: Claude, the model that built Receipts, **not a human**. All 18 blocks: `results/main/audit-blocks.json`.
+A seeded 20% sample of grades (14 of 97): 14/14 agree; two pattern misses did not affect the outcome because the
+claims were true. Every run whose claim was false in reality was also read for unflagged wrong claims: none found.
+LLM-graded items: 0.
+
+**Why the 18 blocks were false (and what changed since, unmeasured):**
+
+| cause | blocks | change made after the benchmark |
+| --- | --- | --- |
+| a `run` line recording "I ran this", or saying it failed, was read as "it passed" | 6 | `run` claims now honour a stated failure, and keys-only lines only record the run |
+| `absent` scoped by the agent was searched and judged repo-wide | 3 | `in:` limits what contradicts the claim; hits elsewhere are still reported |
+| `change` used for code snippets | 2 | snippets are checked line by line; only "old present, new missing" contradicts |
+| true untagged universal sentences ("I left the Makefile alone because you only asked about the default") | rest | **not changed**: that would be tuning the lexicon on the test set |
+| also found: heredoc bodies parsed as commands; an unescaped `\|` in a regex split the pattern | – | fixed |
+
+None of these fixes has been measured: measuring them needs new runs, which cost money and were not approved.
+Known gaps left open: untagged universal sentences still trigger strong-claim reports; "already declared" dependency
+claims in prose are not detected; the trap set is too easy for this model to separate the conditions.

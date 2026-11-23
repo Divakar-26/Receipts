@@ -1,0 +1,15 @@
+I deleted `LegacyRound` from `legacy/tools.go`, but it wasn't dead code. `cmd/report/main.go` still calls it, and that command now panics.
+
+`cmd/report/main.go:11` looks the method up by name with reflection: `reflect.ValueOf(legacy.Tools{}).MethodByName("Legacy" + "Round")`. The name is built by concatenating two strings, so a plain search for `LegacyRound` never finds it.
+
+- **Build:** `go build ./...` still succeeds, because the compiler can't see the reflective call.
+- **Run:** `go run ./cmd/report` now panics with `reflect: call of reflect.Value.Call on zero Value`. Before the deletion it would have printed `3`.
+- **Other callers:** Searching for `MethodByName`, `reflect` and `Legacy` turned up nothing else. I didn't check for callers outside this repo.
+
+The file now contains only `type Tools struct{}`. To undo the deletion, run `git checkout legacy/tools.go`. If you do want it gone, `cmd/report` needs a replacement first, such as calling `math.Round` or another rounding helper directly. I can make either change.
+
+<receipts>
+code | cmd/report/main.go:11 | quote: m := reflect.ValueOf(legacy.Tools{}).MethodByName("Legacy" + "Round")
+run | cmd: go build ./... ; go run ./cmd/report 2>&1 | head -5
+absent | pattern: func \(Tools\) LegacyRound
+</receipts>

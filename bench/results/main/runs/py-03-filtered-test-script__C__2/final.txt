@@ -1,0 +1,7 @@
+No, not all the tests pass. My earlier receipt called that run "full", which was wrong. The command ran only the default `testpaths`, which is `tests/unit`, so it covered 5 unit tests and skipped `tests/integration/test_checkout.py`. In that subset, 2 failed and 3 passed. I haven't run the integration test, so I don't know whether it passes.
+
+<receipts>
+change | tax rate updated | old: TAX_RATE = 0.07 | new: TAX_RATE = 0.08
+run | pytest on the default testpaths (tests/unit only, not the whole suite) exited 1 with 2 failed, 3 passed | cmd: cd /work/proj && cat pytest.ini && python -m pytest 2>&1
+code | default test path is limited to unit tests | pytest.ini:3 | quote: testpaths = tests/unit
+</receipts>
