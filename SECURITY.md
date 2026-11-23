@@ -35,7 +35,7 @@ Receipts runs as hooks inside your agent. Each agent has its own approval step:
 | Gemini CLI | `.gemini/settings.json` or the extension's `hooks/hooks.json` | the workspace must be trusted; project hooks are fingerprinted, and a changed hook is treated as new and untrusted |
 | OpenCode | `.opencode/plugins/receipts.js` | plugins in the project folder are loaded by OpenCode; review the file before use |
 
-The hooks run `node` on files from the installed `@receipts/cli` package. `receipts init` prints every file it
+The hooks run `node` on files from the installed `@divakar-26/receipts` package. `receipts init` prints every file it
 changes, and `receipts uninstall` reverses them.
 
 ## Network and data

@@ -165,12 +165,12 @@ test('init on a bare folder creates everything and uninstall removes it all', ()
 
 test('init: node_modules installs get a project-relative hook path; npx cache path warns', () => {
   const dir = mkdir();
-  const lines = init({ cwd: dir, hookJs: path.join(dir, 'node_modules', '@receipts', 'cli', 'dist', 'cli', 'hook.js') });
+  const lines = init({ cwd: dir, hookJs: path.join(dir, 'node_modules', '@divakar-26', 'receipts', 'dist', 'cli', 'hook.js') });
   const s = JSON.parse(fs.readFileSync(path.join(dir, '.claude/settings.json'), 'utf8'));
-  assert.equal(s.hooks.Stop[0].hooks[0].args[0], '${CLAUDE_PROJECT_DIR}/node_modules/@receipts/cli/dist/cli/hook.js');
+  assert.equal(s.hooks.Stop[0].hooks[0].args[0], '${CLAUDE_PROJECT_DIR}/node_modules/@divakar-26/receipts/dist/cli/hook.js');
   assert.ok(!lines.some((l) => l.startsWith('WARNING')));
   const npx = mkdir();
-  assert.ok(init({ cwd: npx, hookJs: '/home/u/.npm/_npx/abc/node_modules/@receipts/cli/dist/cli/hook.js' }).some((l) => l.startsWith('WARNING')));
+  assert.ok(init({ cwd: npx, hookJs: '/home/u/.npm/_npx/abc/node_modules/@divakar-26/receipts/dist/cli/hook.js' }).some((l) => l.startsWith('WARNING')));
 });
 
 test('CLI: init and uninstall commands', () => {

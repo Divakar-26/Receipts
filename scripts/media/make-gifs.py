@@ -66,7 +66,7 @@ def usage_gif():
     cap = json.loads(subprocess.run(["node", os.path.join(ROOT, "scripts/media/capture-usage.mjs")], capture_output=True, text=True, check=True).stdout)
     t = Terminal("~/shop  ·  receipts")
     f, d = [], []
-    typed(t, f, d, "[green]$[/] ", "npx @receipts/cli init --agent claude")
+    typed(t, f, d, "[green]$[/] ", "npx @divakar-26/receipts init --agent claude")
     show(t, f, d, [f"[dim]{l}[/]" for l in cap["init"].strip().split("\n")], 2200)
     t.lines = []  # clear
     show(t, f, d, ["[dim]# the agent works, then ends its turn; the Stop hook runs the check:[/]"], 900)

@@ -1,5 +1,5 @@
 {
-  "name": "@receipts/cli",
+  "name": "@divakar-26/receipts",
   "version": "0.1.0",
   "description": "No claim without proof: deterministic verification of AI coding agents' final messages.",
   "license": "MIT",

@@ -48,7 +48,7 @@ is synthetic.
 
 ## Install
 
-Receipts is one npm package, `@receipts/cli`, that provides `receipts` and the `receipts-hook` binary the agent
+Receipts is one npm package, `@divakar-26/receipts`, that provides `receipts` and the `receipts-hook` binary the agent
 plugins call.
 
 > **Not on npm yet.** Until it is published, install from source:
@@ -59,19 +59,19 @@ plugins call.
 `receipts uninstall` reverses it):
 
 ```
-npx @receipts/cli init
+npx @divakar-26/receipts init
 ```
 
 **Claude Code** (plugin):
 ```
-npm i -g @receipts/cli
+npm i -g @divakar-26/receipts
 /plugin marketplace add Divakar-26/Receipts
 /plugin install receipts@receipts
 ```
 
 **Codex CLI** (plugin), then trust the hooks, or they won't run:
 ```
-npm i -g @receipts/cli
+npm i -g @divakar-26/receipts
 codex plugin marketplace add Divakar-26/Receipts
 codex plugin add receipts@receipts
 # in Codex: /hooks, and trust the Receipts hooks
@@ -81,12 +81,12 @@ codex plugin add receipts@receipts
 folder; the install was not tested past that prompt), or install project hooks with `init`:
 ```
 gemini extensions install ./Receipts/adapters/gemini
-npx @receipts/cli init --agent gemini
+npx @divakar-26/receipts init --agent gemini
 ```
 
 **OpenCode** (writes `.opencode/plugins/receipts.js` and a rules block in `AGENTS.md`):
 ```
-npx @receipts/cli init --agent opencode
+npx @divakar-26/receipts init --agent opencode
 ```
 
 **Skill only** (the instructions, **no checker**: nothing is verified; this command has not been tested):

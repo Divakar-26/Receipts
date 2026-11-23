@@ -167,7 +167,7 @@ export function init(o: InitOptions): string[] {
     if (agent === 'gemini') changes.push('Gemini CLI: project hooks are fingerprinted; approve them on first run');
   }
   if (/[\\/]_npx[\\/]/.test(hookJs)) {
-    changes.push('WARNING: hooks point into the npx cache, which may be cleaned. Install @receipts/cli as a devDependency or globally and re-run init.');
+    changes.push('WARNING: hooks point into the npx cache, which may be cleaned. Install @divakar-26/receipts as a devDependency or globally and re-run init.');
   }
 
   // 4. Claude Code skill

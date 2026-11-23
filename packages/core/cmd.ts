@@ -148,7 +148,7 @@ export function normaliseSegment(seg: string): string {
 
 /** `receipts run -- cmd` is transparent: unwrap it. */
 export function unwrapReceiptsRun(cmd: string): string {
-  const m = /^\s*(?:npx\s+(?:-y\s+)?)?(?:@receipts\/cli|receipts)\s+run\s+(?:--\s+)?([\s\S]+)$/.exec(cmd);
+  const m = /^\s*(?:npx\s+(?:-y\s+)?)?(?:@[\w.-]+\/receipts|receipts)\s+run\s+(?:--\s+)?([\s\S]+)$/.exec(cmd);
   return m ? m[1] : cmd;
 }
 

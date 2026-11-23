@@ -271,9 +271,9 @@ test('init creates AGENTS.md when absent and removes it again; node_modules path
   assert.ok(fs.existsSync(path.join(dir, 'AGENTS.md')));
   uninstall({ cwd: dir });
   assert.equal(fs.existsSync(path.join(dir, 'AGENTS.md')), false);
-  const p = path.join(dir, 'node_modules', '@receipts', 'cli', 'dist', 'cli', 'hook.js');
-  assert.equal(agentHooks('gemini', dir, p).AfterAgent[0].hooks[0].command, 'node "$GEMINI_PROJECT_DIR/node_modules/@receipts/cli/dist/cli/hook.js" gemini stop --receipts');
-  assert.equal((agentHooks('claude', dir, p).Stop[0].hooks[0].args as string[])[0], '${CLAUDE_PROJECT_DIR}/node_modules/@receipts/cli/dist/cli/hook.js');
+  const p = path.join(dir, 'node_modules', '@divakar-26', 'receipts', 'dist', 'cli', 'hook.js');
+  assert.equal(agentHooks('gemini', dir, p).AfterAgent[0].hooks[0].command, 'node "$GEMINI_PROJECT_DIR/node_modules/@divakar-26/receipts/dist/cli/hook.js" gemini stop --receipts');
+  assert.equal((agentHooks('claude', dir, p).Stop[0].hooks[0].args as string[])[0], '${CLAUDE_PROJECT_DIR}/node_modules/@divakar-26/receipts/dist/cli/hook.js');
   const bad = mkdir();
   write(bad, { '.codex/hooks.json': '{ nope' });
   assert.throws(() => init({ cwd: bad, agents: ['codex'] }), /not valid JSON/);

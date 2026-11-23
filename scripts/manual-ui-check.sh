@@ -11,7 +11,7 @@ dir="$(mktemp -d "${TMPDIR:-/tmp}/receipts-ui-check-XXXXXX")"
 prefix="$dir/.prefix"
 
 (cd "$repo" && npm run build --silent && npm pack --silent --pack-destination "$dir" >/dev/null)
-npm install -g --silent --prefix "$prefix" "$dir"/receipts-cli-*.tgz
+npm install -g --silent --prefix "$prefix" "$dir"/*.tgz
 
 cd "$dir"
 git init -q

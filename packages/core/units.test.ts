@@ -35,7 +35,8 @@ test('splitShell / words / normalise / unwrap', () => {
   assert.equal(normaliseSegment('npm t'), 'npm test');
   assert.equal(normaliseSegment('x >/dev/null'), 'x');
   assert.equal(unwrapReceiptsRun('receipts run -- npm test'), 'npm test');
-  assert.equal(unwrapReceiptsRun('npx @receipts/cli run npm test'), 'npm test');
+  assert.equal(unwrapReceiptsRun('npx @divakar-26/receipts run npm test'), 'npm test');
+  assert.equal(unwrapReceiptsRun('npx -y @divakar-26/receipts run -- npm test'), 'npm test');
   assert.equal(unwrapReceiptsRun('npm test'), 'npm test');
 });
 
