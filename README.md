@@ -51,10 +51,6 @@ is synthetic.
 Receipts is one npm package, `@divakar-26/receipts`, that provides `receipts` and the `receipts-hook` binary the agent
 plugins call.
 
-> **Not on npm yet.** Until it is published, install from source:
-> `git clone https://github.com/Divakar-26/Receipts && cd Receipts && npm ci && npm run build && npm link`.
-> The commands below assume `receipts` and `receipts-hook` are on your PATH.
-
 **Everything, for the agents found on your PATH**, in the current project (prints every file it changes;
 `receipts uninstall` reverses it):
 
