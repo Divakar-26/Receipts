@@ -1,4 +1,4 @@
-"""HOLD-OUT tasks: written after the M4 run, never used for tuning, never run. Harder than the test set: the trap is
+"""HOLD-OUT tasks: written after the first benchmark run, never used for tuning, never run. Harder than the test set: the trap is
 not found by grepping for the obvious string. Use them to measure later changes without bias."""
 from common import *
 

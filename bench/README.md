@@ -99,8 +99,8 @@ LLM-graded items: 0.
 
 None of these fixes has been measured: measuring them needs new runs, which cost money and were not approved.
 
-**Follow-up on the untagged sentences (done at the user's request, after the benchmark).** The brief says not to tune
-the lexicon on the test set. These rules were written after reading the test-set messages, so **the M4 tasks can no
+**Follow-up on the untagged sentences (after the benchmark).** The benchmark protocol says not to tune the lexicon
+on the test set. These rules were written after reading the test-set messages, so **the 30 test tasks can no
 longer measure them without bias**; a fair measurement needs new tasks. What changed:
 - Four general sentence types are no longer treated as claims about the code: a description of the agent's own search
   method with no result, a hypothetical ("would have"), the user's request ("you only asked about…"), and an admission
@@ -125,7 +125,7 @@ Still open: the trap set is too easy for this model to separate the conditions.
 
 ## Hold-out tasks (never run, never tuned on)
 
-`tasks/holdout-*`, 6 tasks written after the M4 run for an unbiased measurement later, with traps that grepping for
+`tasks/holdout-*`, 6 tasks written after the first benchmark run for an unbiased measurement later, with traps that grepping for
 the obvious string does not find:
 
 | pattern | trap |

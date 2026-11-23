@@ -370,9 +370,9 @@ test('a run result names the command that matched, not the heredoc it was chaine
   assert.match(out.results[0].summary, /^`npm test` exit 0/);
 });
 
-// ---- Regressions from the M4 benchmark block audit (bench/results/main/audit-blocks.json): all 18 blocks were false.
+// ---- Regressions from the benchmark block audit (bench/results/main/audit-blocks.json): all 18 blocks were false.
 
-test('M4: a keys-only run line records a run; it is not a claim that the run passed', async () => {
+test('benchmark: a keys-only run line records a run; it is not a claim that the run passed', async () => {
   const dir = mkRepo({ 'package.json': PKG });
   const failing = [await shellEntry(dir, 'make test', { exit: 2, out: 'FAIL\n' })];
   const out = await run(dir, 'No, the tests don\'t all pass.\n' + block('run | cmd: make test'), failing);
@@ -383,7 +383,7 @@ test('M4: a keys-only run line records a run; it is not a claim that the run pas
   assert.equal(never.results[0].label, 'CONTRADICTED', 'claiming a command ran that never ran is still caught');
 });
 
-test('M4: a run line that says it failed is checked as a failure', async () => {
+test('benchmark: a run line that says it failed is checked as a failure', async () => {
   const dir = mkRepo({ 'package.json': PKG });
   const failing = [await shellEntry(dir, 'npm test', { exit: 1, out: JEST_FAIL })];
   const stated = await run(dir, block('run | full suite: 2 failed, 40 passed | cmd: npm test'), failing);
@@ -398,7 +398,7 @@ test('M4: a run line that says it failed is checked as a failure', async () => {
   assert.equal(masked.results[0].label, 'UNVERIFIED');
 });
 
-test('M4: "No, not all the tests pass" in prose is an admission, not a pass claim', async () => {
+test('benchmark: "No, not all the tests pass" in prose is an admission, not a pass claim', async () => {
   const dir = mkRepo({ 'package.json': PKG });
   for (const msg of ['No, not all the tests pass.', 'Not all tests pass: one fails.', 'The tests failed after the change.']) {
     const out = await run(dir, msg, [await shellEntry(dir, 'npm test', { exit: 1, out: JEST_FAIL })]);
@@ -407,7 +407,7 @@ test('M4: "No, not all the tests pass" in prose is an admission, not a pass clai
   }
 });
 
-test('M4: absent with an in: scope only counts hits inside the scope, and still reports the rest', async () => {
+test('benchmark: absent with an in: scope only counts hits inside the scope, and still reports the rest', async () => {
   const dir = mkRepo({ 'shop/checkout.py': 'def total():\n    return 1\n', 'shop/admin/audit.py': 'print("[debug] audit")\n' });
   const scoped = await run(dir, block('absent | no print calls left in checkout | pattern: print\\( | in: shop/checkout.py'));
   assert.equal(scoped.results[0].label, 'VERIFIED');
@@ -420,7 +420,7 @@ test('M4: absent with an in: scope only counts hits inside the scope, and still 
   assert.equal(insideHit.results[0].label, 'CONTRADICTED');
 });
 
-test('M4: change used for a code edit checks the snippet, not a rename', async () => {
+test('benchmark: change used for a code edit checks the snippet, not a rename', async () => {
   const dir = mkRepo({ 'requirements.txt': 'pytest\npackaging\n', 'shop/checkout.py': 'def total(items):\n    return sum(items)\n' });
   const added = await run(dir, block('change | added packaging to requirements.txt | old: pytest | new: pytest\\npackaging'));
   assert.equal(added.results[0].label, 'VERIFIED', added.results[0].summary);
@@ -435,7 +435,7 @@ test('M4: change used for a code edit checks the snippet, not a rename', async (
   assert.equal((await run(dir, block('change | renamed | old: pytest | new: packaging'))).results[0].label, 'CONTRADICTED');
 });
 
-test('M4: default mode is warn: problems are reported, the agent is not sent back', async () => {
+test('benchmark: default mode is warn: problems are reported, the agent is not sent back', async () => {
   const dir = mkRepo({ 'src/cart.js': 'console.log(1);\n' });
   const out = await check({ message: block('absent | removed all console.log | pattern: console\\.log'), ledger: [], cwd: dir });
   assert.equal(out.results[0].label, 'CONTRADICTED');

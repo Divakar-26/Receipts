@@ -92,7 +92,7 @@ export interface Config {
 }
 
 export const DEFAULT_CONFIG: Config = {
-  // `warn` per the M4 ship rule: the benchmark measured a 100% false-block rate for `block` (bench/README.md).
+  // `warn` per the benchmark ship rule: the benchmark measured a 100% false-block rate for `block` (bench/README.md).
   mode: 'warn',
   ignore: [],
   lexicon: { extraUniversal: [], extraJudge: [] },

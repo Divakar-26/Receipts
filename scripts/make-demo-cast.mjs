@@ -56,5 +56,5 @@ const header = {
   title: 'Receipts: a false "only called from" claim is caught, then fixed (replay of a real session)',
   env: { SHELL: '/bin/bash', TERM: 'xterm-256color' },
 };
-fs.writeFileSync(path.join(root, 'demo.cast'), [JSON.stringify(header), ...events.map((e) => JSON.stringify(e))].join('\n') + '\n');
+fs.writeFileSync(path.join(root, 'docs', 'demo.cast'), [JSON.stringify(header), ...events.map((e) => JSON.stringify(e))].join('\n') + '\n');
 console.log('demo.cast: ' + events.length + ' events, ' + t.toFixed(1) + 's, ' + stops + ' stop hooks');

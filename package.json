@@ -3,6 +3,26 @@
   "version": "0.1.0",
   "description": "No claim without proof: deterministic verification of AI coding agents' final messages.",
   "license": "MIT",
+  "author": "Divakar-26",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Divakar-26/Receipts.git"
+  },
+  "homepage": "https://github.com/Divakar-26/Receipts#readme",
+  "bugs": {
+    "url": "https://github.com/Divakar-26/Receipts/issues"
+  },
+  "keywords": [
+    "ai-agents",
+    "claude-code",
+    "codex",
+    "gemini-cli",
+    "opencode",
+    "hooks",
+    "verification",
+    "claims",
+    "llm"
+  ],
   "type": "module",
   "bin": {
     "receipts": "dist/cli/main.js",
@@ -20,8 +40,14 @@
     "skill",
     "adapters",
     "grammars",
-    "SECURITY.md"
+    "SECURITY.md",
+    "LICENSE",
+    "CHANGELOG.md"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && node scripts/test.mjs",

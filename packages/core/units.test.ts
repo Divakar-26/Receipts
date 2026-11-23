@@ -281,7 +281,7 @@ test('config: defaults, validation, detection', () => {
   const d = mkdir();
   assert.deepEqual(loadConfig(d), normaliseConfig(null));
   write(d, { '.receipts.json': '{ bad json' });
-  assert.equal(loadConfig(d).mode, 'warn', 'default mode is warn (M4 ship rule)');
+  assert.equal(loadConfig(d).mode, 'warn', 'default mode is warn (benchmark ship rule)');
   write(d, { '.receipts.json': JSON.stringify({ mode: 'strict', testCommand: ' npm test ', buildCommand: 5, ignore: ['dist/**', 3], lexicon: { extraUniversal: ['x'], extraJudge: 'no' }, maxRetries: 9 }) });
   const c = loadConfig(d);
   assert.deepEqual([c.mode, c.testCommand, c.buildCommand, c.ignore, c.lexicon.extraUniversal, c.lexicon.extraJudge, c.maxRetries], ['strict', 'npm test', undefined, ['dist/**'], ['x'], [], 2]);

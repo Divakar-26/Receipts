@@ -8,3 +8,4 @@ dist
 # development material: kept locally, never committed
 RECEIPTS_BUILD_PROMPT.md
 docs/platform-notes.md
+__pycache__/

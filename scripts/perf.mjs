@@ -1,4 +1,4 @@
-// Measures the two M1 performance targets. Usage: node scripts/perf.mjs [files=50000]
+// Measures the two performance targets (check < 2 s, ledger hook < 80 ms). Usage: node scripts/perf.mjs [files=50000]
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
