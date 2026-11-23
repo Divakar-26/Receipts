@@ -9,7 +9,7 @@ import { readLedger, ledgerPath } from '../core/ledger.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const MAIN = path.join(here, 'main.js');
-const HOOK = path.join(here, 'hook-ledger-claude.js');
+const HOOK = path.join(here, 'hook.js');
 const FIX = path.join(here, '..', '..', 'test', 'fixtures', 'claude-code');
 const node = (args: string[], o: { cwd?: string; input?: string; env?: NodeJS.ProcessEnv } = {}) =>
   spawnSync(process.execPath, args, { cwd: o.cwd, input: o.input, encoding: 'utf8', env: { ...process.env, ...o.env } });
@@ -78,14 +78,14 @@ test('claude ledger hook: real payloads append to the ledger; garbage never brea
   for (const f of ['PostToolUse.Bash.json', 'PostToolUseFailure.Bash.json']) {
     const payload = JSON.parse(fs.readFileSync(path.join(FIX, f), 'utf8'));
     payload.cwd = dir;
-    const r = node([HOOK], { input: JSON.stringify(payload) });
+    const r = node([HOOK, 'claude', 'ledger'], { input: JSON.stringify(payload) });
     assert.equal(r.status, 0);
     assert.equal(r.stdout, '');
   }
   const entries = readLedger(ledgerPath(dir));
   assert.deepEqual(entries.map((e) => e.kind === 'shell' && e.exit), [0, 2]);
   write(dir, { '.receipts.json': '{"testCommand":"make check"}' });
-  assert.equal(node([HOOK], { input: 'not json' }).status, 0);
-  assert.equal(node([HOOK], { input: '{}' }).status, 0);
+  assert.equal(node([HOOK, 'claude', 'ledger'], { input: 'not json' }).status, 0);
+  assert.equal(node([HOOK, 'claude', 'ledger'], { input: '{}' }).status, 0);
   assert.equal(readLedger(ledgerPath(dir)).length, 2);
 });

@@ -2,6 +2,7 @@ import { analyseCommand, exitTrusted, isTestOrBuild, unwrapReceiptsRun } from '.
 import { ledgerPath, tailLines, appendEntry, redact } from './ledger.js';
 import { parseSummary } from './runners/index.js';
 import { LedgerEntry } from './types.js';
+import { Agent, AGENT_LABEL, SHELL_TOOLS, URL_RE, codexShellResult, geminiShellResult } from './agents.js';
 
 export interface ShellRecord {
   session: string;
@@ -68,6 +69,57 @@ export async function entryFromClaude(p: any, cfg: { testCommand?: string; build
     output = m ? err.slice(m[0].length) : err;
   } else return null;
   return buildShellEntry({ session: p.session_id, agent: 'claude-code', cmd, exit, output, cwd, ...cfg });
+}
+
+type Cfg = { testCommand?: string; buildCommand?: string };
+
+/**
+ * Codex PostToolUse: `tool_name` Bash, `tool_input.command`, `tool_response` of unspecified shape.
+ * Built from docs (https://learn.chatgpt.com/docs/hooks); NOT verified against a real payload.
+ */
+export async function entryFromCodex(p: any, cfg: Cfg = {}): Promise<LedgerEntry | null> {
+  if (!p || typeof p.session_id !== 'string' || p.hook_event_name !== 'PostToolUse') return null;
+  const cwd = typeof p.cwd === 'string' ? p.cwd : process.cwd();
+  if (!SHELL_TOOLS.codex.test(p.tool_name ?? '')) return null;
+  const cmd = p.tool_input?.command;
+  if (typeof cmd !== 'string') return null;
+  const r = codexShellResult(p.tool_response);
+  return buildShellEntry({ session: p.session_id, agent: AGENT_LABEL.codex, cmd: cmd, exit: r.exit, output: r.output, cwd, ...cfg });
+}
+
+/**
+ * Gemini AfterTool: `tool_name` run_shell_command, `tool_input.command`, `tool_response.llmContent`.
+ * Built from docs (https://geminicli.com/docs/hooks/reference/); NOT verified against a real payload.
+ */
+export async function entryFromGemini(p: any, cfg: Cfg = {}): Promise<LedgerEntry | null> {
+  if (!p || typeof p.session_id !== 'string' || p.hook_event_name !== 'AfterTool') return null;
+  const cwd = typeof p.cwd === 'string' ? p.cwd : process.cwd();
+  if (SHELL_TOOLS.gemini.test(p.tool_name ?? '') && typeof p.tool_input?.command === 'string') {
+    const r = geminiShellResult(p.tool_response);
+    return buildShellEntry({ session: p.session_id, agent: AGENT_LABEL.gemini, cmd: p.tool_input.command, exit: r.exit, output: r.output, cwd, ...cfg });
+  }
+  if (p.tool_name === 'web_fetch') {
+    const url = URL_RE.exec(JSON.stringify(p.tool_input ?? {}))?.[0];
+    if (url) return { session: p.session_id, ts: new Date().toISOString(), agent: AGENT_LABEL.gemini, kind: 'web', url };
+  }
+  return null;
+}
+
+/**
+ * OpenCode: the plugin (adapters/opencode/receipts.js) posts
+ * {session_id, cwd, tool, command, output, exit} after a bash tool call, or {session_id, tool:'webfetch', url}.
+ */
+export async function entryFromOpenCode(p: any, cfg: Cfg = {}): Promise<LedgerEntry | null> {
+  if (!p || typeof p.session_id !== 'string') return null;
+  const cwd = typeof p.cwd === 'string' ? p.cwd : process.cwd();
+  if (typeof p.url === 'string') return { session: p.session_id, ts: new Date().toISOString(), agent: AGENT_LABEL.opencode, kind: 'web', url: p.url };
+  if (typeof p.command !== 'string') return null;
+  const exit = typeof p.exit === 'number' && Number.isFinite(p.exit) ? p.exit : null;
+  return buildShellEntry({ session: p.session_id, agent: AGENT_LABEL.opencode, cmd: p.command, exit, output: typeof p.output === 'string' ? p.output : '', cwd, ...cfg });
+}
+
+export function entryFromAgent(agent: Agent, p: any, cfg: Cfg = {}): Promise<LedgerEntry | null> {
+  return agent === 'claude' ? entryFromClaude(p, cfg) : agent === 'codex' ? entryFromCodex(p, cfg) : agent === 'gemini' ? entryFromGemini(p, cfg) : entryFromOpenCode(p, cfg);
 }
 
 export { ledgerPath, appendEntry };

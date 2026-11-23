@@ -1,0 +1,9 @@
+{
+  "_provenance": "CONSTRUCTED from the vendor docs / type definitions, NOT captured from a real agent session. If a real payload disagrees, the real payload wins.",
+  "session_id": "00000000-0000-4000-8000-000000000001",
+  "cwd": "/work/proj",
+  "tool": "bash",
+  "command": "npm test",
+  "output": "Tests:       3 passed, 3 total\n",
+  "exit": null
+}

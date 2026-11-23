@@ -3,7 +3,8 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { parseArgs } from 'node:util';
 import { spawn } from 'node:child_process';
-import { init, uninstall } from './init.js';
+import { init, uninstall, detectAgents } from './init.js';
+import { AGENTS, Agent } from '../core/index.js';
 import { check, loadConfig, readLedger, ledgerPath, formatReport, loadState, saveState, statePath, buildShellEntry, appendEntry, Mode } from '../core/index.js';
 
 const USAGE = `receipts — no claim without proof
@@ -12,7 +13,8 @@ const USAGE = `receipts — no claim without proof
                  [--mode block|warn|strict] [--stop-hook-active] [--json] [--no-write]
   receipts run -- <command...>     run a command and log its real exit code to the ledger
   receipts report [--cwd <dir>]    reprint the last report
-  receipts init [--cwd <dir>] [--dry-run]       install for Claude Code at project level
+  receipts init [--agent auto|all|claude|codex|gemini|opencode] [--cwd <dir>] [--dry-run]
+                                   install at project level (auto = agents found on PATH)
   receipts uninstall [--cwd <dir>] [--keep-data]  reverse init
 
 Exit codes (check): 0 = ok, 2 = blocked (reason on stderr).`;
@@ -121,10 +123,23 @@ function cmdReport(argv: string[]): number {
 }
 
 function cmdInit(argv: string[], un: boolean): number {
-  const { values } = parseArgs({ args: argv, options: { cwd: { type: 'string' }, 'dry-run': { type: 'boolean' }, 'keep-data': { type: 'boolean' } } });
+  const { values } = parseArgs({ args: argv, options: { cwd: { type: 'string' }, agent: { type: 'string', multiple: true }, 'dry-run': { type: 'boolean' }, 'keep-data': { type: 'boolean' } } });
   const cwd = path.resolve(values.cwd ?? process.cwd());
   try {
-    const lines = un ? uninstall({ cwd, keepData: values['keep-data'] }) : init({ cwd, dryRun: values['dry-run'] });
+    const lines: string[] = [];
+    let agents: Agent[] = [];
+    if (!un) {
+      const asked = (values.agent ?? ['auto']).flatMap((a) => a.split(','));
+      const bad = asked.find((a) => a !== 'auto' && a !== 'all' && !AGENTS.includes(a as Agent));
+      if (bad) throw new Error(`unknown agent '${bad}' (use auto, all, ${AGENTS.join(', ')})`);
+      if (asked.includes('all')) agents = [...AGENTS];
+      else if (asked.includes('auto')) {
+        agents = detectAgents();
+        lines.push(agents.length ? `detected on PATH: ${agents.join(', ')}` : 'no agent CLI found on PATH; installing for claude');
+        if (!agents.length) agents = ['claude'];
+      } else agents = asked as Agent[];
+    }
+    lines.push(...(un ? uninstall({ cwd, keepData: values['keep-data'] }) : init({ cwd, agents, dryRun: values['dry-run'] })));
     for (const l of lines) console.log((values['dry-run'] ? '[dry run] ' : '') + '• ' + l);
     return 0;
   } catch (e) {

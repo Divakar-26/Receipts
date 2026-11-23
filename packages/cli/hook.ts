@@ -1,12 +1,13 @@
 #!/usr/bin/env node
-// Dispatcher: `receipts-hook claude <ledger|session|prompt|stop>`.
+// Dispatcher: `receipts-hook <claude|codex|gemini|opencode> <ledger|session|prompt|stop>`.
 // Imports only the module it needs so the ledger hook stays tiny.
+import { AGENTS, Agent } from '../core/agents.js';
 const [agent, kind] = process.argv.slice(2);
-if (agent === 'claude' && kind === 'ledger') await import('./hook-ledger-claude.js');
-else if (agent === 'claude' && (kind === 'session' || kind === 'prompt' || kind === 'stop')) {
-  const m = await import('./hook-claude.js');
-  await m.run(kind);
+if (AGENTS.includes(agent as Agent) && kind === 'ledger') {
+  (await import('./hook-ledger.js')).run(agent as Agent);
+} else if (AGENTS.includes(agent as Agent) && (kind === 'session' || kind === 'prompt' || kind === 'stop')) {
+  await (await import('./hook-agent.js')).run(agent as Agent, kind);
 } else {
-  process.stderr.write('usage: receipts-hook claude <ledger|session|prompt|stop>\n');
+  process.stderr.write('usage: receipts-hook <claude|codex|gemini|opencode> <ledger|session|prompt|stop>\n');
   process.exit(64);
 }

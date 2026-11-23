@@ -1,0 +1,17 @@
+{
+  "_provenance": "CONSTRUCTED from the vendor docs / type definitions, NOT captured from a real agent session. If a real payload disagrees, the real payload wins.",
+  "session_id": "00000000-0000-4000-8000-000000000001",
+  "transcript_path": null,
+  "cwd": "/work/proj",
+  "model": "gpt-5-codex",
+  "hook_event_name": "PostToolUse",
+  "turn_id": "t1",
+  "tool_name": "Bash",
+  "tool_use_id": "call_2",
+  "tool_input": {
+    "command": "npm test"
+  },
+  "tool_response": {
+    "output": "Tests:       3 passed, 3 total\n"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "hooks": {
+    "SessionStart": [{ "hooks": [{ "type": "command", "command": "receipts-hook gemini session", "timeout": 10000 }] }],
+    "BeforeAgent": [{ "hooks": [{ "type": "command", "command": "receipts-hook gemini prompt", "timeout": 10000 }] }],
+    "AfterTool": [{ "matcher": "run_shell_command|web_fetch", "hooks": [{ "type": "command", "command": "receipts-hook gemini ledger", "timeout": 10000 }] }],
+    "AfterAgent": [{ "hooks": [{ "type": "command", "command": "receipts-hook gemini stop", "timeout": 15000 }] }]
+  }
+}

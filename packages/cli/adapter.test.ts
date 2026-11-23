@@ -33,6 +33,24 @@ test('adapter files: rules <= 15 lines, skill < 150 lines, plugin copy in sync, 
   JSON.parse(fs.readFileSync(path.join(ROOT, '.claude-plugin/marketplace.json'), 'utf8'));
 });
 
+test('codex / gemini / opencode adapter files are in sync with the sources', () => {
+  const skill = fs.readFileSync(path.join(ROOT, 'skill', 'SKILL.md'), 'utf8');
+  const rules = fs.readFileSync(path.join(ROOT, 'rules', 'RULES.md'), 'utf8');
+  for (const a of ['codex', 'gemini']) assert.equal(fs.readFileSync(path.join(ROOT, 'adapters', a, 'skills/receipts/SKILL.md'), 'utf8'), skill, a);
+  assert.equal(fs.readFileSync(path.join(ROOT, 'adapters/gemini/GEMINI.md'), 'utf8'), rules);
+  const gem = JSON.parse(fs.readFileSync(path.join(ROOT, 'adapters/gemini/gemini-extension.json'), 'utf8'));
+  assert.equal(gem.contextFileName, 'GEMINI.md');
+  assert.equal(gem.hooks, undefined, 'Gemini extension hooks live in hooks/hooks.json, not the manifest');
+  const gh = JSON.parse(fs.readFileSync(path.join(ROOT, 'adapters/gemini/hooks/hooks.json'), 'utf8')).hooks;
+  assert.deepEqual(Object.keys(gh).sort(), ['AfterAgent', 'AfterTool', 'BeforeAgent', 'SessionStart']);
+  const cm = JSON.parse(fs.readFileSync(path.join(ROOT, 'adapters/codex/.codex-plugin/plugin.json'), 'utf8'));
+  assert.equal(cm.hooks, './hooks/hooks.json');
+  const ch = JSON.parse(fs.readFileSync(path.join(ROOT, 'adapters/codex/hooks/hooks.json'), 'utf8')).hooks;
+  assert.deepEqual(Object.keys(ch).sort(), ['PostToolUse', 'SessionStart', 'Stop', 'UserPromptSubmit']);
+  for (const h of [...Object.values(gh), ...Object.values(ch)].flat().flatMap((e: any) => e.hooks)) assert.match(h.command, /^receipts-hook (codex|gemini) (ledger|session|prompt|stop)$/);
+  assert.ok(fs.readFileSync(path.join(ROOT, 'adapters/opencode/receipts.js'), 'utf8').startsWith('// receipts:managed'));
+});
+
 test('session hook injects the rules, resets state; prompt hook resets the retry counter', () => {
   const dir = mkdir();
   const s = hook('session', { ...fixture('SessionStart.startup.json'), cwd: dir });

@@ -1,0 +1,9 @@
+{
+  "_provenance": "CONSTRUCTED from the vendor docs / type definitions, NOT captured from a real agent session. If a real payload disagrees, the real payload wins.",
+  "session_id": "00000000-0000-4000-8000-000000000001",
+  "transcript_path": "/work/t.json",
+  "cwd": "/work/proj",
+  "timestamp": "2026-11-23T10:00:00Z",
+  "hook_event_name": "SessionStart",
+  "source": "startup"
+}
