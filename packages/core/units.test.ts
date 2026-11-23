@@ -138,6 +138,11 @@ test('runner summaries: one fixture per runner', () => {
   const gov = parseSummary('--- PASS: TestA (0.00s)\n--- FAIL: TestB (0.00s)\n--- SKIP: TestC (0.00s)\nFAIL\texample/x\t0.01s\n')!;
   assert.deepEqual([gov.passed, gov.failed, gov.skipped, gov.unit], [1, 1, 1, 'tests']);
   assert.equal(parseSummary(read('pytest-empty.txt'))!.passed, 0);
+  // node:test reports a file with no tests as one passing test; those file-level passes are not tests
+  assert.equal(parseSummary(read('nodetest-empty.txt'))!.passed, 0);
+  assert.equal(parseSummary(read('nodetest-empty-tap.txt'))!.passed, 0);
+  const mixed = '✔ test/noop.test.js (29ms)\n✔ real one (0.4ms)\n▶ suite\n  ✔ inner (0.4ms)\n✔ suite (1ms)\nℹ tests 3\nℹ pass 3\nℹ fail 0\n';
+  assert.equal(parseSummary(mixed)!.passed, 2);
   assert.equal(parseSummary('No tests found, exiting with code 1')!.passed, 0);
   assert.equal(parseSummary(' No test files found')!.runner, 'vitest');
   assert.equal(parseSummary('=== no tests ran in 0.01s ===')!.runner, 'pytest');
@@ -281,6 +286,8 @@ test('config: defaults, validation, detection', () => {
   const c = loadConfig(d);
   assert.deepEqual([c.mode, c.testCommand, c.buildCommand, c.ignore, c.lexicon.extraUniversal, c.lexicon.extraJudge, c.maxRetries], ['strict', 'npm test', undefined, ['dist/**'], ['x'], [], 2]);
   assert.equal(normaliseConfig({ mode: 'nope', maxRetries: -3 }).maxRetries, 0);
+  assert.equal(normaliseConfig({ untaggedClaims: 'report' }).untaggedClaims, 'report');
+  assert.equal(normaliseConfig({ untaggedClaims: 'x' }).untaggedClaims, 'block');
   assert.equal(normaliseConfig('x').mode, 'warn');
   const j = mkdir();
   write(j, { 'package.json': '{"scripts":{"test":"jest","build":"tsc"}}' });
@@ -583,4 +590,24 @@ test('an unescaped | inside a value is glued back (regex alternation in a real r
   assert.equal(j.text, 'a|b stays text');
   const code = parseLine('code | x | src/a.js:3 | quote: a | b', 1);
   assert.deepEqual([code.loc, code.fields.quote], ['src/a.js:3', 'a|b']);
+});
+
+test('ledger: deferred snapshot lines merge into their entry; orphans and pending ids are harmless', () => {
+  const lines = [
+    JSON.stringify({ session: 's', ts: 't', agent: 'a', kind: 'shell', cmd: 'npm test', exit: 0, exit_trusted: true, snap_id: 'x1' }),
+    JSON.stringify({ session: 's', ts: 't', agent: 'a', kind: 'shell', cmd: 'npm test', exit: 0, exit_trusted: true, snap_id: 'pending' }),
+    JSON.stringify({ kind: 'snap', id: 'x1', snap: 'git:abc' }),
+    JSON.stringify({ kind: 'snap', id: 'orphan', snap: 'git:zzz' }),
+  ].join('\n');
+  const [a, b] = parseLedger(lines);
+  assert.ok(a.kind === 'shell' && a.snap === 'git:abc' && !a.snap_id);
+  assert.ok(b.kind === 'shell' && b.snap_id === 'pending' && b.snap === undefined);
+  assert.equal(parseLedger(lines).length, 2);
+});
+
+test('search hit paths are repo-relative with forward slashes on every platform', async () => {
+  const { normaliseHitPath } = await import('./search.js');
+  assert.equal(normaliseHitPath('./src/a.js', 'linux'), 'src/a.js');
+  assert.equal(normaliseHitPath('.\\src\\a.js', 'win32'), 'src/a.js');
+  assert.equal(normaliseHitPath('src\\weird\\name.js', 'linux'), 'src\\weird\\name.js', 'a backslash is a valid filename character on POSIX');
 });

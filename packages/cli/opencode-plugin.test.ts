@@ -18,8 +18,7 @@ const HOOK = path.join(here, 'hook.js');
 async function loadPlugin(cwd: string) {
   const src = fs
     .readFileSync(path.join(ROOT, 'adapters', 'opencode', 'receipts.js'), 'utf8')
-    .replace('import { Plugin } from "@opencode/plugin"', 'const Plugin = { define: (p) => p }')
-    .replace('"__RECEIPTS_HOOK__"', JSON.stringify(HOOK));
+        .replace('"__RECEIPTS_HOOK__"', JSON.stringify(HOOK));
   const file = path.join(mkdir(), 'receipts.mjs');
   fs.writeFileSync(file, src);
   const plugin = (await import(pathToFileURL(file).href)).default;

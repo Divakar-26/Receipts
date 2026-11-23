@@ -6,7 +6,9 @@
 // - session prompt             -> new turn: reset the retry counter
 // - experimental.idle          -> check the final message; if it fails, admit a synthetic
 //                                 message so the session continues instead of going idle
-import { Plugin } from "@opencode/plugin"
+// No import of "@opencode/plugin": its `Plugin.define(p)` is `return p` (checked in @opencode/plugin 2.3.2,
+// dist/promise/plugin.js), so exporting the plugin object directly avoids a module that may not resolve from
+// .opencode/plugins/ in a project without node_modules.
 import { execFile } from "node:child_process"
 
 const HOOK = "__RECEIPTS_HOOK__" // replaced by `receipts init`; otherwise `receipts-hook` on PATH is used
@@ -35,7 +37,7 @@ const textOf = (content) =>
 
 const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : null)
 
-export default Plugin.define({
+export default {
   id: "receipts",
   async setup(ctx) {
     const cwd = ctx.location.directory
@@ -74,4 +76,4 @@ export default Plugin.define({
       }
     })
   },
-})
+}

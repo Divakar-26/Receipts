@@ -29,6 +29,7 @@ export function decide(results: Result[], config: Config, o: { blocksSoFar: numb
       reasons.push(`Universal claim not verified: "${r.claim.text}". ${r.summary}. Prove it with a receipt, or narrow it.`);
       continue;
     }
+    if (r.strong && config.untaggedClaims === 'report') continue; // reported, but only evidence blocks
     const why = reasonFor(r);
     if (why) reasons.push(why);
   }

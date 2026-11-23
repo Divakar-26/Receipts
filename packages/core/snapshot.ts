@@ -77,3 +77,14 @@ function mtimeSnapshot(cwd: string, maxFiles = 20000, budgetMs = 1500): string |
   }
   return `mtime:${count}:${newest}`;
 }
+
+/** Files changed against HEAD plus untracked files (repo-relative). Null when not a git repo. */
+export async function changedFiles(cwd: string): Promise<string[] | null> {
+  const [diff, untracked] = await Promise.all([
+    git(cwd, ['diff', '--name-only', 'HEAD', '--', '.', ':(exclude).receipts']),
+    git(cwd, ['ls-files', '-o', '--exclude-standard', '--', '.', ':(exclude).receipts']),
+  ]);
+  if (!untracked) return null;
+  const list = [...(diff ? diff.toString().split('\n') : []), ...untracked.toString().split('\n')].map((l) => l.trim()).filter(Boolean);
+  return [...new Set(list)].sort();
+}

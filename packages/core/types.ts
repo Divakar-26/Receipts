@@ -66,6 +66,8 @@ export interface LedgerShell {
   summary?: TestSummary | null;
   out_tail?: string;
   snap?: string | null;
+  /** Set when the snapshot is taken by a detached worker after the hook returned; its `snap` line is merged on read. */
+  snap_id?: string;
 }
 export interface LedgerWeb {
   session: string;
@@ -85,6 +87,8 @@ export interface Config {
   ignore: string[];
   lexicon: { extraUniversal: string[]; extraJudge: string[] };
   maxRetries: number;
+  /** In `block`/`strict` mode, do strong claims without a receipt block (`block`, the spec default) or only get reported? */
+  untaggedClaims: 'block' | 'report';
 }
 
 export const DEFAULT_CONFIG: Config = {
@@ -93,4 +97,5 @@ export const DEFAULT_CONFIG: Config = {
   ignore: [],
   lexicon: { extraUniversal: [], extraJudge: [] },
   maxRetries: 1,
+  untaggedClaims: 'block',
 };

@@ -47,7 +47,7 @@ const time = (fn, n) => {
 const fmt = (r) => `median ${r.median.toFixed(0)} ms, p95 ${r.p95.toFixed(0)} ms, max ${r.max.toFixed(0)} ms`;
 console.log('node baseline (node -e 0):           ', fmt(time(() => spawnSync(process.execPath, ['-e', '0']), 30)));
 console.log('ledger hook, non-test command (ls):  ', fmt(time(() => spawnSync(process.execPath, [hook, 'claude', 'ledger'], { input: payload('ls -la') }), 30)));
-console.log('ledger hook, test cmd (+git snapshot):', fmt(time(() => spawnSync(process.execPath, [hook, 'claude', 'ledger'], { input: payload('npm test') }), 15)));
+console.log('ledger hook, test cmd (snapshot→worker):', fmt(time(() => spawnSync(process.execPath, [hook, 'claude', 'ledger'], { input: payload('npm test') }), 15)));
 
 // a passing run on record so the `run` claim resolves
 spawnSync(process.execPath, [hook, 'claude', 'ledger'], { input: payload('npm test') });

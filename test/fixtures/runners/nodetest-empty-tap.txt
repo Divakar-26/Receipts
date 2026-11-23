@@ -1,0 +1,11 @@
+TAP version 13
+# Subtest: test/noop.test.js
+ok 1 - test/noop.test.js
+  ---
+  duration_ms: 25.33
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0

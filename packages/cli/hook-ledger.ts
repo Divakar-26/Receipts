@@ -2,6 +2,8 @@
 // Ledger hook for every agent. Kept tiny: no tree-sitter, no ripgrep.
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { entryFromAgent, appendEntry, ledgerPath } from '../core/ledger-hook.js';
 import type { Agent } from '../core/agents.js';
 
@@ -18,8 +20,14 @@ process.stdin.on('end', async () => {
       const j = JSON.parse(fs.readFileSync(path.join(cwd, '.receipts.json'), 'utf8'));
       cfg = { testCommand: j.testCommand, buildCommand: j.buildCommand };
     } catch { /* no config */ }
-    const e = await entryFromAgent(agent, p, cfg);
-    if (e) appendEntry(ledgerPath(cwd), e);
+    const e = await entryFromAgent(agent, p, { ...cfg, deferSnapshot: process.env.RECEIPTS_SNAPSHOT !== 'inline' });
+    if (e) {
+      appendEntry(ledgerPath(cwd), e);
+      if (e.kind === 'shell' && e.snap_id) {
+        const worker = path.join(path.dirname(fileURLToPath(import.meta.url)), 'snapshot-worker.js');
+        spawn(process.execPath, [worker, cwd, e.snap_id], { detached: true, stdio: 'ignore', cwd }).unref();
+      }
+    }
   } catch {
     /* a ledger hook must never break the agent */
   }

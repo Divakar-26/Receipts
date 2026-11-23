@@ -89,3 +89,25 @@ test('claude ledger hook: real payloads append to the ledger; garbage never brea
   assert.equal(node([HOOK, 'claude', 'ledger'], { input: '{}' }).status, 0);
   assert.equal(readLedger(ledgerPath(dir)).length, 2);
 });
+
+test('ledger hook: test commands get their snapshot from a detached worker (hook stays fast)', async () => {
+  const dir = mkRepo({ 'package.json': '{"scripts":{"test":"jest"}}', 'a.js': 'x\n' });
+  const payload = { session_id: 's', cwd: dir, hook_event_name: 'PostToolUse', tool_name: 'Bash', tool_input: { command: 'npm test' }, tool_response: { stdout: 'Tests:       3 passed, 3 total', stderr: '' } };
+  const r = node([HOOK, 'claude', 'ledger'], { input: JSON.stringify(payload), env: { RECEIPTS_SNAPSHOT: '' } });
+  assert.equal(r.status, 0);
+  const deadline = Date.now() + 10_000;
+  let e = readLedger(ledgerPath(dir))[0];
+  while (e?.kind === 'shell' && !e.snap && Date.now() < deadline) {
+    await new Promise((res) => setTimeout(res, 50));
+    e = readLedger(ledgerPath(dir))[0];
+  }
+  assert.ok(e && e.kind === 'shell' && typeof e.snap === 'string' && e.snap.startsWith('git:'), 'worker appended the snapshot');
+  assert.equal((e as { snap_id?: string }).snap_id, undefined, 'merged on read');
+  const raw = fs.readFileSync(ledgerPath(dir), 'utf8');
+  assert.match(raw, /"kind":"snap"/);
+  // inline mode (tests, `receipts run`) still works
+  const dir2 = mkRepo({ 'a.js': 'x\n' });
+  node([HOOK, 'claude', 'ledger'], { input: JSON.stringify({ ...payload, cwd: dir2 }), env: { RECEIPTS_SNAPSHOT: 'inline' } });
+  const e2 = readLedger(ledgerPath(dir2))[0];
+  assert.ok(e2.kind === 'shell' && typeof e2.snap === 'string');
+});

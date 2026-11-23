@@ -14,10 +14,12 @@ export interface ShellRecord {
   cwd: string;
   testCommand?: string;
   buildCommand?: string;
+  /** Take the git snapshot in a detached worker (used by the ledger hook to stay under 80 ms). */
+  deferSnapshot?: boolean;
 }
 
 /** Build a shell ledger entry. Snapshot (git) is taken only for test/build commands. */
-export async function buildShellEntry(r: ShellRecord): Promise<LedgerEntry> {
+export async function buildShellEntry(r: ShellRecord, o: { deferSnapshot?: boolean } = {}): Promise<LedgerEntry> {
   const cfg = { testCommand: r.testCommand, buildCommand: r.buildCommand };
   const cmd = redact(unwrapReceiptsRun(r.cmd));
   const trusted = r.exit !== null && exitTrusted(cmd, cfg);
@@ -33,8 +35,13 @@ export async function buildShellEntry(r: ShellRecord): Promise<LedgerEntry> {
     out_tail: tailLines(r.output, 40),
   };
   if (analyseCommand(cmd).length && isTestOrBuild(cmd, cfg)) {
-    const { takeSnapshot } = await import('./snapshot.js');
-    e.snap = await takeSnapshot(r.cwd);
+    if (o.deferSnapshot || r.deferSnapshot) {
+      // the ledger hook must stay fast: a detached worker takes the snapshot and appends it (see snapshot-worker)
+      e.snap_id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    } else {
+      const { takeSnapshot } = await import('./snapshot.js');
+      e.snap = await takeSnapshot(r.cwd);
+    }
   }
   return e;
 }
@@ -45,7 +52,7 @@ export async function buildShellEntry(r: ShellRecord): Promise<LedgerEntry> {
  * 0); a failing Bash call arrives as `PostToolUseFailure` with "Exit code N"
  * in `error`.
  */
-export async function entryFromClaude(p: any, cfg: { testCommand?: string; buildCommand?: string } = {}): Promise<LedgerEntry | null> {
+export async function entryFromClaude(p: any, cfg: { testCommand?: string; buildCommand?: string; deferSnapshot?: boolean } = {}): Promise<LedgerEntry | null> {
   if (!p || typeof p !== 'object' || typeof p.session_id !== 'string') return null;
   const ev = p.hook_event_name;
   const cwd = typeof p.cwd === 'string' ? p.cwd : process.cwd();
@@ -71,7 +78,7 @@ export async function entryFromClaude(p: any, cfg: { testCommand?: string; build
   return buildShellEntry({ session: p.session_id, agent: 'claude-code', cmd, exit, output, cwd, ...cfg });
 }
 
-type Cfg = { testCommand?: string; buildCommand?: string };
+type Cfg = { testCommand?: string; buildCommand?: string; deferSnapshot?: boolean };
 
 /**
  * Codex PostToolUse: `tool_name` Bash, `tool_input.command`, `tool_response` of unspecified shape.
@@ -123,3 +130,4 @@ export function entryFromAgent(agent: Agent, p: any, cfg: Cfg = {}): Promise<Led
 }
 
 export { ledgerPath, appendEntry };
+export { appendSnapshot } from './ledger.js';

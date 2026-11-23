@@ -4,6 +4,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { block, JEST_FAIL, JEST_OK, mkRepo, run, shellEntry, write, mkdir } from './testutil.js';
 import { check } from './check.js';
+import { DEFAULT_CONFIG } from './types.js';
 
 const PKG = JSON.stringify({ name: 'x', scripts: { test: 'jest', build: 'tsc' } });
 
@@ -189,7 +190,7 @@ test('11. a second failed check in the same turn -> no second block; report show
   assert.match(second.text, /not blocking again/);
   const hookActive = await run(dir, msg, [], { blocksSoFar: 0, stopHookActive: true });
   assert.equal(hookActive.decision.block, false);
-  const warn = await run(dir, msg, [], { config: { mode: 'warn', ignore: [], lexicon: { extraUniversal: [], extraJudge: [] }, maxRetries: 1 } });
+  const warn = await run(dir, msg, [], { config: { mode: 'warn', ignore: [], lexicon: { extraUniversal: [], extraJudge: [] }, maxRetries: 1, untaggedClaims: 'block' } });
   assert.equal(warn.decision.block, false);
   assert.equal(warn.decision.wouldBlock, false);
 });
@@ -281,7 +282,7 @@ test('timeout: remaining claims become UNVERIFIED (timeout) and never block', as
 
 test('strict mode: an unverified universal claim blocks; judge claims alone do not', async () => {
   const dir = mkRepo({ 'a.js': 'a\n' });
-  const strict = { mode: 'strict' as const, ignore: [], lexicon: { extraUniversal: [], extraJudge: [] }, maxRetries: 1 };
+  const strict = { mode: 'strict' as const, ignore: [], lexicon: { extraUniversal: [], extraJudge: [] }, maxRetries: 1, untaggedClaims: 'block' as const };
   const uni = await run(dir, block('judge | every caller handles null | source: https://example.com'), [], { config: strict });
   assert.equal(uni.decision.block, true);
   const plain = await run(dir, block('judge | this will not affect other callers'));
@@ -513,4 +514,43 @@ test('dependency claims in prose are checked against the manifests (the one miss
   // go.mod direct requirement still counts as declared
   const goDirect = mkRepo({ 'go.mod': 'module x\n\ngo 1.19\n\nrequire example.com/ids v0.0.0\n' });
   assert.equal((await run(goDirect, block('dep | ids | name: example.com/ids'))).results[0].label, 'VERIFIED');
+});
+
+test('judge evidence: changed files, whether tests ran after them, and untested references', async () => {
+  const dir = mkRepo({ 'package.json': PKG, 'src/auth.js': AUTH, 'src/login.js': LOGIN });
+  fs.writeFileSync(path.join(dir, 'src/auth.js'), AUTH + '// tweak\n');
+  const none = await run(dir, block('judge | changing `verifyToken` will not affect callers'));
+  const ev = none.results[0].evidence.join('\n');
+  assert.match(ev, /1 file\(s\) changed: src\/auth\.js/);
+  assert.match(ev, /no test command ran after these changes/);
+  assert.match(ev, /reference `verifyToken`.*their tests did not run after the change/);
+  const fresh = await shellEntry(dir, 'npm test', { out: JEST_OK });
+  const ok = await run(dir, block('judge | changing `verifyToken` will not affect callers'), [fresh]);
+  assert.match(ok.results[0].evidence.join('\n'), /after the last change/);
+  assert.doesNotMatch(ok.results[0].evidence.join('\n'), /did not run after/);
+  fs.writeFileSync(path.join(dir, 'src/login.js'), LOGIN + '// later\n');
+  const stale = await run(dir, block('judge | changing `verifyToken` will not affect callers'), [fresh]);
+  assert.match(stale.results[0].evidence.join('\n'), /BEFORE later changes \(stale\)/);
+  assert.equal(stale.results[0].label, 'UNVERIFIED');
+});
+
+test('a run whose snapshot is still pending says staleness was not checked', async () => {
+  const dir = mkRepo({ 'package.json': PKG });
+  const e = await shellEntry(dir, 'npm test', { out: JEST_OK });
+  if (e.kind === 'shell') { delete e.snap; e.snap_id = 'pending'; }
+  const out = await run(dir, block('run | all tests pass | cmd: npm test'), [e]);
+  assert.equal(out.results[0].label, 'VERIFIED');
+  assert.match(out.results[0].note, /snapshot still pending/);
+});
+
+test('untaggedClaims: "report" lets block mode stop only on evidence', async () => {
+  const dir = mkRepo({ 'src/auth.js': AUTH, 'src/cart.js': 'console.log(1);\n' });
+  const cfg = { ...DEFAULT_CONFIG, mode: 'block' as const, untaggedClaims: 'report' as const };
+  const untagged = await run(dir, '`verifyToken` is only called from login.js.', [], { config: cfg });
+  assert.equal(untagged.results[0].strong, true, 'still reported');
+  assert.equal(untagged.decision.block, false, 'but does not block');
+  const evidence = await run(dir, block('absent | removed all console.log | pattern: console\\.log'), [], { config: cfg });
+  assert.equal(evidence.decision.block, true, 'a contradiction still blocks');
+  const spec = await run(dir, '`verifyToken` is only called from login.js.');
+  assert.equal(spec.decision.block, true, 'default follows the spec');
 });

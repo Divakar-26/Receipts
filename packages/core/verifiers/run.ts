@@ -87,7 +87,8 @@ export async function verifyRun(c: Claim, ctx: Ctx): Promise<Result> {
       return mk(c, 'UNVERIFIED', `${label}: files changed after ${ran} ran`, 'edits since the run mean its result no longer applies; re-run it', [], { reason: 'stale', stale: true });
     }
     if (!now) stalenessNote = '; staleness not checked (no snapshot)';
-  } else if (isTestCmd(target) || isBuildCmd(target)) stalenessNote = '; staleness not checked (no snapshot recorded)';
+  } else if (entry.snap_id) stalenessNote = '; staleness not checked (snapshot still pending)';
+  else if (isTestCmd(target) || isBuildCmd(target)) stalenessNote = '; staleness not checked (no snapshot recorded)';
   const counts = s ? `${s.passed} ${s.unit === 'packages' ? 'packages ok' : 'passed'}${s.skipped ? `, ${s.skipped} skipped` : ''}` : `exit ${entry.exit}`;
   const skipNote = s && s.skipped ? `${s.skipped} skipped tests were not run. ` : '';
   return mk(c, 'VERIFIED', `${ran} ${entry.exit !== null && entry.exit_trusted ? `exit ${entry.exit}, ` : ''}${counts}`, `${skipNote}the command's result was read from the ledger; test quality was not checked${stalenessNote}`, tail);

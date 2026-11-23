@@ -15,6 +15,7 @@ export function normaliseConfig(raw: unknown): Config {
   c.ignore = strArr(r.ignore);
   const lx = (r.lexicon ?? {}) as Record<string, unknown>;
   c.lexicon = { extraUniversal: strArr(lx.extraUniversal), extraJudge: strArr(lx.extraJudge) };
+  if (r.untaggedClaims === 'block' || r.untaggedClaims === 'report') c.untaggedClaims = r.untaggedClaims;
   if (typeof r.maxRetries === 'number' && Number.isFinite(r.maxRetries)) {
     c.maxRetries = Math.max(0, Math.min(2, Math.floor(r.maxRetries)));
   }

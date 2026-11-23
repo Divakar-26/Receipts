@@ -65,6 +65,12 @@ function run(bin: string, args: string[], cwd: string, timeout: number): Promise
   });
 }
 
+/** Repo-relative path with forward slashes (ripgrep on Windows prints `.\\src\\a.js`). */
+export function normaliseHitPath(p: string, platform: string = process.platform): string {
+  const s = platform === 'win32' ? p.replace(/\\/g, '/') : p;
+  return s.replace(/^\.\//, '');
+}
+
 function parseNull(stdout: string, max: number): { hits: Hit[]; truncated: boolean } {
   const hits: Hit[] = [];
   let truncated = false;
@@ -78,7 +84,7 @@ function parseNull(stdout: string, max: number): { hits: Hit[]; truncated: boole
       truncated = true;
       break;
     }
-    hits.push({ file: rec.slice(0, nul).replace(/^\.\//, ''), line: parseInt(m[1], 10), text: m[2] });
+    hits.push({ file: normaliseHitPath(rec.slice(0, nul)), line: parseInt(m[1], 10), text: m[2] });
   }
   return { hits, truncated };
 }
@@ -146,7 +152,7 @@ export async function search(cwd: string, o: SearchOptions): Promise<SearchResul
       truncated = true;
       break;
     }
-    hits.push({ file: parts[0], line: parseInt(parts[1], 10), text: parts.slice(2).join('\0') });
+    hits.push({ file: normaliseHitPath(parts[0]), line: parseInt(parts[1], 10), text: parts.slice(2).join('\0') });
   }
   if (r.code === 128 || (r.code === 2 && !hits.length)) {
     return { hits, truncated, engine: 'git-grep', error: (r.stderr.trim().split('\n')[0] || 'git grep failed') };

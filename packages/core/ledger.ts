@@ -45,16 +45,30 @@ export function appendEntry(file: string, entry: LedgerEntry): void {
 
 export function parseLedger(text: string): LedgerEntry[] {
   const out: LedgerEntry[] = [];
+  const snaps = new Map<string, string | null>();
   for (const line of text.split('\n')) {
     if (!line.trim()) continue;
     try {
       const e = JSON.parse(line);
       if (e && (e.kind === 'shell' || e.kind === 'web') && typeof e.session === 'string') out.push(e as LedgerEntry);
+      else if (e && e.kind === 'snap' && typeof e.id === 'string') snaps.set(e.id, typeof e.snap === 'string' ? e.snap : null);
     } catch {
       /* skip corrupt line */
     }
   }
+  // deferred snapshots (written by the snapshot worker after the ledger hook returned)
+  for (const e of out) {
+    if (e.kind === 'shell' && e.snap_id && snaps.has(e.snap_id)) {
+      e.snap = snaps.get(e.snap_id) ?? null;
+      delete e.snap_id;
+    }
+  }
   return out;
+}
+
+/** Record a snapshot taken later for the entry with this `snap_id`. */
+export function appendSnapshot(file: string, id: string, snap: string | null): void {
+  fs.appendFileSync(file, JSON.stringify({ kind: 'snap', id, snap }) + '\n');
 }
 
 export function readLedger(file: string): LedgerEntry[] {
