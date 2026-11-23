@@ -1,0 +1,11 @@
+I re-searched the repo for a standalone `10`, excluding `.git`, `node_modules` and `.claude`. The only match is `test/unit/cart.test.ts:5`, a price and expected subtotal in a discount test. It has nothing to do with the cart limit.
+
+I only searched for the literal `10`. A limit written another way, such as `5 * 2`, would not show up. I did not check for those.
+
+<receipts>
+code | test/unit/cart.test.ts:5 | quote: subtotal([{ price: 10, qty: 2, discount: 50 }]), 10
+code | src/limits.ts:1 | quote: export const MAX_ITEMS = 20
+code | src/legacy/limits.ts:1 | quote: export const LEGACY_MAX_ITEMS = 20
+change | old: canAdd(10) | new: canAdd(20)
+run | cmd: npm test
+</receipts>

@@ -306,3 +306,56 @@ test('change: old gone and new present', async () => {
   const none = mkRepo({ 'a.js': 'x();\n' });
   assert.match((await run(none, block('change | renamed | old: getUser | new: fetchUser'))).results[0].summary, /not found/);
 });
+
+test('untagged "all tests passed" is checked from the ledger instead of blocking a true claim', async () => {
+  const dir = mkRepo({ 'package.json': PKG, 'src/a.js': 'let a = 1;\n' });
+  const msg = 'I ran `npm test` after the edits and all 42 tests passed.';
+  // fresh passing run: verified, no block, and it says how it was checked
+  const ok = await run(dir, msg, [await shellEntry(dir, 'npm test', { out: JEST_OK })]);
+  assert.equal(ok.results.length, 1);
+  assert.equal(ok.results[0].label, 'VERIFIED');
+  assert.equal(ok.results[0].checkedAs, 'run');
+  assert.match(ok.results[0].note, /no receipt was given; checked from the command ledger/);
+  assert.equal(ok.decision.block, false);
+  // a failing run: the claim is false, so it blocks
+  const bad = await run(dir, msg, [await shellEntry(dir, 'npm test', { exit: 1, out: JEST_FAIL })]);
+  assert.equal(bad.results[0].label, 'CONTRADICTED');
+  assert.equal(bad.decision.block, true);
+  // a filtered run: subset
+  const sub = await run(dir, msg, [await shellEntry(dir, 'npm test -- login', { out: JEST_OK })]);
+  assert.match(sub.results[0].summary, /subset/);
+  assert.equal(sub.decision.block, true);
+  // stale after an edit
+  const e = await shellEntry(dir, 'npm test', { out: JEST_OK });
+  fs.writeFileSync(path.join(dir, 'src/a.js'), 'let a = 2;\n');
+  const stale = await run(dir, msg, [e]);
+  assert.equal(stale.results[0].stale, true);
+  assert.equal(stale.decision.block, true);
+  // no test command ever ran: still a strong untagged claim
+  const none = await run(dir, msg, []);
+  assert.equal(none.results[0].strong, true);
+  assert.equal(none.decision.block, true);
+});
+
+test('a receipt line with the keys where the claim text belongs still parses', async () => {
+  const dir = mkRepo({ 'src/auth.js': AUTH, 'src/login.js': LOGIN });
+  const out = await run(dir, block('only | symbol: verifyToken | in: src/login.js'));
+  assert.equal(out.results[0].claim.type, 'only');
+  assert.equal(out.results[0].label, 'VERIFIED');
+  assert.equal(out.decision.block, false);
+});
+
+test('a differently-spelled command for the same runner is not accused of being a subset', async () => {
+  const dir = mkRepo({ 'pytest.ini': '[pytest]\npythonpath = .\n', 'tests/test_a.py': 'def test_a():\n    assert True\n' });
+  const PYOUT = '============ 3 passed in 0.01s ============\n';
+  const same = await run(dir, block('run | all tests pass | cmd: python3 -m pytest -q tests'), [await shellEntry(dir, 'python3 -m pytest -q tests', { out: PYOUT })]);
+  assert.equal(same.results[0].label, 'VERIFIED', same.results[0].summary);
+  // a different runner than the configured one: unproven, not contradicted (never a block)
+  const other = await run(dir, block('run | all tests pass | cmd: make check'), [await shellEntry(dir, 'make check', { out: PYOUT })]);
+  assert.equal(other.results[0].label, 'UNVERIFIED');
+  assert.equal(other.results[0].reason, 'subset');
+  assert.equal(other.decision.block, false);
+  // but a filter is still a contradiction
+  const filt = await run(dir, block('run | all tests pass | cmd: python3 -m pytest tests/test_a.py'), [await shellEntry(dir, 'python3 -m pytest tests/test_a.py', { out: PYOUT })]);
+  assert.equal(filt.results[0].label, 'CONTRADICTED');
+});

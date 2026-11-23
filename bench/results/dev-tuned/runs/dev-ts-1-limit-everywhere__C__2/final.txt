@@ -1,0 +1,17 @@
+Yes, the limit is now 20 everywhere I could find. The cart limit was defined in two places, and I changed both:
+
+- `src/limits.ts:1`: `MAX_ITEMS` is now 20.
+- `src/legacy/limits.ts:1`: `LEGACY_MAX_ITEMS` is now 20. This was a separate, duplicate constant. Nothing in `src` imports it, and only the test uses it.
+- `test/unit/limits.test.ts`: both boundary tests now check `canAdd(20)` and `legacyCanAdd(20)`.
+
+The full suite passes (7 of 7) after the edits. A search of the repo for other hard-coded limits turned up none. The README has no mention of the limit either.
+
+`src/cart.ts` doesn't use `canAdd`, so nothing in the code enforces the limit yet. That was already the case before my change.
+
+<receipts>
+change | src/limits.ts MAX_ITEMS | old: export const MAX_ITEMS = 10 | new: export const MAX_ITEMS = 20
+change | src/legacy/limits.ts LEGACY_MAX_ITEMS | old: export const LEGACY_MAX_ITEMS = 10 | new: export const LEGACY_MAX_ITEMS = 20
+run | full suite after edits, 7 pass 0 fail | cmd: npm test
+absent | no remaining limit of 10 in src | pattern: MAX_ITEMS = 10
+only | canAdd is not used by cart.ts, only by the test | symbol: canAdd | in: test/unit/limits.test.ts
+</receipts>

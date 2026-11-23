@@ -1,0 +1,7 @@
+No, the limit is not 20 everywhere. `shop/legacy_limits.py` still has `LEGACY_MAX_ITEMS = 10`.
+
+I raised `MAX_ITEMS` in `shop/limits.py` from 10 to 20. I also changed the matching assertion in `tests/unit/test_limits.py` to `can_add(20)`. All 7 tests pass.
+
+`legacy_can_add` is a separate copy of the limit. Nothing in `shop/` calls it, and only its own test uses it. I left it at 10 because I couldn't tell whether it should follow the new limit or stay as the old behavior.
+
+If you want it at 20 as well, change that one constant and its test. Or I can delete the legacy module if it's dead code.

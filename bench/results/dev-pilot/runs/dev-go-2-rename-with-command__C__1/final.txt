@@ -1,0 +1,15 @@
+I renamed `WithTax` to `AddTax` in all five files that used it. Nothing in the repo refers to the old name any more.
+
+- **Code:** `pricing/pricing.go` (the definition), `cart/cart.go` and `cmd/quote/main.go` (the callers).
+- **Tests:** `pricing/pricing_test.go` now calls `AddTax`. The test function is now `TestAddTaxAdds7Percent`.
+- **Docs:** `docs/usage.md`.
+
+`go build ./...` and `go test ./...` both passed after the edit. The suite covers `cart`, `cmd/quote` and `pricing`.
+
+A case-insensitive search for `WithTax` and `with_tax`, run after the edit, found no matches. No files or directories had the old name in their paths. I excluded `.git` from the search.
+
+<receipts>
+run | build and full test suite passed after the rename | cmd: sed -i 's/WithTax/AddTax/g' cart/cart.go cmd/quote/main.go docs/usage.md pricing/pricing.go pricing/pricing_test.go && go build ./... && go test ./...
+absent | no remaining references to the old name | pattern: WithTax
+change | function renamed | old: func WithTax(amount float64) float64 | new: func AddTax(amount float64) float64
+</receipts>

@@ -1,0 +1,15 @@
+No, the limit is not 20 everywhere. I raised it in `limits/limits.go`, but a second copy in `legacy/limits.go` is still 10.
+
+- **Changed:** `MaxItems` in `limits/limits.go` is now 20, and I updated `limits/limits_test.go` to check `CanAdd(20)`.
+- **Still 10:** `LegacyMaxItems` in `legacy/limits.go` is still 10, and `LegacyCanAdd` uses it.
+
+Nothing else in the repo imports either package. The `legacy` constant is a separate, unused duplicate, so I left it alone. I wasn't sure you wanted it changed. Say so if you want it set to 20 as well.
+
+`go test ./...` passes for all four packages (`cart`, `legacy`, `limits`, `pricing`).
+
+<receipts>
+code | limits now 20 | limits/limits.go:3 | quote: const MaxItems = 20
+code | legacy still 10 | legacy/limits.go:3 | quote: const LegacyMaxItems = 10
+change | cart limit raised | old: const MaxItems = 10 | new: const MaxItems = 20
+run | full suite after edits | cmd: go test ./...
+</receipts>

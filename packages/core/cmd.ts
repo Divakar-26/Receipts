@@ -301,3 +301,16 @@ export function detectFilter(norm: string): string | null {
   }
   return null;
 }
+
+/**
+ * Identifies the test runner behind a command, ignoring wrappers and flags:
+ * `python3 -m pytest -q tests` and `pytest` are both "pytest"; `npm run test -- --coverage` is "npm test".
+ */
+export function runnerKey(norm: string): string {
+  let w = words(norm);
+  while (w.length && ['npx', 'pnpx', 'bunx', 'bundle', 'exec', 'sudo', 'time'].includes(w[0])) w = w.slice(1);
+  if (/^python3?$/.test(w[0] ?? '') && w[1] === '-m') w = w.slice(2);
+  const first = (w[0] ?? '').replace(/^\.\//, '').replace(/^.*\//, '');
+  if (['npm', 'pnpm', 'yarn', 'bun', 'go', 'cargo', 'make'].includes(first)) return `${first} ${w[1] === 'run' ? (w[2] ?? '') : (w[1] ?? '')}`.trim();
+  return first;
+}

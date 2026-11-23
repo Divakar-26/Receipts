@@ -1,0 +1,9 @@
+I re-ran `go test ./...` on its own after the last edit. All four packages pass (the results were cached from my earlier run). A search for imports of `example.com/shop/limits` or `example.com/shop/legacy` found nothing. So no Go code in the repo imports either package, and only their own tests use the constants. I haven't checked anything outside this repo.
+
+<receipts>
+run | full suite passes after last edit | cmd: go test ./...
+absent | no Go file imports the limits or legacy packages | pattern: shop/(limits\|legacy)"
+change | limits constant | old: const MaxItems = 10 | new: const MaxItems = 20
+change | legacy constant | old: const LegacyMaxItems = 10 | new: const LegacyMaxItems = 20
+absent | no remaining 10 limit constants | pattern: (MaxItems\|LegacyMaxItems) = 10
+</receipts>

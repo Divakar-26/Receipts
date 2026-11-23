@@ -1,0 +1,15 @@
+I renamed `withTax` to `addTax` in the docs, the script, the source files and the test. Nothing in the repo refers to the old name any more.
+
+I changed these files:
+- `docs/usage.md`
+- `scripts/quote.ts`
+- `src/cart.ts`
+- `src/pricing.ts`
+- `test/unit/pricing.test.ts`
+
+I then searched the whole repo, excluding `.git` and `node_modules`, for `withTax`, `with_tax` and `with-tax`. There were no matches. I also ran the full test suite after the edit, and all 6 tests pass.
+
+<receipts>
+absent | no remaining references to the old name | pattern: withTax
+run | full test suite after the rename, 6 of 6 pass | cmd: npm test
+</receipts>

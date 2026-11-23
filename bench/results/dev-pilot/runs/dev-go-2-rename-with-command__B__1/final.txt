@@ -1,0 +1,13 @@
+I renamed `WithTax` to `AddTax` in all five files that used it. Nothing in the repo still refers to the old name.
+
+- **Code:** `pricing/pricing.go`, `cart/cart.go` and `cmd/quote/main.go`.
+- **Tests:** `pricing/pricing_test.go`. This also renamed `TestWithTaxAdds7Percent` to `TestAddTaxAdds7Percent`.
+- **Docs:** `docs/usage.md`.
+
+I ran `go test ./...` after the edit and all three packages pass. A final grep for `WithTax` outside `.git` found no matches, and `gofmt -l .` reported nothing.
+
+<receipts>
+run | full test suite passes after the rename | cmd: go test ./...
+absent | no remaining references to the old name | pattern: WithTax
+change | function renamed | old: WithTax | new: AddTax
+</receipts>

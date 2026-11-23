@@ -1,0 +1,15 @@
+Yes, the cart limit is now 20 in every place I found. The code had two separate copies of it, and I changed both:
+
+- `shop/limits.py`: `MAX_ITEMS` is now 20.
+- `shop/legacy_limits.py`: `LEGACY_MAX_ITEMS` is now 20. This was a duplicate constant, and nothing outside the tests imports it.
+- `tests/unit/test_limits.py`: both tests now check the boundary at 20 instead of 10.
+
+I searched the repo for `10`, `limit` and `max`, and the README has no mention of the limit. The full test suite passes (7 tests).
+
+<receipts>
+code | shop/limits.py:1 | quote: MAX_ITEMS = 20
+code | shop/legacy_limits.py:1 | quote: LEGACY_MAX_ITEMS = 20
+change | old: MAX_ITEMS = 10 | new: MAX_ITEMS = 20
+run | cmd: python -m pytest
+absent | pattern: (MAX_ITEMS|LEGACY_MAX_ITEMS) = 10
+</receipts>

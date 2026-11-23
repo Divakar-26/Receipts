@@ -3,7 +3,7 @@ import * as assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { analyseCommand, detectFilter, exitTrusted, isBuildCmd, isTestCmd, isTestOrBuild, normaliseSegment, splitShell, unwrapReceiptsRun, words } from './cmd.js';
+import { runnerKey, analyseCommand, detectFilter, exitTrusted, isBuildCmd, isTestCmd, isTestOrBuild, normaliseSegment, splitShell, unwrapReceiptsRun, words } from './cmd.js';
 import { parseSummary, PARSERS } from './runners/index.js';
 import { parseLine, parseLoc, parseMessage, splitFields } from './claims.js';
 import { buildMatchers, hasUniversal, identifiers, isTestPass } from './lexicon.js';
@@ -96,6 +96,19 @@ test('filter detection', () => {
   assert.equal(f('bundle exec rspec'), null);
   assert.equal(f(''), null);
   assert.equal(f('yarn run test'), null);
+});
+
+test('runnerKey ignores wrappers and flags', () => {
+  const k = (c: string) => runnerKey(normaliseSegment(c));
+  assert.equal(k('python3 -m pytest -q tests'), 'pytest');
+  assert.equal(k('pytest'), 'pytest');
+  assert.equal(k('npx jest --coverage'), 'jest');
+  assert.equal(k('npm run test -- --reporter dot'), 'npm test');
+  assert.equal(k('go test ./...'), 'go test');
+  assert.equal(k('./gradlew test'), 'gradlew');
+  assert.equal(k('bundle exec rspec'), 'rspec');
+  assert.equal(k('make check'), 'make check');
+  assert.equal(k(''), '');
 });
 
 test('runner summaries: one fixture per runner', () => {

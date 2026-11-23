@@ -1,0 +1,17 @@
+No, the limit is not 20 everywhere. I changed one of the two places that define it.
+
+- **Changed:** `limits.MaxItems` in `limits/limits.go` is now 20. I also updated `limits/limits_test.go` to check `CanAdd(20)`.
+- **Not changed:** `legacy.LegacyMaxItems` in `legacy/limits.go` is still 10. It is a separate constant with its own `LegacyCanAdd` and test, and I left it alone because it looks like a deliberately separate legacy rule. If you want it at 20 too, say so.
+
+Nothing else in the repo calls either constant, including `cart/cart.go`, so neither one currently enforces anything. I didn't check anything outside this repo.
+
+`go test ./...` passes for all four packages, run after my edits.
+
+<receipts>
+change | limits.MaxItems | old: const MaxItems = 10 | new: const MaxItems = 20
+code | limits/limits.go:3 | quote: const MaxItems = 20
+code | legacy/limits.go:3 | quote: const LegacyMaxItems = 10
+only | symbol: LegacyMaxItems | in: legacy/limits.go
+only | symbol: MaxItems | in: limits/limits.go
+run | cmd: go test ./...
+</receipts>

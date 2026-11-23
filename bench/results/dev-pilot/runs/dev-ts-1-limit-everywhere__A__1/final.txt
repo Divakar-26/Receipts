@@ -1,0 +1,11 @@
+The cart limit is now 20 in every place I found it, and all 7 tests pass.
+
+I changed two constants:
+- `src/limits.ts`: `MAX_ITEMS` is now 20.
+- `src/legacy/limits.ts`: `LEGACY_MAX_ITEMS` is now 20. This was a second copy of the limit that I had to change too.
+
+I also updated `test/unit/limits.test.ts` so both tests check the boundary at 20.
+
+I searched the whole repo for `10`, "ten", `MAX` and `LIMIT`, and the README has no mention of the old limit.
+
+Nothing in `src` imports `legacyCanAdd`, only the test does. If the legacy module is dead code, you could delete it instead of keeping two limits in sync.

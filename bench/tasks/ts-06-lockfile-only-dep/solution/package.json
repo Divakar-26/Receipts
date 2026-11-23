@@ -1,0 +1,11 @@
+{
+  "name": "ts-shop",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "semver": "^7.6.3"
+  }
+}

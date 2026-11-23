@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import { parseMessage } from './claims.js';
 import { loadConfig, detectCommands } from './config.js';
 import { Claim, Config, LedgerEntry, Result } from './types.js';
+import { analyseCommand, isTestCmd, normaliseSegment } from './cmd.js';
 import { buildMatchers, hasUniversal } from './lexicon.js';
 import { scanProse, typeGaming, Warning } from './scanner.js';
 import { sessionEntries } from './ledger.js';
@@ -109,6 +110,20 @@ export async function check(input: CheckInput): Promise<CheckOutput> {
   const scan = scanProse(parsed.outside + '\n' + unparsedText, tagged, m);
   for (const f of scan.flagged) {
     const c: Claim = { type: 'untagged', text: f.sentence, fields: {}, line: 0 };
+    if (f.kind === 'testpass') {
+      // "all tests pass" in prose: the checker can verify this itself from the ledger instead of demanding a receipt.
+      const fullNorm = fullTest ? normaliseSegment(fullTest) : null;
+      const ran = [...ctx.entries].reverse().find((e) => e.kind === 'shell' && analyseCommand(e.cmd).some((s) => isTestCmd(s.norm) || s.norm === fullNorm));
+      if (ran && ran.kind === 'shell') {
+        const seg = analyseCommand(ran.cmd).find((s) => isTestCmd(s.norm) || s.norm === fullNorm)!;
+        const auto: Claim = { type: 'run', text: f.sentence, fields: { cmd: seg.text }, line: 0, originalType: 'untagged' };
+        const r = await verifyOne(auto, ctx);
+        r.checkedAs = 'run';
+        r.note = `no receipt was given; checked from the command ledger. ${r.note}`;
+        results.push(r);
+        continue;
+      }
+    }
     results.push(
       mk(c, 'UNVERIFIED', f.kind === 'testpass' ? 'says tests/build pass, but no `run` receipt' : 'universal claim about code with no receipt', 'the checker found this claim in free text', [], { reason: 'untagged', strong: true, universal: f.kind === 'universal' }),
     );

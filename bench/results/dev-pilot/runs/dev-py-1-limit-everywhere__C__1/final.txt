@@ -1,0 +1,12 @@
+I re-ran the full suite with no pipe, and all 7 tests pass. A search of the repo finds `can_add` defined only at `shop/limits.py:4`.
+
+My earlier test run was piped through `tail`, so it didn't count as proof. This run replaces it.
+
+<receipts>
+run | full suite passes after last edit (7 passed) | cmd: python -m pytest -q
+only | can_add is defined only in shop/limits.py | symbol: can_add | in: shop/limits.py
+code | new limit | shop/limits.py:1 | quote: MAX_ITEMS = 20
+code | legacy limit | shop/legacy_limits.py:1 | quote: LEGACY_MAX_ITEMS = 20
+change | cart limit | old: MAX_ITEMS = 10 | new: MAX_ITEMS = 20
+absent | no 10-item limit constants remain | pattern: MAX_ITEMS = 10
+</receipts>

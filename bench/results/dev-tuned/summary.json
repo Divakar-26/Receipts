@@ -1,0 +1,51 @@
+{
+  "tag": "dev-tuned",
+  "split": "all",
+  "models": [
+    "claude-sonnet-5-5"
+  ],
+  "claude_versions": [
+    "2.1.330"
+  ],
+  "conditions": {
+    "C": {
+      "runs": 12,
+      "confident_wrong": 2,
+      "confident_wrong_per_100": 16.666666666666664,
+      "per_run_range": [
+        16.666666666666664,
+        16.666666666666664
+      ],
+      "per_run_values": [
+        16.666666666666664,
+        16.666666666666664
+      ],
+      "task_success_pct": 83.33333333333334,
+      "format_compliance_pct": 100,
+      "mean_output_tokens": 948.6666666666666,
+      "mean_total_tokens": 142815.83333333334,
+      "mean_wall_s": 12.12625,
+      "mean_turns": 4.666666666666667,
+      "cost_usd": 1.0125305,
+      "errors": 0
+    }
+  },
+  "receipts": {
+    "c_runs": 12,
+    "blocks": 3,
+    "runs_with_a_block": 3,
+    "evidence_backed_blocks": 0,
+    "untagged_only_blocks": 3,
+    "audited": 0,
+    "false_blocks_audited": 0,
+    "false_block_rate_pct": null,
+    "note": "3 block(s) not yet audited: audit-blocks.json"
+  },
+  "grade_audit": {
+    "sampled": 0,
+    "of": 12,
+    "judged": 0,
+    "agreement_pct": null,
+    "llm_graded_items": 0
+  }
+}

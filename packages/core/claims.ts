@@ -48,11 +48,17 @@ export function parseLine(raw: string, lineNo: number): Claim {
   const parts = splitFields(raw);
   const type = parts[0]?.toLowerCase() as ClaimType;
   if (!CLAIM_TYPES.includes(type)) return untagged();
-  const text = parts[1];
+  let text = parts[1];
   if (!text) return untagged();
+  let rest = parts.slice(2);
+  // `only | symbol: x | in: y` (keys where the claim text belongs): the intent is clear, so keep it.
+  if (KEY_RE.test(text)) {
+    rest = [text, ...rest];
+    text = `${type} ${text}`;
+  }
   const fields: Record<string, string> = {};
   let loc: string | undefined;
-  for (const p of parts.slice(2)) {
+  for (const p of rest) {
     const k = KEY_RE.exec(p);
     if (k) fields[k[1]] = k[2].trim();
     else if (type === 'code' && !loc && LOC_RE.test(p)) loc = p;

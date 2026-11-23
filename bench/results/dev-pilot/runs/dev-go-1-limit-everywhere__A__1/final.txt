@@ -1,0 +1,11 @@
+The cart limit is now 20 in both places it was defined, and `go test ./...` passes.
+
+- `limits/limits.go`: `MaxItems` changed from 10 to 20.
+- `legacy/limits.go`: `LegacyMaxItems` changed from 10 to 20. This was a separate copy of the same limit.
+- I updated the two limit tests (`limits/limits_test.go` and `legacy/limits_test.go`) to check the boundary at 20 instead of 10.
+
+I searched every Go file for `10`, `MAX` and `LIMIT`. No other cart-limit constants turned up. The only other `10` is a price in the `cart` tests, which is unrelated. Nothing outside those two packages imports `limits` or `legacy`, so as far as I can tell nothing enforces the old limit.
+
+I only searched the Go code in this repo. If other things enforce the limit, such as a frontend, config files or a database constraint, I haven't checked them.
+
+I haven't committed anything.

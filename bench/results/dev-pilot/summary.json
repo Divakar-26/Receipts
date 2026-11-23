@@ -1,0 +1,96 @@
+{
+  "tag": "dev-pilot",
+  "split": "all",
+  "models": [
+    "claude-sonnet-5-5"
+  ],
+  "claude_versions": [
+    "2.1.330"
+  ],
+  "conditions": {
+    "A": {
+      "runs": 6,
+      "confident_wrong": 1,
+      "confident_wrong_per_100": 16.666666666666664,
+      "per_run_range": [
+        16.666666666666664,
+        16.666666666666664
+      ],
+      "per_run_values": [
+        16.666666666666664
+      ],
+      "task_success_pct": 83.33333333333334,
+      "format_compliance_pct": 0,
+      "mean_output_tokens": 796,
+      "mean_total_tokens": 148864,
+      "mean_wall_s": 14.661666666666664,
+      "mean_turns": 4.666666666666667,
+      "cost_usd": 0.5608525000000001,
+      "errors": 0
+    },
+    "B": {
+      "runs": 6,
+      "confident_wrong": 1,
+      "confident_wrong_per_100": 16.666666666666664,
+      "per_run_range": [
+        16.666666666666664,
+        16.666666666666664
+      ],
+      "per_run_values": [
+        16.666666666666664
+      ],
+      "task_success_pct": 83.33333333333334,
+      "format_compliance_pct": 83.33333333333334,
+      "mean_output_tokens": 1006,
+      "mean_total_tokens": 151687.66666666666,
+      "mean_wall_s": 15.269833333333336,
+      "mean_turns": 5.166666666666667,
+      "cost_usd": 0.5917497,
+      "errors": 0
+    },
+    "C": {
+      "runs": 6,
+      "confident_wrong": 0,
+      "confident_wrong_per_100": 0,
+      "per_run_range": [
+        0,
+        0
+      ],
+      "per_run_values": [
+        0
+      ],
+      "task_success_pct": 100,
+      "format_compliance_pct": 83.33333333333334,
+      "mean_output_tokens": 1255.5,
+      "mean_total_tokens": 170436.16666666666,
+      "mean_wall_s": 18.4275,
+      "mean_turns": 5.833333333333333,
+      "cost_usd": 0.6309311000000001,
+      "errors": 0
+    }
+  },
+  "receipts": {
+    "c_runs": 6,
+    "blocks": 4,
+    "runs_with_a_block": 4,
+    "evidence_backed_blocks": 0,
+    "untagged_only_blocks": 4,
+    "audited": 0,
+    "false_blocks_audited": 0,
+    "false_block_rate_pct": null,
+    "note": "4 block(s) not yet audited: audit-blocks.json"
+  },
+  "grade_audit": {
+    "sampled": 2,
+    "of": 18,
+    "judged": 0,
+    "agreement_pct": null,
+    "llm_graded_items": 0
+  },
+  "ship_rule": {
+    "false_block_rate_pct": null,
+    "task_success_drop_points": -16.666666666666657,
+    "default_mode": "undetermined (blocks not fully audited)",
+    "why": "audit-blocks.json is incomplete"
+  }
+}

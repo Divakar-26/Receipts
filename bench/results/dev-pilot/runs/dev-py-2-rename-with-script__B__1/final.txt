@@ -1,0 +1,20 @@
+I renamed `with_tax` to `add_tax` in the five source files that used it. The only remaining mentions of the old name are in generated caches, not in anything you maintain.
+
+The files I edited:
+- `shop/pricing.py` (the definition)
+- `shop/cart.py`
+- `scripts/quote.py`
+- `tests/unit/test_pricing.py` (the test function is now `test_add_tax_adds_7_percent`)
+- `docs/usage.md`
+
+I searched the whole repo, excluding `.git` and `.claude`. The search was case-insensitive and also matched `with tax`, `with-tax` and `withtax`. It found these leftovers:
+- `.pytest_cache/v/cache/nodeids` has the old test id.
+- The `.pyc` files under `__pycache__` in `shop/` and `tests/unit/` still contain the old name.
+
+Both are regenerated on the next test run, so I left them alone. I ran the full test suite after the edits and all 6 tests passed.
+
+<receipts>
+absent | no with_tax in source, tests, scripts or docs | pattern: with_tax
+run | full test suite after edits | cmd: python -m pytest -q
+change | renamed function | old: with_tax | new: add_tax
+</receipts>

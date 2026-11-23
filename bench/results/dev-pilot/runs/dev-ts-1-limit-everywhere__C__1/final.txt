@@ -1,0 +1,10 @@
+My earlier test run was piped through `tail`, so the checker couldn't verify it. I've re-run `npm test` unpiped, after my last edit. The full suite passed with 7 of 7 tests and 0 failures.
+
+<receipts>
+run | full suite passes after the last edit, 7 pass and 0 fail | cmd: npm test
+change | MAX_ITEMS raised | old: export const MAX_ITEMS = 10 | new: export const MAX_ITEMS = 20
+change | LEGACY_MAX_ITEMS raised | old: export const LEGACY_MAX_ITEMS = 10 | new: export const LEGACY_MAX_ITEMS = 20
+code | src/limits.ts:1 | quote: export const MAX_ITEMS = 20
+code | src/legacy/limits.ts:1 | quote: export const LEGACY_MAX_ITEMS = 20
+absent | no remaining item-limit constant set to 10 | pattern: (MAX_ITEMS|LEGACY_MAX_ITEMS) = 10
+</receipts>

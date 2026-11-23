@@ -1,0 +1,11 @@
+I renamed `withTax` to `addTax` in the docs, the script, the source and the tests. Nothing in the repo refers to the old name any more.
+
+I changed five files: `docs/usage.md`, `scripts/quote.ts`, `src/cart.ts`, `src/pricing.ts` and `test/unit/pricing.test.ts`. The test title in `test/unit/pricing.test.ts` now reads `addTax adds 7%`. A case-insensitive search of the repo, skipping `.git` and `node_modules`, finds no `withTax` after the edit. I ran `npm test` after the change and all 6 tests passed.
+
+I didn't search git history or other branches. Anything outside the working tree, such as other repos that import this function, would still use the old name.
+
+<receipts>
+absent | no remaining references to the old name | pattern: withTax
+run | full test suite after the rename, 6 of 6 passed | cmd: npm test
+change | renamed the function | old: withTax | new: addTax
+</receipts>

@@ -1,0 +1,16 @@
+I renamed `withTax` to `addTax` in all five files that used it. Nothing in the repo refers to the old name any more.
+
+- **Files changed:**
+  - `src/pricing.ts` (the definition)
+  - `src/cart.ts`
+  - `scripts/quote.ts`
+  - `test/unit/pricing.test.ts`
+  - `docs/usage.md`
+- **Leftover check:** I searched the whole repo, excluding `.git` and `node_modules`, and it found no `withTax`. The earlier case-insensitive search found no other spellings either.
+- **Tests:** I ran `npm test` after the edits and all 6 tests pass.
+
+<receipts>
+absent | no remaining references to the old name | pattern: withTax
+run | full test suite after the rename | cmd: npm test
+change | renamed function | old: withTax | new: addTax
+</receipts>

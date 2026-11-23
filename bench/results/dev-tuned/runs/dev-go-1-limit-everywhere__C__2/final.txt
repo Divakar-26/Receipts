@@ -1,0 +1,12 @@
+I'm narrowing the earlier claim. My search for `10`, `ten`, `max` and `limit` only covered the text matches I saw, so I can't back up "no other cart-size limit" as a universal statement. What I can back up is this:
+
+- `limits.MaxItems` is now 20, and no `MaxItems = 10` definition remains.
+- `LegacyMaxItems = 10` in `legacy/limits.go` is the one other limit constant I found.
+- I didn't trace whether anything else enforces a cart size, for example a hard-coded number elsewhere.
+
+<receipts>
+change | limits.MaxItems | old: const MaxItems = 10 | new: const MaxItems = 20
+code | legacy/limits.go:3 | quote: const LegacyMaxItems = 10
+absent | no standalone MaxItems = 10 remains | pattern: \bMaxItems = 10
+run | full suite after edit | cmd: go test ./...
+</receipts>

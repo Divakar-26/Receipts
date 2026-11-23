@@ -1,0 +1,11 @@
+I renamed `with_tax` to `add_tax` in the docs, script, source and tests. Nothing in the repo refers to the old name any more.
+
+- **Files changed:** `docs/usage.md`, `scripts/quote.py`, `shop/cart.py`, `shop/pricing.py` and `tests/unit/test_pricing.py`. This includes the test name `test_with_tax_adds_7_percent`, which is now `test_add_tax_adds_7_percent`.
+- **Tests:** the full suite passes (6 passed) after the edit.
+- **Leftover check:** a search of the whole repo, excluding `.git` and `.pytest_cache`, finds no `with_tax`, `withTax` or `with-tax`.
+
+<receipts>
+run | full test suite after the rename | cmd: python -m pytest -q
+absent | no remaining references to the old name | pattern: with_tax
+change | renamed function | old: with_tax | new: add_tax
+</receipts>

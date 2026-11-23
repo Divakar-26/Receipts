@@ -1,0 +1,13 @@
+I renamed `withTax` to `addTax` in five files: `src/pricing.ts`, `src/cart.ts`, `scripts/quote.ts`, `test/unit/pricing.test.ts` and `docs/usage.md`. Each one had at least one `withTax` match in the initial search.
+
+The `absent` line below covers the "nothing still refers to the old name" claim. It's a repo-wide search, so it also confirms I didn't miss any other file.
+
+<receipts>
+change | definition renamed | old: export function withTax | new: export function addTax
+code | caller in cart updated | src/cart.ts:10 | quote: return addTax(subtotal(items))
+code | script updated | scripts/quote.ts:3 | quote: console.log(addTax(50))
+code | test updated | test/unit/pricing.test.ts:7 | quote: test('addTax adds 7%', () => assert.equal(addTax(100), 107))
+code | docs updated | docs/usage.md:3 | quote: Call `addTax(amount)` to add sales tax to a price.
+absent | no remaining references to the old name anywhere in the repo | pattern: withTax
+run | full test suite after edit | cmd: npm test
+</receipts>

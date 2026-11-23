@@ -1,0 +1,17 @@
+I renamed `with_tax` to `add_tax` in the five files that used it. Nothing in the repo refers to the old name any more.
+
+- **Files changed:**
+  - `docs/usage.md`
+  - `scripts/quote.py`
+  - `shop/cart.py`
+  - `shop/pricing.py`
+  - `tests/unit/test_pricing.py`
+- **Test name:** `test_with_tax_adds_7_percent` became `test_add_tax_adds_7_percent`, because the sed pattern matched inside it.
+- **Tests:** the full suite passes (6 tests), run after the edit.
+- **Leftover check:** I grepped the whole repo, excluding `.git` and `.pytest_cache`, and found no `with_tax`. I didn't search `.git` history or `.pytest_cache`, which may still hold the old name.
+
+<receipts>
+run | cmd: python -m pytest -q
+absent | pattern: with_tax
+change | old: with_tax | new: add_tax
+</receipts>

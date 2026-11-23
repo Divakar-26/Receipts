@@ -1,0 +1,8 @@
+I renamed `withTax` to `addTax` in five files, and nothing in the repo still refers to the old name.
+
+- **Code:** `src/pricing.ts` (the definition) and `src/cart.ts`.
+- **Script:** `scripts/quote.ts`.
+- **Tests:** `test/unit/pricing.test.ts`, including the test title.
+- **Docs:** `docs/usage.md`.
+
+I searched the whole repo, excluding `.git`, for `withTax` and found no matches. I also searched for variants (`with_tax`, `with-tax`, `with tax`) and found none. `README.md` and `package.json` never mentioned it. `npm test` passes, 6 of 6, including the test that runs the quote script.

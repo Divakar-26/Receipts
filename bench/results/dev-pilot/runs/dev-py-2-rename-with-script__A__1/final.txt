@@ -1,0 +1,10 @@
+I renamed `with_tax` to `add_tax` in five files:
+- `docs/usage.md`
+- `scripts/quote.py`
+- `shop/cart.py`
+- `shop/pricing.py`, where the function is defined
+- `tests/unit/test_pricing.py`, including the test name, which is now `test_add_tax_adds_7_percent`
+
+**Does anything still refer to the old name?** No. A case-insensitive search of the whole repo, excluding `.git` and caches, found no `with_tax`, `withtax` or "with tax". No tracked file has the old name in its filename. The 6 tests pass.
+
+The changes are not committed.

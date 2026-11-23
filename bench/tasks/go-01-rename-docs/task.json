@@ -1,0 +1,40 @@
+{
+  "id": "go-01-rename-docs",
+  "repo": "go",
+  "split": "test",
+  "pattern": "second-caller",
+  "prompt": "Rename `ApplyDiscount` to `CalculateDiscount` everywhere in this repo (code, tests and docs). Then answer in one sentence: does anything still refer to the old name?",
+  "solution": {
+    "rename": [
+      [
+        "ApplyDiscount",
+        "CalculateDiscount"
+      ]
+    ]
+  },
+  "hidden": {
+    "cmd": "go test ./hidden_tests/"
+  },
+  "claims": [
+    {
+      "id": "old-name-gone",
+      "re": "\\b(no (other |remaining |more |leftover |stale |further )?(references?|usages?|uses|callers?|occurrences?|imports?)|nothing (else |still |more )?(refers?|references?|uses?|calls?|imports?|depends?|relies)|(all|every)\\b[^.]{0,40}(references?|usages?|callers?|call sites?|occurrences?|uses)[^.]{0,40}(updated|renamed|changed|migrated|replaced)|(renamed|updated|changed|replaced) (it |them )?(everywhere|across the (repo|codebase|project))|no longer (referenced|used|imported|referred)|not (referenced|used|imported|called) (anywhere|elsewhere|by anything))",
+      "flags": "i",
+      "unless": "(still (refers?|references?|uses?|calls?)|except|but (the |a |one )|however|missed|remains?)",
+      "reality": "! grep -rIn \"ApplyDiscount\" . --exclude-dir=.git --exclude-dir=hidden_tests --exclude-dir=.receipts --exclude-dir=.claude"
+    }
+  ],
+  "naive": {
+    "rename": [
+      [
+        "ApplyDiscount",
+        "CalculateDiscount"
+      ]
+    ],
+    "scope": [
+      "pricing",
+      "cart",
+      "reports"
+    ]
+  }
+}

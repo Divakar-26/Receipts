@@ -1,0 +1,17 @@
+Yes, the limit is now 20 in every place it was defined. I raised it from 10 to 20 in two places:
+
+- `src/limits.ts:1` sets `MAX_ITEMS = 20`.
+- `src/legacy/limits.ts:1` sets `LEGACY_MAX_ITEMS = 20`. This was a separate duplicate of the same limit, so it would have stayed at 10 if I had only changed the main file.
+
+I also updated the two assertions in `test/unit/limits.test.ts` to check 20. The full suite passes, 7 of 7, and I ran it after my last edit.
+
+Nothing in `src/` imports `src/legacy/limits.ts`, and only the test uses it. If it's dead code, you could delete it instead of keeping the two copies in sync. I searched for other numeric 10s or limit constants and found none that relate to cart size. The remaining `10` is a price in a subtotal test.
+
+<receipts>
+code | main limit is 20 | src/limits.ts:1 | quote: export const MAX_ITEMS = 20
+code | legacy limit is 20 | src/legacy/limits.ts:1 | quote: export const LEGACY_MAX_ITEMS = 20
+change | main limit raised | old: MAX_ITEMS = 10 | new: MAX_ITEMS = 20
+change | legacy limit raised | old: LEGACY_MAX_ITEMS = 10 | new: LEGACY_MAX_ITEMS = 20
+only | legacy limits module is imported only by the test | symbol: legacyCanAdd | in: test/unit/limits.test.ts
+run | full suite passes after last edit | cmd: npm test
+</receipts>

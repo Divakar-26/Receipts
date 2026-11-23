@@ -1,0 +1,8 @@
+The README claim rests on my first search. That case-insensitive search for `WithTax` covered every file except `.git`, and it returned no `README.md` match. The repo-wide absence check below covers it now.
+
+<receipts>
+absent | README.md and every other file no longer mention the old name | pattern: WithTax
+run | build succeeded | cmd: go build ./...
+run | full test suite passed after the edit | cmd: go test ./...
+change | function renamed | old: WithTax | new: AddTax
+</receipts>

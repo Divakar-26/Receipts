@@ -1,0 +1,11 @@
+I renamed `WithTax` to `AddTax` in all six places it appeared, and nothing in the repo still refers to the old name.
+
+- **Code:** `pricing/pricing.go` (the definition), `cart/cart.go` and `cmd/quote/main.go` (the callers).
+- **Tests:** `pricing/pricing_test.go`, which includes the test name `TestWithTaxAdds7Percent`, now `TestAddTaxAdds7Percent`.
+- **Docs:** `docs/usage.md`.
+
+To check for leftovers, I searched the whole repo, excluding `.git`, for `WithTax`, `with_tax` and `with tax`, ignoring case. All three searches came back empty. I didn't search git history, so earlier commits still contain the old name.
+
+`go build ./...` and `go test ./...` both pass.
+
+I haven't committed anything.

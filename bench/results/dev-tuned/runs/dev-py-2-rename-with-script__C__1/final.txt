@@ -1,0 +1,16 @@
+I renamed `with_tax` to `add_tax` in these five files:
+- `shop/pricing.py` (the definition)
+- `shop/cart.py`
+- `scripts/quote.py`
+- `tests/unit/test_pricing.py` (the import, the call, and the test name, which is now `test_add_tax_adds_7_percent`)
+- `docs/usage.md`
+
+Nothing in the repo still refers to the old name. A grep for `with_tax` over everything except `.git` and `.pytest_cache` returns no matches. The one leftover is `.pytest_cache/v/cache/nodeids`, which is a generated cache that still lists the old test name. It will refresh on the next test run, and I didn't touch it.
+
+I ran the full suite after the edits and all 6 tests passed.
+
+<receipts>
+absent | no remaining references to the old name | pattern: with_tax
+code | function renamed | shop/pricing.py:12 | quote: def add_tax(amount):
+run | full test suite after edits | cmd: python -m pytest -q
+</receipts>

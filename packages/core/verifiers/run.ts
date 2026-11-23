@@ -1,5 +1,5 @@
 import { Claim, LedgerEntry, LedgerShell, Result } from '../types.js';
-import { analyseCommand, detectFilter, isBuildCmd, isTestCmd, normaliseSegment, SegmentInfo } from '../cmd.js';
+import { analyseCommand, detectFilter, isBuildCmd, isTestCmd, normaliseSegment, runnerKey, SegmentInfo } from '../cmd.js';
 import { Ctx, mk, unverified } from './ctx.js';
 
 const WHOLE_RE = /\b(all|full|whole|entire|every|complete)\b/i;
@@ -63,8 +63,9 @@ export async function verifyRun(c: Claim, ctx: Ctx): Promise<Result> {
     if (s?.filtered) return mk(c, 'CONTRADICTED', `only a subset ran: ${s.filtered} tests filtered out (${s.runner})`, 'claim is about the whole suite', [], { reason: 'subset' });
     if (ctx.fullTest) {
       const full = normaliseSegment(ctx.fullTest);
-      if (target !== full && !target.startsWith(full + ' ')) {
-        return mk(c, 'CONTRADICTED', `only a subset ran: last run was ${ran}, not the configured full command \`${ctx.fullTest}\``, 'claim is about the whole suite', [], { reason: 'subset' });
+      if (target !== full && !target.startsWith(full + ' ') && runnerKey(target) !== runnerKey(full)) {
+        // A different runner/script is not evidence the suite was partial, only that it is unproven: say so, don't accuse.
+        return unverified(c, 'subset', `last run was ${ran}, not the configured full command \`${ctx.fullTest}\`: cannot tell it covers the whole suite`, 'claim is about the whole suite; run the configured command');
       }
     }
   }

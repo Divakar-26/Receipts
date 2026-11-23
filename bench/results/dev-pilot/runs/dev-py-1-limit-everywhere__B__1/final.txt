@@ -1,0 +1,17 @@
+The cart limit is now 20 in the two places that defined it. I only checked for a literal `10` and for names like `MAX` and `LIMIT`, so a limit written some other way could still be missing.
+
+- **`shop/limits.py`:** `MAX_ITEMS` is now 20.
+- **`shop/legacy_limits.py`:** `LEGACY_MAX_ITEMS` is now 20. It was a separate copy of the same limit and would have stayed at 10 if I had only edited the first file.
+- **`tests/unit/test_limits.py`:** both tests now assert that `can_add(20)` and `legacy_can_add(20)` are `False`.
+
+The full suite passes (7 tests) after the edits. A search of `shop/` finds no remaining literal `10`.
+
+**Not wired in:** nothing in the code calls `can_add` or `legacy_can_add` yet, apart from the tests. `shop/cart.py` doesn't enforce any limit, so the 20-item cap isn't applied to real carts. Say so if you want me to wire it in.
+
+<receipts>
+code | shop/limits.py:1 | quote: MAX_ITEMS = 20
+code | shop/legacy_limits.py:1 | quote: LEGACY_MAX_ITEMS = 20
+change | old: can_add(10) | new: can_add(20)
+absent | pattern: \b10\b | in: shop
+run | cmd: python -m pytest -q
+</receipts>

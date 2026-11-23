@@ -1,0 +1,14 @@
+I renamed `WithTax` to `AddTax` in all five files that used it:
+- `pricing/pricing.go`: the function definition.
+- `pricing/pricing_test.go`: the call and the test name, which is now `TestAddTaxAdds7Percent`.
+- `cart/cart.go`: the call site.
+- `cmd/quote/main.go`: the call site.
+- `docs/usage.md`: the docs reference.
+
+Nothing still refers to the old name. A case-insensitive search of the whole repo for `WithTax` finds no matches. `go build ./...` and `go test ./...` both pass (cart, cmd/quote and pricing).
+
+<receipts>
+absent | no remaining references to the old name | pattern: (?i)WithTax
+run | build and full test suite after the rename | cmd: go build ./... && go test ./...
+change | function renamed | old: WithTax | new: AddTax
+</receipts>
