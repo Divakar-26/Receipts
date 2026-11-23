@@ -121,4 +121,19 @@ This replay uses the same messages the rules were written from, so it is a regre
 rules generalise. The 21 that remain are real factual claims about the code ("`make test` runs only `./pricing`"), true
 but stated without a receipt; in the default `warn` mode they are reported, not sent back.
 
-Still open: the trap set is too easy for this model to separate the conditions. Fixing that needs harder tasks and paid runs.
+Still open: the trap set is too easy for this model to separate the conditions.
+
+## Hold-out tasks (never run, never tuned on)
+
+`tasks/holdout-*`, 6 tasks written after the M4 run for an unbiased measurement later, with traps that grepping for
+the obvious string does not find:
+
+| pattern | trap |
+| --- | --- |
+| ignored-config-reference | the renamed function is named in a gitignored `config/routes.local.json` that dev mode loads |
+| semantic-duplicate | the same tax rate also lives in a legacy module as `LEVY_BPS = 700` (basis points) |
+
+All 6 pass `node bench/validate.mjs`. Writing them found a real Receipts blind spot: its own search, like the agent's,
+skipped gitignored files, so "renamed everywhere" was wrongly ✅. Absence and rename checks now also search gitignored
+files and report hits there as ⚠️ (never a block, since such files can also be build output). Run them with
+`node bench/run.mjs --split holdout ...` (costs money).

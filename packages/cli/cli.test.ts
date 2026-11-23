@@ -62,10 +62,14 @@ test('run: logs the real exit code, passes output through, redacts', () => {
   assert.equal(bad.status, 3);
   const shell = node([MAIN, 'run', 'echo hi | tail -1'], { cwd: dir, env: { RECEIPTS_SESSION: 'sess' } });
   assert.match(shell.stdout, /hi/);
+  // one argument goes through the platform shell: bash says 127, cmd.exe says 1 ("is not recognized")
   const nope = node([MAIN, 'run', '--', 'definitely-not-a-command-xyz'], { cwd: dir, env: { RECEIPTS_SESSION: 'sess' } });
-  assert.equal(nope.status, 127);
+  assert.equal(nope.status, process.platform === 'win32' ? 1 : 127);
+  // several arguments are exec'd directly: a missing program is 127 everywhere
+  const direct = node([MAIN, 'run', '--', 'definitely-not-a-command-xyz', '--flag'], { cwd: dir, env: { RECEIPTS_SESSION: 'sess' } });
+  assert.equal(direct.status, 127);
   const entries = readLedger(ledgerPath(dir));
-  assert.equal(entries.length, 4);
+  assert.equal(entries.length, 5);
   const [e0, e1, e2] = entries;
   assert.ok(e0.kind === 'shell' && e0.exit === 0 && e0.exit_trusted && e0.summary?.passed === 3 && !(e0.out_tail ?? '').includes('abc123'));
   assert.ok(e1.kind === 'shell' && e1.exit === 3 && e1.exit_trusted);
