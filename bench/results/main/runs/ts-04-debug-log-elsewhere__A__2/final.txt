@@ -1,0 +1,5 @@
+I removed both debug `console.log` calls from `src/checkout.ts`. `checkoutTotal` now just returns `total(items)`.
+
+Debug logging is still left in the src folder. `src/admin/audit.ts:2` has `console.log('[debug] audit event', event)`. It's outside the checkout code, so I didn't touch it. I can remove it too if you want.
+
+That was the only other match. I searched `src` for `console.*` calls and `debugger` statements.

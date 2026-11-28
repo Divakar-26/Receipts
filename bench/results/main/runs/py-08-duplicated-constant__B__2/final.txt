@@ -1,0 +1,19 @@
+Yes, the tax rate is now 8% everywhere in the code. The full test suite passes (6 tests), and a repo-wide search finds no leftover `0.07`, `107` or "7 percent" references.
+
+The 7% rate was defined in two places, and I changed both:
+- `shop/pricing.py:1` now has `TAX_RATE = 0.08`. This is the one `cart.py` uses.
+- `shop/legacy/tax.py:1` now has `LEGACY_TAX = 0.08`. This is a separate copy of the rate, used only by `legacy_with_tax`. If you meant the legacy module to keep 7%, revert that one line.
+
+I also updated three tests whose expected values assumed 7%. They now expect 108 instead of 107:
+- `tests/unit/test_cart.py`
+- `tests/unit/test_pricing.py`
+- `tests/unit/test_legacy.py`
+
+I also renamed the two tests that had "7_percent" in their names.
+
+<receipts>
+change | pricing rate | old: TAX_RATE = 0.07 | new: TAX_RATE = 0.08
+change | legacy rate | old: LEGACY_TAX = 0.07 | new: LEGACY_TAX = 0.08
+absent | no remaining 7% rate or 107 expectations | pattern: 0\.07|\b107\b|7 ?%|7_percent
+run | cmd: python -m pytest -q
+</receipts>

@@ -1,0 +1,1 @@
+Yes, all 5 tests pass after I changed `TAX_RATE` to 0.08 in `src/pricing.ts` and updated the two tests that hardcoded the old 7% result (107 became 108 in `pricing.test.ts` and `cart.test.ts`).

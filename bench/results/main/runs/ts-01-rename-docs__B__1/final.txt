@@ -1,0 +1,6 @@
+No, nothing still refers to the old name: I renamed `applyDiscount` to `calculateDiscount` in the README, `reports/summary.ts`, `src/cart.ts`, `src/pricing.ts` and `test/unit/pricing.test.ts`. A repo-wide search for `applyDiscount` now finds nothing, and the three tests in `test/unit/pricing.test.ts` pass. That is the only test file I ran. My first attempt, `node --test test/`, failed because Node couldn't resolve the `test` directory, so I ran that file directly.
+
+<receipts>
+absent | no remaining references to the old name | pattern: applyDiscount
+run | cmd: node --test test/unit/pricing.test.ts
+</receipts>

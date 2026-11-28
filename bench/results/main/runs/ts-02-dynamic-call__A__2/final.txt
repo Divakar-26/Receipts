@@ -1,0 +1,11 @@
+I renamed `applyDiscount` to `calculateDiscount` everywhere. Nothing depends on the old name now. `npm test` passes (6/6), and a grep finds no remaining `applyDiscount` or `'apply'` strings outside `node_modules` and `.git`.
+
+The files I changed:
+- `src/pricing.ts`: the function definition.
+- `src/cart.ts`: the import and the call.
+- `test/unit/pricing.test.ts`: the import, the call and the test title.
+- `src/jobs.ts`: the string `'apply' + 'Discount'` became `'calculate' + 'Discount'`.
+
+`src/jobs.ts` was the one place a plain rename would have missed. It calls `run('apply' + 'Discount', …)`, and `run` in `src/ops.ts` looks the function up by name on the `pricing` module. A search for `applyDiscount` can't match a name built from two strings, so that call would have thrown `unknown op applyDiscount` at runtime. TypeScript wouldn't have flagged it either, because the lookup is typed as `Record<string, …>`. I ran `nightly()` after the change and it returns 150, as before.
+
+The changes are uncommitted in the working tree.

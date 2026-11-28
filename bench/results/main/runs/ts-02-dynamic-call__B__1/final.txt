@@ -1,0 +1,16 @@
+I renamed `applyDiscount` to `calculateDiscount` everywhere, and nothing still depends on the old name. The full suite passes (6 of 6) after the change.
+
+The rename touched four files:
+- `src/pricing.ts`: the function definition.
+- `src/cart.ts`: the import and the call.
+- `test/unit/pricing.test.ts`: the import, the call and the test title.
+- `src/jobs.ts`: this one a plain search for `applyDiscount` misses. It calls `run('apply' + 'Discount', 200, 25)`. `run` in `src/ops.ts` looks the function up by name on the `pricing` module at runtime. A plain rename would have thrown `unknown op applyDiscount` when the nightly job ran. I changed the string to `'calculate' + 'Discount'`, and the `nightly job` test confirms it still resolves.
+
+A search for `applyDiscount` and for the split `'apply'` string now finds nothing in the repo. I didn't search outside the repo, so any outside caller that passes the old name to `run` would break. Because `run` resolves names at runtime, a caller like that would only fail when it executes.
+
+<receipts>
+run | cmd: npm test
+absent | pattern: applyDiscount|'apply'
+code | src/jobs.ts:3 | quote: run('calculate' + 'Discount', 200, 25)
+code | src/ops.ts:4 | quote: const fn = (pricing as Record<string, (...a: number[]) => number>)[name]
+</receipts>

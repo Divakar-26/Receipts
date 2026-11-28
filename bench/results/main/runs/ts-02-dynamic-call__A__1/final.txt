@@ -1,0 +1,11 @@
+I renamed `applyDiscount` to `calculateDiscount`, and nothing in the repo still uses the old name. All 6 unit tests pass, and a repo-wide grep for `applyDiscount` finds nothing.
+
+**Files changed**
+- `src/pricing.ts`: the definition.
+- `src/cart.ts`: the import and the call.
+- `test/unit/pricing.test.ts`: the import, the call and the test title.
+- `src/jobs.ts`: this file never wrote the name out. It called `run('apply' + 'Discount', …)`, and `run` in `src/ops.ts` looks the function up by name on the `pricing` module at runtime. A plain text search and a compiler rename would both have missed it, and it would have thrown `unknown op applyDiscount` when the job ran. I changed the string to `'calculate' + 'Discount'`.
+
+Any other code that builds the name dynamically, or any external caller that passes `"applyDiscount"` as a string, would break the same way. I found none in this repo.
+
+I didn't add a deprecated `applyDiscount` alias, since nothing needs one.

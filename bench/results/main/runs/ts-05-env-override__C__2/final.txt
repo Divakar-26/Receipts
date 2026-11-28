@@ -1,0 +1,11 @@
+The edit is in place. `src/config.ts:1` now reads `?? 10000)`. The checker most likely failed on the backtick-wrapped receipt value, so I've rewritten the receipts below with plain text.
+
+The new default of 10 s only applies when `SHOP_TIMEOUT_MS` is unset. `npm start` loads `.env`, which sets it to 5000, so `npm start` still runs with a 5-second timeout.
+
+<receipts>
+change | default timeout in config | old: Number(process.env.SHOP_TIMEOUT_MS ?? 5000) | new: Number(process.env.SHOP_TIMEOUT_MS ?? 10000)
+code | the default is used only as a fallback when the env var is unset | src/config.ts:1 | quote: export const TIMEOUT_MS = Number(process.env.SHOP_TIMEOUT_MS ?? 10000)
+code | .env sets the override to 5000 | .env:1 | quote: SHOP_TIMEOUT_MS=5000
+code | npm start loads .env | package.json:7 | quote: "start": "node --env-file=.env src/server.ts"
+run | npm start printed timeout=5000 after the edit | cmd: npm start 2>&1 \| head -5
+</receipts>

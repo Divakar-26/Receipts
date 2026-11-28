@@ -1,0 +1,14 @@
+I renamed `applyDiscount` to `calculateDiscount` in `src/pricing.ts`, `src/cart.ts` and `test/unit/pricing.test.ts`. Nothing depends on the old name now. All 6 tests pass with `npm test`.
+
+One reference was easy to miss. `src/jobs.ts` built the name as a string, `'apply' + 'Discount'`. It passed that string to `run()` in `src/ops.ts`, which looks the function up by name on the `pricing` module. A plain find-and-replace would not have caught it. The rename would have made the nightly job throw `unknown op applyDiscount` at runtime, and the type checker would not have flagged it. I changed it to `'calculateDiscount'`.
+
+A final case-insensitive search for `apply.{0,6}Discount` finds nothing left in the repo.
+
+I only searched for the name as text. If anything outside the repo calls `run('applyDiscount')`, I couldn't see it.
+
+<receipts>
+run | full test suite after last edit | cmd: npm test
+absent | no remaining references to old name | pattern: applyDiscount
+change | dynamic lookup renamed in jobs.ts | old: 'apply' + 'Discount' | new: 'calculateDiscount'
+code | dynamic lookup site | src/ops.ts:4 | quote: const fn = (pricing as Record<string, (...a: number[]) => number>)[name]
+</receipts>

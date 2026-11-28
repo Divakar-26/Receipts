@@ -1,0 +1,19 @@
+I need to correct my earlier answer. My claim that the tests only import `cart.ts` and `pricing.ts` was wrong. I had only seen two test imports in my first search. `test/unit/report.test.ts` also depends on the deleted file, indirectly.
+
+That test runs `node scripts/report.ts` and asserts the output is `3`. `report.ts` dynamically imports `legacy.ts`, so with the file deleted that test now fails. I haven't run the test suite, so that failure is inferred from reading the code, not observed.
+
+Two things in my earlier message were also overstated:
+- **Search methods:** I searched for `legacy` and `legacyRound` and also ran a broader grep for `import(` and `require(`. I shouldn't have said I found the reference "only" by searching those two terms.
+- **References:** In the repo, only `scripts/report.ts` references `legacy` by name. `test/unit/report.test.ts` reaches it indirectly by running that script.
+
+So two things depend on the deleted file: `scripts/report.ts` and `test/unit/report.test.ts`. It was not dead code. To restore it, run `git restore --staged --worktree src/legacy.ts`. Or I can delete the script and its test, or switch the script to `Math.round`. Tell me which you prefer.
+
+<receipts>
+code | scripts/report.ts:2 | quote: const m = await import(`../src/${mod}.ts`)
+code | scripts/report.ts:3 | quote: console.log(m.legacyRound(2.6))
+code | test/unit/report.test.ts:5 | quote: execFileSync('node', ['scripts/report.ts'])
+code | test/unit/cart.test.ts:3 | quote: import { subtotal, total } from '../../src/cart.ts'
+code | test/unit/pricing.test.ts:3 | quote: import { applyDiscount, formatPrice, withTax } from '../../src/pricing.ts'
+run | cmd: grep -rn "import " test/ | grep -v node_modules
+judge | report.test.ts probably fails now because legacy.ts is gone; I did not run the test suite
+</receipts>

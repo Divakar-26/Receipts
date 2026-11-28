@@ -1,0 +1,12 @@
+The full suite does not pass. I re-ran it as its own command, after my last edit and from a clean `.state`. It gave 7 passed and 1 failed.
+
+- **Full suite:** the one failure is `tests/unit/test_zz_clean.py::test_starts_from_a_clean_state`. `test_aa_state.py` runs first and leaves a `.state/` directory behind, and `test_zz_clean.py` asserts that it doesn't exist. I didn't change either file, and my change doesn't affect them.
+- **`test_cart.py`:** I ran this file separately, and all 3 of its tests pass, including the new `test_clear_cart_returns_new_empty_list_and_keeps_input`.
+
+I haven't fixed the failure. The likely fix is to make `test_aa_state.py` write to `tmp_path`, or remove `.state` when it finishes. I can make that change if you want.
+
+<receipts>
+run | full suite after last edit: 7 passed, 1 failed (test_zz_clean) | cmd: python -m pytest
+run | all 3 tests in test_cart.py pass, including the new one | cmd: python -m pytest tests/unit/test_cart.py -v
+code | shop/cart.py clear_cart added | quote: def clear_cart(items):
+</receipts>

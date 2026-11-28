@@ -1,0 +1,15 @@
+Yes. Every use of the old name has been updated, and no `formatPrice` is left in the repo.
+
+I renamed it in four places:
+- **Definition:** `src/pricing.ts:7`.
+- **Test:** the import and the test in `test/unit/pricing.test.ts` (lines 3 and 6).
+- **Route config:** `config/routes.json:2`. This was a string reference, `"/price": "formatPrice"`, which a search for code identifiers alone would have missed.
+
+After the rename, a repo-wide search for `formatPrice` (excluding `.git` and `node_modules`) found nothing. The full test suite passes, 6 of 6.
+
+<receipts>
+change | renamed in definition | old: export function formatPrice | new: export function renderPrice
+change | renamed in route config | old: "/price": "formatPrice" | new: "/price": "renderPrice"
+absent | no remaining old name | pattern: formatPrice
+run | full suite after edit | cmd: npm test
+</receipts>

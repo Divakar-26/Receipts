@@ -1,0 +1,11 @@
+The checker is right about that claim. A deleted file has no "new" text for it to find, so I've replaced it with a run claim and an absence claim.
+
+`src/legacy.ts` is deleted, and `scripts/report.ts` still dynamically imports it, so that script will fail. I haven't run the script.
+
+<receipts>
+code | scripts/report.ts:1 | quote: const mod = 'leg' + 'acy'
+code | scripts/report.ts:2 | quote: const m = await import(`../src/${mod}.ts`)
+code | scripts/report.ts:3 | quote: console.log(m.legacyRound(2.6))
+run | deleted the file; git status then showed ` D src/legacy.ts` | cmd: rm src/legacy.ts && git status --short
+absent | legacyRound's definition no longer exists in the repo | pattern: export function legacyRound
+</receipts>

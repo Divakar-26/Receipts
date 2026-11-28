@@ -1,0 +1,1 @@
+Yes, all tests pass: I changed `TAX_RATE` to 0.08 in `src/pricing.ts` and updated the expected totals from 107 to 108 in the tests, and all 5 tests from `npm test` pass, as do all 6 when the integration test is included. `npm test` only runs `test/unit`, so I ran the integration test separately.

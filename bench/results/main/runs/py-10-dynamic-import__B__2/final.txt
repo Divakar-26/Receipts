@@ -1,0 +1,25 @@
+I haven't deleted `shop/legacy.py`, because it isn't dead code.
+
+`scripts/report.py` loads it with a dynamically built module name:
+
+```python
+mod = importlib.import_module("shop." + "leg" + "acy")
+print(mod.legacy_round(2.6))
+```
+
+A plain search for `import legacy` or `from shop.legacy` would miss this, because the name is split across string pieces. A plain grep for `legacy` does find `legacy_round(` in that script. If I delete the file, `python scripts/report.py` fails with `ModuleNotFoundError: No module named 'shop.legacy'`.
+
+No other file in the repo mentions `legacy`. `shop/cart.py`, `shop/pricing.py` and `shop/__init__.py` don't reference it. The only other dynamic-import machinery I searched for (`importlib`, `__import__`, `getattr`) is in `report.py`. I didn't run the script or check whether anything outside the repo calls it.
+
+There are two ways to go:
+1. Delete `legacy.py` and `scripts/report.py` together, if the script is obsolete too.
+2. Delete `legacy.py` and change `report.py` to use `round()` directly. `legacy_round` is just `round(n)`.
+
+Tell me which one you want, or if you want it deleted anyway.
+
+<receipts>
+code | scripts/report.py:3 | quote: mod = importlib.import_module("shop." + "leg" + "acy")
+code | scripts/report.py:4 | quote: print(mod.legacy_round(2.6))
+code | shop/legacy.py:1 | quote: def legacy_round(n):
+absent | no other references to legacy outside these two files | pattern: legacy
+</receipts>

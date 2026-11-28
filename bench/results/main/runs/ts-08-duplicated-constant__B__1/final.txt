@@ -1,0 +1,16 @@
+Yes. The tax rate is now 8% everywhere I could find it, and the full test suite passes (6 of 6).
+
+The rate was defined in two places, and I changed both:
+- `src/pricing.ts:1`: `TAX_RATE` went from `0.07` to `0.08`. The cart total uses this one.
+- `src/legacy/tax.ts:1`: `LEGACY_TAX` went from `0.07` to `0.08`. It was a duplicate constant used by `legacyWithTax`. If you meant to keep the legacy path at 7%, revert that one line and its test.
+
+I also updated three test expectations from 107 to 108 and renamed two test titles from "adds 7%" to "adds 8%". These are in `test/unit/cart.test.ts`, `test/unit/legacy.test.ts` and `test/unit/pricing.test.ts`.
+
+A final search of the repo for `0.07`, `7%`, `1.07` and `107` found no matches. I only searched for those literal forms, so a rate written some other way would not show up.
+
+<receipts>
+code | src/pricing.ts:1 | quote: export const TAX_RATE = 0.08
+code | src/legacy/tax.ts:1 | quote: export const LEGACY_TAX = 0.08
+absent | no remaining 7% tax literals | pattern: 0\.07|\b7%|1\.07|\b107\b
+run | full test suite after last edit | cmd: npm test
+</receipts>

@@ -1,0 +1,8 @@
+I'm narrowing that claim. All I checked is that `LEGACY_TAX` is only referenced inside `shop/legacy/tax.py`, on the definition line and in `legacy_with_tax`. I didn't check whether anything outside the repo calls `legacy_with_tax`. It is also separate from `TAX_RATE` in `shop/pricing.py`, so the cart doesn't use it.
+
+<receipts>
+only | LEGACY_TAX is referenced only in the legacy tax module | symbol: LEGACY_TAX | in: shop/legacy/tax.py
+code | LEGACY_TAX defined at 8% | shop/legacy/tax.py:1 | quote: LEGACY_TAX = 0.08
+code | cart's rate is TAX_RATE, at 8% | shop/pricing.py:1 | quote: TAX_RATE = 0.08
+run | cmd: python -m pytest -q
+</receipts>

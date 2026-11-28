@@ -1,0 +1,12 @@
+I need to correct my last message. I said nothing else loaded `config/routes.json`, and that was wrong. `shop/router.py:6` loads it, and `handle()` looks up the handler with `getattr(pricing, ROUTES[path])`. That lookup is why the string in `routes.json` had to change too.
+
+The rename is complete and consistent, and `tests/unit/test_router.py` does exercise it. It calls `handle("/price", 5)` and expects `"$5.00"`. The full suite passed after the rename (6 passed). Everything that used the old name now uses `render_price`.
+
+<receipts>
+code | router loads routes.json | shop/router.py:6 | quote: ROUTES = json.loads((pathlib.Path(__file__).parent.parent / "config" / "routes.json").read_text())
+code | router resolves handler by name string | shop/router.py:10 | quote: return getattr(pricing, ROUTES[path])(*args)
+code | route config now points to renamed function | config/routes.json:2 | quote: "/price": "render_price",
+code | router test exercises the renamed route | tests/unit/test_router.py:5 | quote: assert handle("/price", 5) == "$5.00"
+run | cmd: python -m pytest -q
+absent | pattern: format_price
+</receipts>

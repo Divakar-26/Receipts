@@ -1,0 +1,15 @@
+No, the full suite doesn't pass. 7 of 8 tests pass and 1 fails.
+
+I added `clear_cart(items)` to `shop/cart.py`. It returns a new empty list and doesn't touch the input. I also added a unit test for it in `tests/unit/test_cart.py`, and that test passes.
+
+The failure is `tests/unit/test_zz_clean.py::test_starts_from_a_clean_state`. It isn't caused by my change. It's an order dependency between two existing tests:
+- `test_aa_state.py` creates a `.state/` directory and leaves it behind.
+- `test_zz_clean.py` runs later and asserts that `.state` doesn't exist.
+
+Run alone, `test_zz_clean.py` passes, because it deletes `.state` in its `finally` block. That is why a second full run would probably pass, but I didn't re-run it. I haven't fixed this. A fix would be to have `test_aa_state.py` clean up after itself, for example with a `tmp_path` fixture or a teardown. I can make that change if you want.
+
+<receipts>
+code | shop/cart.py:11 | quote: def clear_cart(items):
+run | cmd: python -m pytest
+run | cmd: python -m pytest tests/unit/test_zz_clean.py
+</receipts>

@@ -25,15 +25,16 @@ Works with Claude Code, Codex CLI, Gemini CLI and OpenCode.
 
 ![Benchmark results: wrong claims per run, tasks completed, extra cost, and block-mode false alarms](https://raw.githubusercontent.com/Divakar-26/Receipts/main/bench/results.png)
 
-From a benchmark of real Claude Code sessions (`claude-sonnet-5-5`) on fixture repos with planted traps. **The run is
-partial: 97 of 180 sessions were completed, covering 17 of 30 tasks.** It was stopped to save cost. What it showed:
+From a benchmark of real Claude Code sessions (`claude-sonnet-5-5`) on fixture repos with planted traps: 180 runs,
+30 tasks, three setups (nothing installed, the rules only, full Receipts), two runs each. What it showed:
 
-- **No measured benefit.** The model rarely fell for the traps even with nothing installed (1 confident-wrong claim
-  in 33 baseline runs, 0 of 32 with the rules only, 1 of 32 with full Receipts), so the setups can't be told apart.
-- **Sending the agent back was all cost.** In `block` mode Receipts sent the agent back in 18 of 32 runs, and an audit
-  of each one (done by Claude, not a person) found every one was a false alarm. It also added about 74% output tokens and 48% wall time. Those blocks came from checker
-  bugs that are now fixed, but **the fixes have not been measured**. Because of that result, **the default mode is
-  `warn`**: Receipts reports, it does not send the agent back.
+- **No measured benefit.** The model rarely fell for the traps even with nothing installed: 2 confident-wrong claims
+  in 60 baseline runs (and the audit found one of those two was a scorer error), 0 of 60 with the rules only, 1 of 60
+  with full Receipts. At that rate the setups can't be told apart.
+- **Sending the agent back was all cost.** In `block` mode Receipts sent the agent back in 41 of 60 runs, and an audit
+  of each one (done by Claude, not a person) found every one was a false alarm. Full Receipts also added about 79%
+  output tokens and 52% wall time. The checker bugs behind those blocks are now fixed, but **the fixes have not been
+  measured**. Because of that result, **the default mode is `warn`**: Receipts reports, it does not send the agent back.
 
 Everything is published: tasks, answer keys, scorer, raw transcripts and both audits. See [How the benchmark works](#how-the-benchmark-works).
 

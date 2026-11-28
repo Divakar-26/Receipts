@@ -1,0 +1,20 @@
+I renamed `applyDiscount` to `calculateDiscount` everywhere, and nothing depends on the old name now. The full suite passes (6 of 6) after the edits.
+
+One reference was easy to miss. `src/jobs.ts` called it through a string built at runtime, `run('apply' + 'Discount', …)`. `run` in `src/ops.ts` looks up exports on `pricing` by name. A plain find-and-replace on `applyDiscount` would have skipped that call, and `nightly()` would have thrown `unknown op applyDiscount` at runtime. I changed it to `'calculateDiscount'`.
+
+I changed these places:
+- `src/pricing.ts`: the function definition.
+- `src/cart.ts`: the import and the call.
+- `src/jobs.ts`: the string passed to `run`.
+- `test/unit/pricing.test.ts`: the import, the call and the test title.
+
+A search for `applyDiscount` and `'apply'` now finds nothing. That search can't catch names built another way, such as string concatenation split differently or names read from config or data files. The only other dynamic lookup is the `run` helper, and `jobs.ts` is its only caller.
+
+<receipts>
+run | full suite passes after the edits | cmd: npm test
+absent | no remaining references to the old name | pattern: applyDiscount
+absent | no leftover split-string form of the old name | pattern: 'apply'
+change | dynamic call updated | old: 'apply' + 'Discount' | new: 'calculateDiscount'
+code | src/pricing.ts:3 | quote: export function calculateDiscount(amount: number, pct: number): number {
+only | jobs.ts is the sole caller of the name-based lookup | symbol: run | in: src/jobs.ts
+</receipts>

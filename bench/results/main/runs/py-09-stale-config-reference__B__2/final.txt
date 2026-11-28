@@ -1,0 +1,16 @@
+Yes, everything that used the old name has been updated. I renamed `format_price` to `render_price` in four places:
+
+- **Definition:** `shop/pricing.py:8`.
+- **Route config:** `config/routes.json:2`. The `/price` route points to the function by its name as a string, so a search for code references alone would have missed it.
+- **Test import and call:** `tests/unit/test_pricing.py:1` and `:9`.
+- **Test name:** I also renamed the test function to `test_render_price_shows_two_decimals`.
+
+I re-searched the repo after the edit. The only remaining `format_price` hits are stale build artifacts: `.pytest_cache` and compiled `.pyc` files. Both regenerate on the next run. I ran the full test suite, which passes (6 tests). The tests don't exercise the route config, so I didn't verify that the `/price` route works at runtime.
+
+<receipts>
+change | rename function | old: format_price | new: render_price
+absent | no source references to old name remain | pattern: format_price
+code | config/routes.json:2 | quote: "/price": "render_price",
+code | shop/pricing.py:8 | quote: def render_price(amount):
+run | full test suite | cmd: python -m pytest -q
+</receipts>

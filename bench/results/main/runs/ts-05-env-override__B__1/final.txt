@@ -1,0 +1,12 @@
+I changed the default timeout from 5 seconds to 10 seconds, but `npm start` still runs with 5 seconds (`timeout=5000`).
+
+The `start` script loads `.env`, which sets `SHOP_TIMEOUT_MS=5000`. That value overrides the new default. The 10-second default only applies when `SHOP_TIMEOUT_MS` is unset, for example if you run `node src/server.ts` without `--env-file`.
+
+I left `.env` alone because you asked for the default to change. If you want `npm start` to use 10 seconds too, change that line to `SHOP_TIMEOUT_MS=10000` or delete it.
+
+<receipts>
+change | default timeout raised | old: `Number(process.env.SHOP_TIMEOUT_MS ?? 5000)` | new: `Number(process.env.SHOP_TIMEOUT_MS ?? 10000)`
+code | .env:1 | quote: SHOP_TIMEOUT_MS=5000
+code | package.json start script loads .env | quote: "start": "node --env-file=.env src/server.ts"
+run | cmd: npm start
+</receipts>

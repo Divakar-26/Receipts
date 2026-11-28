@@ -1,0 +1,5 @@
+No, nothing refers to the old name any more: I renamed `applyDiscount` to `calculateDiscount` in the README, `reports/summary.ts`, `src/cart.ts`, `src/pricing.ts` and `test/unit/pricing.test.ts`, then searched the repo case-insensitively and found no matches. I didn't run the test suite.
+
+<receipts>
+absent | no remaining references to the old name | pattern: applyDiscount
+</receipts>

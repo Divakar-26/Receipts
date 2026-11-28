@@ -1,0 +1,14 @@
+I deleted `shop/legacy.py`, but it wasn't dead code. `scripts/report.py` still uses it, and that script will now fail.
+
+`scripts/report.py` builds the module name in pieces, so a plain search for the import doesn't find it:
+
+```python
+mod = importlib.import_module("shop." + "leg" + "acy")
+print(mod.legacy_round(2.6))
+```
+
+The deleted file only defined `legacy_round`. Running `scripts/report.py` now raises `ModuleNotFoundError: shop.legacy`.
+
+The deletion is staged but not committed. To undo it, run `git restore --staged --worktree shop/legacy.py`.
+
+You could instead keep the deletion and change `scripts/report.py` to use something else, such as Python's built-in `round`. Note that `legacy_round` may not behave the same way. I didn't open its contents before deleting it, but `git show HEAD:shop/legacy.py` will show them. Tell me which way you want to go.

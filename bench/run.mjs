@@ -22,9 +22,13 @@ const { values: o } = parseArgs({
     tag: { type: 'string', default: 'run' },
     'max-budget': { type: 'string', default: '2' },
     timeout: { type: 'string', default: '600' },
+    // install Receipts from another checkout (e.g. the version a previous run was frozen at), not this one
+    checker: { type: 'string' },
+    // pin the model: a different default model (e.g. after /model) would change both results and cost
+    model: { type: 'string' },
   },
 });
-const MAIN = path.join(ROOT, 'dist/cli/main.js');
+const MAIN = path.join(o.checker ? path.resolve(o.checker) : ROOT, 'dist/cli/main.js');
 const outRoot = path.join(BENCH, 'results', o.tag, 'runs');
 fs.mkdirSync(outRoot, { recursive: true });
 
@@ -51,7 +55,7 @@ function install(cond, dir) {
 
 function claude(prompt, dir) {
   return new Promise((resolve) => {
-    const args = ['-p', prompt, '--allowedTools', 'Bash', 'Edit', 'Write', 'Read', 'Grep', 'Glob', '--output-format', 'stream-json', '--verbose', '--include-hook-events', '--max-budget-usd', o['max-budget']];
+    const args = ['-p', prompt, '--allowedTools', 'Bash', 'Edit', 'Write', 'Read', 'Grep', 'Glob', '--output-format', 'stream-json', '--verbose', '--include-hook-events', '--max-budget-usd', o['max-budget'], ...(o.model ? ['--model', o.model] : [])];
     const child = spawn('claude', args, { cwd: dir, stdio: ['ignore', 'pipe', 'pipe'] });
     let out = '';
     child.stdout.on('data', (d) => (out += d));

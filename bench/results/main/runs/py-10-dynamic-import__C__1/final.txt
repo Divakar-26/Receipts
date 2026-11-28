@@ -1,0 +1,8 @@
+My earlier search covered `.py`, `.toml`, `.cfg` and `.json` files outside `.claude/`. It found `importlib.import_module` only in `scripts/report.py`, and no `__import__` anywhere. I didn't search other file types.
+
+<receipts>
+code | scripts/report.py:3 | quote: mod = importlib.import_module("shop." + "leg" + "acy")
+only | symbol: import_module | in: scripts/report.py
+absent | pattern: __import__
+run | cmd: PYTHONPATH=. python3 scripts/report.py
+</receipts>

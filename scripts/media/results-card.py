@@ -43,24 +43,22 @@ def main(tag="main"):
     d.text((48, 34), "Benchmark results", font=font(INTER_B, 36), fill=TXT)
     model = ", ".join(m for m in s["models"] if m)
     d.text((50, 82), f"Claude Code · {model} · {total_runs} real runs on {tasks} tasks with planted traps", font=font(INTER, 17), fill=SUB)
-    d.rounded_rectangle((W - 238, 38, W - 48, 72), 17, fill=(66, 32, 6), outline=(146, 64, 14))
-    d.text((W - 224, 45), "partial: 97 of 180 runs", font=font(INTER_M, 15), fill=AMBER)
 
     # ---- confident-wrong claims: one dot per run ----------------------------------------------------------------------
     box = (48, 120, 728, 432)
     card(d, box, "Confident-wrong claims  ·  one dot per run")
     for i, c in enumerate(conds):
-        y = box[1] + 66 + i * 74
+        y = box[1] + 62 + i * 76
         d.text((box[0] + 24, y - 2), NAMES[c], font=font(INTER_M, 16), fill=TXT)
         x = box[0] + 170
         wrong = 0
         for k, g in enumerate(runs[c]):
             bad = any(x_["confident_wrong"] for x_ in g["grades"])
             wrong += bad
-            cx, cy = x + (k % 17) * 22, y + (k // 17) * 22
-            d.ellipse((cx, cy, cx + 14, cy + 14), fill=RED if bad else SLATE)
+            cx, cy = x + (k % 20) * 19, y + (k // 20) * 19 - 4
+            d.ellipse((cx, cy, cx + 13, cy + 13), fill=RED if bad else SLATE)
         d.text((box[2] - 104, y - 2), f"{wrong} of {len(runs[c])}", font=font(INTER_SB, 18), fill=RED if wrong else GREEN)
-    d.text((box[0] + 24, box[3] - 36), "Claude rarely fell for the traps even without Receipts, so no difference can be measured.", font=font(INTER, 15), fill=SUB)
+    d.text((box[0] + 24, box[3] - 36), "Claude rarely fell for the traps, even without Receipts: too rare to tell the three apart.", font=font(INTER, 15), fill=SUB)
 
     # ---- tasks completed --------------------------------------------------------------------------------------------------
     box2 = (752, 120, 1152, 432)

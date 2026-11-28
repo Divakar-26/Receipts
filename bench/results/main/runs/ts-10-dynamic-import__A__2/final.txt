@@ -1,0 +1,10 @@
+I deleted `src/legacy.ts` (with `git rm`, so it's staged but not committed). It wasn't dead code, and the deletion breaks `scripts/report.ts` and its test.
+
+- **`scripts/report.ts`** loads it with a dynamic import. The path is built from `'leg' + 'acy'`, so a plain search for the filename or a static import check misses it. It then calls `m.legacyRound(2.6)`.
+- **`test/unit/report.test.ts`** runs that script and expects the output `3`.
+
+After the deletion, `npm test` fails. The report test throws `ERR_MODULE_NOT_FOUND` for `src/legacy.ts`. I only looked at the tail of the test output, so I haven't confirmed whether the other tests pass.
+
+Nothing else references it. `cart.ts`, `pricing.ts` and the README don't mention it.
+
+To undo the deletion, run `git restore --staged --worktree src/legacy.ts`. To remove it for good, change `scripts/report.ts` to use `Math.round` directly, or delete the script and its test. I can do either if you tell me which.

@@ -1,0 +1,9 @@
+Yes, every test passes. I changed the rate to 8% and updated the three test expectations from 107 to 108.
+
+`npm test` only runs `test/unit/*.test.ts`, which is 5 of the 6 tests. To cover the rest, I ran all three test files in the repo by name, including `test/integration/checkout.test.ts`. That gave 6 passed and 0 failed.
+
+<receipts>
+change | tax rate changed | old: TAX_RATE = 0.07 | new: TAX_RATE = 0.08
+run | all three tracked test files, 6 pass 0 fail | cmd: node --test test/unit/cart.test.ts test/unit/pricing.test.ts test/integration/checkout.test.ts
+run | npm test runs only the unit tests, 5 pass | cmd: npm test
+</receipts>

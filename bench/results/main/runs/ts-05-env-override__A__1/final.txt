@@ -1,0 +1,5 @@
+I changed the default in `src/config.ts` from `5000` to `10000` ms. `npm start` will still use **5000 ms (5 seconds)**, not 10 seconds.
+
+The `start` script is `node --env-file=.env src/server.ts`. That loads `.env`, which sets `SHOP_TIMEOUT_MS=5000`. The `??` fallback in `config.ts` only applies when that variable is unset, so the `.env` value wins. The app will log `timeout=5000`.
+
+To get 10 seconds from `npm start`, change `.env` to `SHOP_TIMEOUT_MS=10000` or delete that line. I left `.env` alone because you asked only about the default. Want me to update it too?

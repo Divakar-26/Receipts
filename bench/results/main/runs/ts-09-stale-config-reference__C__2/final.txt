@@ -1,0 +1,18 @@
+I renamed `formatPrice` to `renderPrice`. Nothing that used the old name is still on it, and the full suite passes (6 of 6) after the change.
+
+I changed three files:
+- `src/pricing.ts` has the function definition.
+- `test/unit/pricing.test.ts` has the import, the call and the test name.
+- `config/routes.json` has the `/price` route, which refers to the function by string name.
+
+The route entry is the easy one to miss. `src/router.ts` looks up functions by that string at runtime, so the old name there would have broken `/price` without any compile error.
+
+A search of the whole repo, `.git` and `node_modules` aside, finds no `formatPrice` left. I didn't search the `.git` history, `node_modules` or the gitignored `.receipts/` folder. I didn't touch `src/cart.ts` or `README.md`, because neither mentions the name.
+
+<receipts>
+absent | no remaining references to the old name | pattern: formatPrice
+code | function definition renamed | src/pricing.ts:7 | quote: export function renderPrice(amount: number): string {
+code | route config updated | config/routes.json:2 | quote: "/price": "renderPrice",
+code | test import updated | test/unit/pricing.test.ts:3 | quote: import { applyDiscount, renderPrice, withTax } from '../../src/pricing.ts'
+run | full test suite passes after the edit | cmd: npm test
+</receipts>

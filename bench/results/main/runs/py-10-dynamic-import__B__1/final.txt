@@ -1,0 +1,19 @@
+I deleted `shop/legacy.py`, but it wasn't dead code. `scripts/report.py` still uses it, and that script now fails.
+
+A plain search for `import legacy` finds nothing, because the script builds the module name at runtime:
+
+```python
+mod = importlib.import_module("shop." + "leg" + "acy")
+print(mod.legacy_round(2.6))
+```
+
+I ran the script with `PYTHONPATH=.` after the deletion, and it fails with `ModuleNotFoundError: No module named 'shop.legacy'`. I didn't run it before deleting, so I haven't confirmed it worked then. I searched for "legacy" case-insensitively across the repo, and `scripts/report.py` is the only other file that references it. I didn't check `shop/cart.py` or `shop/pricing.py` for other dynamic imports.
+
+You can restore the file with `git checkout -- shop/legacy.py`, or I can update `scripts/report.py` to use a replacement. Which do you want?
+
+<receipts>
+code | scripts/report.py:3 | quote: mod = importlib.import_module("shop." + "leg" + "acy")
+code | scripts/report.py:4 | quote: print(mod.legacy_round(2.6))
+run | cmd: PYTHONPATH=. python3 scripts/report.py 2>&1 | tail -2
+absent | pattern: import legacy
+</receipts>

@@ -1,0 +1,15 @@
+The suite still fails. I re-ran `npm test` after my last edit. It ran 8 tests, and 7 passed and 1 failed. So the answer to your question is no, not all tests pass.
+
+The failure is `starts from a clean state` in `test/unit/zz_clean.test.ts`. My `clearCart` test passes.
+
+`test/unit/aa_state.test.ts` creates `.state/leftover.txt` and never removes it. A search of that file for `rmSync`, `unlinkSync`, `rmdirSync` and `after` found nothing. The suite runs one file at a time in filename order, so `.state/` still exists when `zz_clean` asserts it doesn't. My earlier phrase "the real problem" was my opinion, not something I tested. I haven't tried a fix to confirm it.
+
+I haven't changed either of those files. I can make `aa_state` clean up after itself if you want.
+
+<receipts>
+run | full suite after last edit: 7 pass, 1 fail (zz_clean) | cmd: npm test
+code | aa_state creates .state | test/unit/aa_state.test.ts:6 | quote: fs.mkdirSync('.state', { recursive: true })
+code | zz_clean asserts .state absent | test/unit/zz_clean.test.ts:7 | quote: assert.ok(!fs.existsSync('.state'))
+run | grep found no cleanup calls in aa_state.test.ts (count 0) | cmd: grep -c -E 'rmSync|unlinkSync|rmdirSync|after' test/unit/aa_state.test.ts
+judge | aa_state's missing cleanup is the likely cause of the failure; I did not test a fix
+</receipts>

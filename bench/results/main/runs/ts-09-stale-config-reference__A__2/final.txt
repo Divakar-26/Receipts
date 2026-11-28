@@ -1,0 +1,10 @@
+I renamed `formatPrice` to `renderPrice`, and everything that used the old name is updated. A repo-wide search finds no `formatPrice` left, and all 6 tests pass.
+
+I changed three places:
+- **`src/pricing.ts`:** the function definition.
+- **`test/unit/pricing.test.ts`:** the import, and the test title and call.
+- **`config/routes.json`:** the `"/price"` route. `src/router.ts` looks handlers up by name from this file (`pricing[routes[path]]`), so a plain code search wouldn't have shown the dependency. Without this change, `/price` would have failed at runtime with "fn is not a function".
+
+`src/cart.ts` and the README never referenced the old name, so I left them alone.
+
+The router test doesn't cover the `/price` route, so the tests alone wouldn't have caught the `routes.json` problem.

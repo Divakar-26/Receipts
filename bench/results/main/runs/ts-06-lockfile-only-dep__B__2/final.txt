@@ -1,0 +1,11 @@
+I added `isNewer(a, b)` in `src/versions.ts`. It returns `semver.gt(a, b)`. The tests are in `test/unit/versions.test.ts`. They cover a greater, equal and older version, plus `1.10.0` vs `1.9.0` to show the comparison is numeric, not alphabetical. `npm test` passes all 9 tests (5 existing, 4 new).
+
+**`semver` was not a declared dependency, so I added it.** Before my change, `package.json` had no `dependencies` at all. `semver` 7.6.3 was only in `package-lock.json` (as `node_modules/semver`) and installed in `node_modules`. The import worked locally, but a clean `npm install` wouldn't have guaranteed it. I added `"semver": "^7.6.3"` to `dependencies` in `package.json`. I also added the same entry to the root package in `package-lock.json`, so the two files agree.
+
+I didn't install `@types/semver`. Node runs the `.ts` files directly, so tests don't need it, but a type-checker would.
+
+<receipts>
+dep | semver was not declared in package.json before; added as dependency | name: semver
+run | full test suite after last edit | cmd: npm test
+code | src/versions.ts:4 | quote: return semver.gt(a, b)
+</receipts>

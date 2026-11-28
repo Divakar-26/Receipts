@@ -1,0 +1,16 @@
+I've checked the claims the hook flagged. The full suite is still not passing.
+
+- **Full suite:** `npm test` exited 1 with 7 tests passing and 1 failing. The failing test is `starts from a clean state` in `test/unit/zz_clean.test.ts`.
+- **Cause:** `aa_state.test.ts` creates `.state/leftover.txt`, and nothing in that file removes it. A grep for `rmSync`, `unlink` and `after` in it found no matches.
+- **Run alone:** `zz_clean.test.ts` passes when I run only that file. I ran the full suite once and haven't repeated it. That run failed, and the failure follows from the code, but I haven't confirmed it on every run.
+- **My change:** the cart file passes 3 of 3 with `clearCart` added, but that is a filtered run and doesn't show the whole suite passes. I haven't run the full suite without my change, so I can't say from a run that the failure was there before. The reason I think it was is that `clearCart` is never used by `aa_state` or `zz_clean`.
+
+<receipts>
+run | cmd: npm test
+run | cmd: node --test test/unit/cart.test.ts
+run | cmd: node --test test/unit/zz_clean.test.ts
+absent | pattern: rmSync\|unlink\|after
+code | src/cart.ts:13 | quote: export function clearCart(items: Item[]): Item[] {
+code | test/unit/aa_state.test.ts:6 | quote: fs.mkdirSync('.state', { recursive: true })
+code | test/unit/zz_clean.test.ts:7 | quote: assert.ok(!fs.existsSync('.state'))
+</receipts>

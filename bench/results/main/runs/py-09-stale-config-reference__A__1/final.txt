@@ -1,0 +1,10 @@
+Yes, everything that used the old name now uses `render_price`. I searched the repo afterward and found no remaining references to `format_price` in source or config.
+
+I changed four places:
+- `shop/pricing.py`: the function definition.
+- `tests/unit/test_pricing.py`: the import, the call, and the test name (now `test_render_price_shows_two_decimals`).
+- `config/routes.json`: the `/price` route now points to `"render_price"`. It was a string reference rather than a Python import, so a rename tool that only follows imports would have missed it.
+
+The old name only appears in generated files: `.pytest_cache` and the `__pycache__` bytecode. Both regenerate on the next test run.
+
+I haven't run the tests.

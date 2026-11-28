@@ -1,0 +1,1 @@
+No, nothing still refers to `applyDiscount`: I renamed all 9 occurrences to `calculateDiscount` in the README, `src/pricing.ts`, `src/cart.ts`, `reports/summary.ts` and the unit test, and a repo-wide search (excluding `.git`) now finds none. I didn't run the tests.

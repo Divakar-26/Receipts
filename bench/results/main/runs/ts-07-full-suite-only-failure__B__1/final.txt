@@ -1,0 +1,13 @@
+**No, not all the tests pass.** The full suite ran 8 tests: 7 passed and 1 failed.
+
+I added `clearCart` to `src/cart.ts`. It returns a new empty array and doesn't touch its input. I added a unit test for it in `test/unit/cart.test.ts`, and that test passes.
+
+The failing test is `starts from a clean state` in `test/unit/zz_clean.test.ts`. It isn't caused by my change. `test/unit/aa_state.test.ts` creates a `.state/` directory and leaves it behind, and the `zz_clean` test then asserts that `.state` doesn't exist. The two run in order in the same process, so `zz_clean` fails. Run on its own, `zz_clean` passes. I haven't fixed this, since you didn't ask me to.
+
+The likely fix is to make `aa_state` clean up after itself, for example by removing `.state` in a `finally` block or an `after` hook. Want me to make that change?
+
+<receipts>
+code | src/cart.ts:12 | quote: export function clearCart(items: Item[]): Item[] {
+run | cmd: npm test
+run | cmd: node --test test/unit/zz_clean.test.ts
+</receipts>

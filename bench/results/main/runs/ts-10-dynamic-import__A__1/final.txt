@@ -1,0 +1,20 @@
+I haven't deleted `src/legacy.ts`, because it isn't dead code. `scripts/report.ts` uses it through a dynamic import that a plain search for the filename wouldn't catch:
+
+```ts
+const mod = 'leg' + 'acy'
+const m = await import(`../src/${mod}.ts`)
+console.log(m.legacyRound(2.6))
+```
+
+- **Direct use:** `scripts/report.ts` calls `legacyRound` from it.
+- **Test coverage:** `test/unit/report.test.ts` runs `scripts/report.ts` and expects it to print `3`. Deleting the file would make that import fail, so `npm test` would fail.
+- **Other references:** nothing else in the repo mentions it. `src/cart.ts` and `src/pricing.ts` don't import it.
+
+I haven't run the tests.
+
+Which of these do you want?
+1. Delete it anyway and also remove `scripts/report.ts` and its test.
+2. Move `legacyRound` into `pricing.ts` or another live module and point the script at that.
+3. Leave it as it is.
+
+I can do any of these.

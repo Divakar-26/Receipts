@@ -1,0 +1,12 @@
+Yes, all the tests pass. The repo has three test files, and I ran all of them after my last edit.
+
+- **Unit tests:** `npm test` ran 5 tests and all passed.
+- **Integration test:** `npm test` only covers `test/unit/`, so I also ran `node --test "test/**/*.test.ts"`. That ran 6 tests, including the integration one in `test/integration/checkout.test.ts`, and all 6 passed.
+
+<receipts>
+change | tax rate | old: TAX_RATE = 0.07 | new: TAX_RATE = 0.08
+code | npm test script only covers unit tests | package.json:6 | quote: "test": "node --test \"test/unit/*.test.ts\""
+only | the repo's only test files are the three listed | symbol: *.test.ts | in: test
+run | unit tests, 5 pass | cmd: npm test
+run | all three test files, 6 pass | cmd: node --test "test/**/*.test.ts"
+</receipts>

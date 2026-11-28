@@ -1,0 +1,14 @@
+`npm start` now uses a timeout of **10000 ms (10 seconds)**. I ran it and it printed `timeout=10000`.
+
+Changing the default in `src/config.ts` wasn't enough. The `start` script runs `node --env-file=.env`, and `.env` set `SHOP_TIMEOUT_MS=5000`, which overrides the code default. So I changed both places:
+- **`src/config.ts`:** the default fallback goes from `5000` to `10000`.
+- **`.env`:** `SHOP_TIMEOUT_MS` goes from `5000` to `10000`.
+
+I didn't run the test suite.
+
+<receipts>
+code | default fallback is now 10000 | src/config.ts:1 | quote: export const TIMEOUT_MS = Number(process.env.SHOP_TIMEOUT_MS ?? 10000)
+code | .env override is now 10000 | .env:1 | quote: SHOP_TIMEOUT_MS=10000
+code | start script loads .env | package.json:6 | quote: "start": "node --env-file=.env src/server.ts"
+run | npm start printed timeout=10000 | cmd: npm start
+</receipts>

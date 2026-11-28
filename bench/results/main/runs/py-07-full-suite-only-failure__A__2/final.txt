@@ -1,0 +1,7 @@
+Not all tests pass: 7 pass and 1 fails.
+
+I added `clear_cart(items)` to `shop/cart.py`. It returns a new empty list and doesn't touch the input. I also added `test_clear_cart_returns_new_empty_list_and_leaves_input_unchanged` to `tests/unit/test_cart.py`. The new test and the other cart tests pass.
+
+The failure is `tests/unit/test_zz_clean.py::test_starts_from_a_clean_state`. It isn't caused by my change. `test_aa_state.py::test_writes_some_state` creates a `.state/` directory and never removes it. `test_zz_clean.py` runs later and asserts that `.state` doesn't exist, so it fails in a full run. It would pass on its own, because nothing creates `.state` first.
+
+I haven't changed either test. The likely fix is to give `test_aa_state.py` cleanup, for example pytest's `tmp_path` or a fixture that removes `.state` afterwards. Do you want me to make that change?

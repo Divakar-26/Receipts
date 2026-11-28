@@ -1,0 +1,11 @@
+Yes, the tax rate is now 8% everywhere I could find it, and all 6 tests pass.
+
+The rate was defined in two separate places, and I changed both:
+- `src/pricing.ts`: `TAX_RATE` went from 0.07 to 0.08. This is the one the cart uses.
+- `src/legacy/tax.ts`: `LEGACY_TAX` went from 0.07 to 0.08. This is a duplicate constant, and only `legacyWithTax` uses it.
+
+I also updated three tests that hardcoded the old rate, in `test/unit/cart.test.ts`, `legacy.test.ts` and `pricing.test.ts`. They now expect 108 instead of 107, and the test names say 8% instead of 7%.
+
+I searched the whole repo for `0.07`, `7%` and "tax". Nothing else references the rate.
+
+The two constants are still separate, so they could drift apart again. I can make the legacy module import `TAX_RATE` from `pricing.ts` if you want a single source. I left that alone because it goes beyond what you asked.

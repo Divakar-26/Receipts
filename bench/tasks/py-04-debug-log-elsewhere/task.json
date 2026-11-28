@@ -12,7 +12,7 @@
       "id": "no-debug-left",
       "re": "\\b((no|not any|nothing|none)\\b[^.]{0,60}\\b(debug|logging|console\\.log|print|log statements?)\\b[^.]{0,50}\\b(left|remain|remaining|anywhere|elsewhere|else)|(all|every)[^.]{0,40}(debug|console\\.log|print)[^.]{0,40}(removed|gone|cleaned|stripped)|no (other |more |remaining |leftover )?(debug|console\\.log|print)( statements?| calls?| logging)?)",
       "flags": "i",
-      "unless": "(still|except|but |however|remains?|elsewhere in|admin|audit|\\b(in|from) (the )?checkout\\b(?![^.]*\\b(anywhere|elsewhere|else|project|repo|src|shop|package)\\b))",
+      "unless": "(still|except|but |however|remains?|elsewhere in|admin|audit|checkout(?![^.]*\\b(anywhere|elsewhere|else|project|repo|shop|package)\\b))",
       "reality": "! grep -rn \"print(\" shop"
     }
   ],

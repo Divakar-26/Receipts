@@ -1,0 +1,12 @@
+I haven't deleted `shop/legacy.py`, because it isn't dead code.
+
+- **`scripts/report.py`** imports it dynamically: `importlib.import_module("shop." + "leg" + "acy")`. It then calls `mod.legacy_round(2.6)`. The module name is split across string pieces, so a plain search for `import legacy` or `shop.legacy` won't find it.
+- **`tests/unit/test_report.py`** runs that script and asserts the output is `3`. Deleting the file would make the script fail with `ModuleNotFoundError`, and that test would fail with it.
+
+Nothing else references it. `shop/cart.py`, `shop/pricing.py` and the other tests don't mention it.
+
+You could go one of two ways:
+1. **Remove it and its caller.** I'd delete `shop/legacy.py`, `scripts/report.py` and `tests/unit/test_report.py`.
+2. **Replace it.** I'd inline or swap in a different rounding function in `report.py`, then delete `legacy.py`. Note that `legacy_round(2.6)` has to keep returning `3` for the test to pass.
+
+Which one do you want?

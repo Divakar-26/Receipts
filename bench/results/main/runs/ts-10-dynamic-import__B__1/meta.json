@@ -1,0 +1,37 @@
+{
+  "id": "ts-10-dynamic-import__B__1",
+  "task": "ts-10-dynamic-import",
+  "repo": "ts",
+  "pattern": "dynamic-import",
+  "split": "test",
+  "condition": "B",
+  "run": 1,
+  "model": "claude-sonnet-5-5",
+  "claude_version": "2.1.332",
+  "exit": 0,
+  "is_error": false,
+  "subtype": "success",
+  "cost_usd": 0.10498940000000001,
+  "turns": 5,
+  "duration_ms": 12530,
+  "wall_ms": 15513,
+  "tokens": {
+    "input": 8,
+    "output": 1261,
+    "cache_read": 136152,
+    "cache_creation": 19654
+  },
+  "final_text": "I haven't deleted `src/legacy.ts`, because it isn't dead code. `scripts/report.ts` still loads it, so deleting it would break that script and a test.\n\nThe import is hidden from a plain search. `scripts/report.ts` builds the module name at runtime:\n\n```ts\nconst mod = 'leg' + 'acy'\nconst m = await import(`../src/${mod}.ts`)\nconsole.log(m.legacyRound(2.6))\n```\n\nA grep for `from './legacy'` or `import ... legacy` finds nothing, which is why it looked unused.\n\n- **Dependent test:** `test/unit/report.test.ts` runs `node scripts/report.ts` and expects `3`, which is `legacyRound(2.6)`. It passes now (6 of 6 tests pass with the file in place), and it would fail if the file were gone.\n- **Other users:** nothing else in the repo references it. `src/cart.ts` and `src/pricing.ts` don't mention it.\n\nIf you still want it gone, I'd remove `scripts/report.ts` and `test/unit/report.test.ts` along with it, or change the script to use `Math.round` directly. Tell me which you prefer and I'll do it.\n\n<receipts>\ncode | scripts/report.ts:1 | quote: const mod = 'leg' + 'acy'\ncode | scripts/report.ts:2 | quote: const m = await import(`../src/${mod}.ts`)\ncode | scripts/report.ts:3 | quote: console.log(m.legacyRound(2.6))\ncode | test/unit/report.test.ts:5 | quote: the report script runs\nonly | symbol: legacyRound | in: scripts/report.ts\nrun | cmd: npm test\n</receipts>",
+  "claims": [
+    {
+      "id": "nothing-imports",
+      "reality": 0
+    }
+  ],
+  "hidden_exit": 1,
+  "receipts": {
+    "stops": 0,
+    "blocks": 0,
+    "stop_events": []
+  }
+}

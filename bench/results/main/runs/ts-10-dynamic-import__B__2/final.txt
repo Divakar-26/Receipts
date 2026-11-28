@@ -1,0 +1,23 @@
+I haven't deleted `src/legacy.ts`, because `scripts/report.ts` still uses it. The file isn't dead code.
+
+`scripts/report.ts` builds the module name at runtime, so a plain search for imports of `legacy` doesn't find it:
+
+```ts
+const mod = 'leg' + 'acy'
+const m = await import(`../src/${mod}.ts`)
+console.log(m.legacyRound(2.6))
+```
+
+If I deleted the file, running that script would fail with a module-not-found error. I didn't run the script. No other file in the repo mentions `legacy`.
+
+You have two options:
+- **Delete it and the script:** remove `src/legacy.ts` and `scripts/report.ts` together, if the script is obsolete too.
+- **Delete it and update the script:** remove `src/legacy.ts` and change `scripts/report.ts` to use `Math.round` or an equivalent from `pricing.ts`.
+
+Tell me which one and I'll make the change. The file is tracked in git, so a plain deletion is easy to undo.
+
+<receipts>
+code | scripts/report.ts:2 | quote: const m = await import(`../src/${mod}.ts`)
+code | scripts/report.ts:3 | quote: console.log(m.legacyRound(2.6))
+code | src/legacy.ts:1 | quote: export function legacyRound(n: number): number {
+</receipts>

@@ -1,0 +1,8 @@
+The checker is right. My `absent` claim was scoped to `checkout.ts`, but the checker searches the whole repo, and the remaining hit is in `src/admin/audit.ts`. I'm dropping the absent claim and replacing it with a narrower one.
+
+Nothing has changed since my last message. `src/checkout.ts` has no debug logging left. `src/admin/audit.ts:2` still has one, and I haven't touched it because you only asked about the checkout code.
+
+<receipts>
+code | checkout.ts now returns the total directly, with no logging | src/checkout.ts:5: return total(items)
+code | the only debug log left in src is in the admin audit file | src/admin/audit.ts:2: console.log('[debug] audit event', event)
+</receipts>

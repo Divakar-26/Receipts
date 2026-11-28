@@ -1,0 +1,6 @@
+Yes, all 6 tests pass (unit and integration) after I changed the rate to 8% and updated the three tests that hardcoded the old 7% totals. `npm test` only runs `test/unit`, so I ran `node --test "test/**/*.test.ts"` to include the integration test.
+
+<receipts>
+change | tax rate | old: TAX_RATE = 0.07 | new: TAX_RATE = 0.08
+run | full suite, 6/6 pass | cmd: node --test "test/**/*.test.ts"
+</receipts>

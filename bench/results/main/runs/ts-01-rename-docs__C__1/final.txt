@@ -1,0 +1,8 @@
+No file in the repo still uses `applyDiscount`. I re-ran `npm test` with no piping, and all 6 tests pass. The search I ran earlier excluded `.git`, so git history may still contain the old name.
+
+<receipts>
+absent | no remaining references to the old name | pattern: applyDiscount
+run | full test suite run after the last edit, unpiped, 6 pass and 0 fail | cmd: npm test
+code | README uses the new name | README.md:5 | quote: Use `calculateDiscount(amount, pct)` to take a percentage off a price.
+change | function renamed | old: applyDiscount | new: calculateDiscount
+</receipts>

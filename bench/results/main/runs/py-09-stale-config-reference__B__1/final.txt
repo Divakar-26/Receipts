@@ -1,0 +1,16 @@
+Yes, everything that used `format_price` now uses `render_price`. I renamed it in three places:
+
+- `shop/pricing.py:8`: the function definition.
+- `tests/unit/test_pricing.py`: the import, the call, and the test name, which is now `test_render_price_shows_two_decimals`.
+- `config/routes.json:2`: the `/price` route pointed at the old name as a string. A code-only rename would have missed it, and the route would have broken.
+
+I searched the whole repo, hidden files included, and the only `format_price` left is in `.pytest_cache/v/cache/nodeids`. That is a stale pytest cache entry for the old test name. It regenerates on the next run and isn't source. I didn't look for references built dynamically, such as a name assembled from strings.
+
+The full suite passes (6 tests).
+
+<receipts>
+code | route config updated | config/routes.json:2 | quote: "/price": "render_price",
+code | definition renamed | shop/pricing.py:8 | quote: def render_price(amount):
+absent | no remaining old name in source | pattern: format_price
+run | full test suite passes after the edit | cmd: python -m pytest -q
+</receipts>

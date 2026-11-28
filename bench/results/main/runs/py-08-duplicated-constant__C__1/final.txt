@@ -1,0 +1,8 @@
+I'm narrowing that claim to what I checked. I ran one grep over the repo, excluding `.git`, `.claude` and `.receipts.json`. Its only matches were in `.receipts/ledger.jsonl`, which logs my own commands. I didn't search the excluded directories, and a search of the whole repo would also hit the ledger.
+
+<receipts>
+code | pricing rate | shop/pricing.py:1 | quote: TAX_RATE = 0.08
+code | legacy rate | shop/legacy/tax.py:1 | quote: LEGACY_TAX = 0.08
+run | full suite passed after last edit | cmd: python -m pytest -q
+run | old-rate grep found matches only in the ledger | cmd: grep -rnE "0\.07|107|7 ?%" --include=* . --exclude-dir=.git --exclude-dir=.claude --exclude=.receipts.json
+</receipts>

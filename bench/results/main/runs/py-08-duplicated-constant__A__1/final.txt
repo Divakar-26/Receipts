@@ -1,0 +1,11 @@
+Yes, the tax rate is now 8% everywhere in the code. All 6 tests pass.
+
+The rate was defined in two places, and I changed both from 0.07 to 0.08:
+- `shop/pricing.py`: `TAX_RATE`, which `shop/cart.py` uses through `with_tax`.
+- `shop/legacy/tax.py`: `LEGACY_TAX`, a duplicate constant used by `legacy_with_tax`. Nothing in the app calls it, only its test.
+
+I also updated three tests that had the old 7% result (107) hard-coded, so they now expect 108. These are `test_pricing.py`, `test_legacy.py` and `test_cart.py`. I renamed two of them from `adds_7_percent` to `adds_8_percent`.
+
+A final search found no other `0.07`, `7%` or `107` left in the code.
+
+The duplicate constant is how a rate change could have been missed. If the legacy module isn't needed, you could delete it or make it import `TAX_RATE` from `shop/pricing.py`. I didn't make that change because you didn't ask for it.

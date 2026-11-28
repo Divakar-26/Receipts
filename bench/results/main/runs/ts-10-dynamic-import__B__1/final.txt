@@ -1,0 +1,25 @@
+I haven't deleted `src/legacy.ts`, because it isn't dead code. `scripts/report.ts` still loads it, so deleting it would break that script and a test.
+
+The import is hidden from a plain search. `scripts/report.ts` builds the module name at runtime:
+
+```ts
+const mod = 'leg' + 'acy'
+const m = await import(`../src/${mod}.ts`)
+console.log(m.legacyRound(2.6))
+```
+
+A grep for `from './legacy'` or `import ... legacy` finds nothing, which is why it looked unused.
+
+- **Dependent test:** `test/unit/report.test.ts` runs `node scripts/report.ts` and expects `3`, which is `legacyRound(2.6)`. It passes now (6 of 6 tests pass with the file in place), and it would fail if the file were gone.
+- **Other users:** nothing else in the repo references it. `src/cart.ts` and `src/pricing.ts` don't mention it.
+
+If you still want it gone, I'd remove `scripts/report.ts` and `test/unit/report.test.ts` along with it, or change the script to use `Math.round` directly. Tell me which you prefer and I'll do it.
+
+<receipts>
+code | scripts/report.ts:1 | quote: const mod = 'leg' + 'acy'
+code | scripts/report.ts:2 | quote: const m = await import(`../src/${mod}.ts`)
+code | scripts/report.ts:3 | quote: console.log(m.legacyRound(2.6))
+code | test/unit/report.test.ts:5 | quote: the report script runs
+only | symbol: legacyRound | in: scripts/report.ts
+run | cmd: npm test
+</receipts>

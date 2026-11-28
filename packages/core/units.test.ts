@@ -87,6 +87,7 @@ test('filter detection', () => {
   assert.match(f('node --test test/a.test.js')!, /a\.test\.js/);
   assert.match(f('npx mocha --grep login')!, /grep/);
   assert.equal(f('npm test'), null);
+  assert.equal(f('node --test "test/**/*.test.ts"'), null, 'a glob is the suite selection, not a subset (benchmark ts-03)');
   assert.equal(f('npm test -- --coverage'), null);
   assert.equal(f('npm test -- --reporter dot'), null);
   assert.equal(f('go test ./...'), null);

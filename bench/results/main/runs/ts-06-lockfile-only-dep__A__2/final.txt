@@ -1,0 +1,7 @@
+`isNewer` is in `src/versions.ts`, with three unit tests in `test/unit/versions.test.ts` for higher, lower and equal versions. All 8 tests pass.
+
+**`semver` was not a declared dependency, so I added it.** Before my change, `package.json` had no `dependencies` at all. `semver@7.6.3` was only in `package-lock.json` as a bare `node_modules/semver` entry, and it was installed in `node_modules`. Nothing declared it, so a fresh `npm install` would likely have pruned it and broken the import.
+
+I added `"semver": "^7.6.3"` to `dependencies` in `package.json`. I also added the same entry to the root package in `package-lock.json`, so the two files agree. I did this by editing the files, because I didn't run an install with network access. Run `npm install` once to let npm regenerate the lockfile.
+
+The `semver` in `node_modules` is a minimal stub that only exports `gt`, not the real package. `isNewer` calls `semver.gt`, which works with both. I did not add `@types/semver`, so the stub is what the tests ran against. Pointing `isNewer` at real `semver` will need a real install and type definitions.

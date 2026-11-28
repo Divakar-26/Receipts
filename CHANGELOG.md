@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- A quoted glob in a test command (`node --test "test/**/*.test.ts"`) is no longer read as a single test file, so it
+  doesn't count as running only part of the suite.
+- `receipts run` unwrapping also recognises `npx @divakar-26/receipts run`.
+- Benchmark: all 180 test-set runs are done; see `bench/README.md`.
+
 ## 0.1.0 (2026-11-23)
 
 First release.

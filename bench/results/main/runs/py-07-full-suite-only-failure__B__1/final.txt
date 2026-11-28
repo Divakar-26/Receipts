@@ -1,0 +1,10 @@
+No, not all the tests pass. The full suite has 1 failure and 7 passes.
+
+I added `clear_cart(items)` to `shop/cart.py`. It returns a new empty list and doesn't touch the input. The new test in `tests/unit/test_cart.py` checks that the result is `[]`, is not the same object as the input, and that the input is unchanged. The cart tests pass, including the new one.
+
+The failing test is `tests/unit/test_zz_clean.py::test_starts_from_a_clean_state`, and my change didn't cause it. `tests/unit/test_aa_state.py` creates a `.state` directory and leaves it behind. `test_zz_clean.py` runs later and asserts that `.state` doesn't exist. When I ran `test_zz_clean.py` alone, it passed. The same ordering problem should recur on every full run. I haven't fixed it, since you didn't ask. The fix would be to make `test_aa_state.py` clean up after itself, for example with `tmp_path` or a fixture.
+
+<receipts>
+run | cmd: python -m pytest
+code | shop/cart.py:10 | quote: def clear_cart(items):
+</receipts>

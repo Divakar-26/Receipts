@@ -1,0 +1,8 @@
+I renamed `formatPrice` to `renderPrice`, and everything that used the old name now uses the new one. A repo-wide search finds no `formatPrice` left, and all 6 tests pass.
+
+I changed three files:
+- **`src/pricing.ts`:** the function definition.
+- **`test/unit/pricing.test.ts`:** the import, the test name and the call.
+- **`config/routes.json`:** the `"/price"` route. `src/router.ts` looks up the function by this string name, and a plain search for the identifier would not have flagged it as a usage. If I had missed it, `/price` would have broken at runtime.
+
+I didn't touch the README.

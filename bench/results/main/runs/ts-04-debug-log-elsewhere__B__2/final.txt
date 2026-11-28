@@ -1,0 +1,11 @@
+I removed both debug `console.log` calls from `src/checkout.ts`. `checkoutTotal` now just returns `total(items)`. I didn't run any tests.
+
+Debug logging is still left in the src folder. `src/admin/audit.ts:2` has `console.log('[debug] audit event', event)`. It's outside the checkout code, so I left it alone. I can remove it if you want.
+
+My search covered `console.log`, `console.debug`, `console.info`, `console.warn`, `console.error`, `console.trace` and `debugger` across the project, excluding `node_modules`. It found no other matches in `src`.
+
+<receipts>
+absent | no debug logging left in checkout code | pattern: console\.log in: src/checkout.ts
+code | src/admin/audit.ts:2 | quote: console.log('[debug] audit event', event)
+change | checkout debug logs removed | old: console.log('[debug] items', items.length) / console.log('[debug] total', t) | new: return total(items)
+</receipts>

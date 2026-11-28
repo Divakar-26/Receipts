@@ -300,7 +300,8 @@ export function detectFilter(norm: string): string | null {
     const positional = !prevWasFlag;
     prevWasFlag = false;
     if (!positional) continue;
-    const isFileLike = /\.[A-Za-z0-9]{1,5}$/.test(tok) || tok.includes('*');
+    // a glob ("test/**/*.test.ts") selects files by pattern: not evidence of a subset, so it doesn't count
+    const isFileLike = /\.[A-Za-z0-9]{1,5}$/.test(tok) && !tok.includes('*');
     switch (family) {
       case 'go':
         if (tok === 'test') break;

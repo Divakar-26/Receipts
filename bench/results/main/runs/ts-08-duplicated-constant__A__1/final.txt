@@ -1,0 +1,9 @@
+Yes, the tax rate is now 8% everywhere in the code, and `npm test` passes (6 of 6).
+
+The 7% rate was defined in two separate places, and I changed both:
+- `src/pricing.ts`: `TAX_RATE` is now `0.08`. This is the rate the cart uses.
+- `src/legacy/tax.ts`: `LEGACY_TAX` is now `0.08`. This is a duplicate constant, and only its own test uses it.
+
+I also updated the three tests that expected 7% (`cart.test.ts`, `pricing.test.ts`, `legacy.test.ts`) to expect 108 instead of 107.
+
+The legacy copy is a second source of truth that could drift again. You could make `legacy/tax.ts` import `TAX_RATE` from `pricing.ts`, or delete it if nothing needs it. I haven't done either.

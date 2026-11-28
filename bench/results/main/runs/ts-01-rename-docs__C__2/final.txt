@@ -1,0 +1,7 @@
+No. I renamed `applyDiscount` to `calculateDiscount` in `README.md`, `reports/summary.ts`, `src/cart.ts`, `src/pricing.ts` and `test/unit/pricing.test.ts`. My last grep, which excluded only `.git`, found no `applyDiscount` left. I didn't run the tests.
+
+<receipts>
+change | renamed the function definition | old: export function applyDiscount(amount: number, pct: number) | new: export function calculateDiscount(amount: number, pct: number)
+run | grep found no remaining old name; it printed nothing and exited 1 | cmd: grep -rIn applyDiscount . --exclude-dir=.git
+absent | no remaining references to the old name | pattern: applyDiscount
+</receipts>

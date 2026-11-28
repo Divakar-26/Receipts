@@ -1,0 +1,15 @@
+I'm narrowing my earlier claims. The "no dependencies block" line was about the committed `package.json`, and the two `"dependencies"` hits the hook found are the entries I added. I checked the committed file with `git show HEAD:package.json`, and it has no `dependencies` key.
+
+- **Lockfile:** before my edit, `package-lock.json` listed `node_modules/semver` (7.6.3) but had no `dependencies` on its root package. I saw this when I printed the file, before editing. The `node_modules/semver` entry is now at line 14, and the root `dependencies` entry at line 10 is mine.
+- **Stub:** `node_modules/semver` contains only `index.js` and `package.json` (from my `ls`). `index.js` has exactly one export, `exports.gt` at line 5. I did not check the real package's contents beyond that, so "not the real package" is my inference from there being no other exports.
+- **Why `isNewer` works:** `src/versions.ts` calls only `semver.gt`, which the stub exports, and the full suite passed (8 tests, 0 failures).
+
+<receipts>
+change | package.json gained a dependencies block | old: (no dependencies key at HEAD) | new: "dependencies": { "semver": "^7.6.3" }
+code | package-lock.json:14 | quote: "node_modules/semver": {
+code | node_modules/semver/index.js:5 | quote: exports.gt = function gt(a, b) {
+only | gt is the only export of the installed semver stub | symbol: exports.gt | in: node_modules/semver/index.js
+code | src/versions.ts:4 | quote: return semver.gt(a, b)
+run | cmd: npm test
+dep | semver | name: semver
+</receipts>

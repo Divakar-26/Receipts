@@ -1,0 +1,15 @@
+The only remaining hits for `applyDiscount` are in `.receipts/`. That's the checker's own log, which quotes the old name. No source, test or config file uses it.
+
+My earlier "everywhere in the repo" claim was only partly backed. The `absent` line covered the old name, but I'd never shown the new name exists in each place. The earlier receipt block also had two `code` lines the checker couldn't parse. Here is the corrected block.
+
+<receipts>
+change | definition renamed in pricing | old: export function applyDiscount | new: export function calculateDiscount
+change | cart import renamed | old: import { applyDiscount, withTax } | new: import { calculateDiscount, withTax }
+change | cart call site renamed | old: sum + applyDiscount( | new: sum + calculateDiscount(
+change | test import renamed | old: import { applyDiscount, formatPrice | new: import { calculateDiscount, formatPrice
+change | dynamic lookup string in jobs | old: 'apply' + 'Discount' | new: 'calculate' + 'Discount'
+code | src/jobs.ts:3 | quote: run('calculate' + 'Discount', 200, 25)
+code | src/ops.ts:4 | quote: [name]
+absent | no source, test or config file still uses the old name (only the checker's own `.receipts/` logs mention it) | pattern: applyDiscount
+run | full suite passes after the last edit | cmd: npm test
+</receipts>

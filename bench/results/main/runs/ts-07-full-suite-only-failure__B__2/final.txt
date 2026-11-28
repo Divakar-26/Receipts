@@ -1,0 +1,13 @@
+No, not all the tests pass. The full suite has one failure, and it isn't caused by my change.
+
+I added `clearCart` to `src/cart.ts`. It returns a new empty array and doesn't touch the input. I also added a unit test for it in `test/unit/cart.test.ts`.
+
+The full `npm test` run shows 7 passing and 1 failing. The new `clearCart` test and the existing cart tests all pass. The failure is `starts from a clean state` in `test/unit/zz_clean.test.ts`. It asserts that `.state` doesn't exist. `test/unit/aa_state.test.ts` runs earlier and creates `.state/leftover.txt` without cleaning it up. That is a test-ordering dependency in the repo, unrelated to the cart code. Run alone, `zz_clean.test.ts` passes, but only because the earlier full run's cleanup had already removed `.state`. I haven't fixed it, since you didn't ask. The fix would be to have `aa_state.test.ts` remove `.state` after it runs.
+
+<receipts>
+run | cmd: npm test
+run | cmd: node --test test/unit/cart.test.ts
+code | src/cart.ts:12 | quote: export function clearCart(items: Item[]): Item[] {
+code | test/unit/zz_clean.test.ts:7 | quote: assert.ok(!fs.existsSync('.state'))
+code | test/unit/aa_state.test.ts:6 | quote: fs.mkdirSync('.state', { recursive: true })
+</receipts>

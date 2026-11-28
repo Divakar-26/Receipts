@@ -1,0 +1,14 @@
+Yes, the tax rate is now 8% everywhere in the code. The rate was defined in two places, and I changed both:
+
+- `src/pricing.ts` has `TAX_RATE`, which is now `0.08`. `withTax` uses it, and so does the cart total.
+- `src/legacy/tax.ts` has a separate `LEGACY_TAX`, which is now `0.08`. It's easy to miss because it duplicates the constant in `pricing.ts`.
+
+I also updated the three tests that expected 7% (`107` became `108`, and the "adds 7%" titles became "adds 8%"). The full suite passes after the edits (6 of 6). A repo-wide search for `0.07`, `7%` and `107` finds nothing left, apart from the `.receipts/` ledger, which just records my commands.
+
+<receipts>
+code | pricing rate | src/pricing.ts:1 | quote: export const TAX_RATE = 0.08
+code | legacy rate | src/legacy/tax.ts:1 | quote: export const LEGACY_TAX = 0.08
+change | pricing | old: 0.07 | new: 0.08
+run | cmd: npm test
+absent | pattern: 0\.07|7%|107 | in: src, test
+</receipts>

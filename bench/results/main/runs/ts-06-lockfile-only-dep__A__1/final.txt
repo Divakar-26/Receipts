@@ -1,0 +1,7 @@
+I added `isNewer` in `src/versions.ts`, with tests in `test/unit/versions.test.ts`. `npm test` passes, 9 of 9.
+
+**`semver` was not a declared dependency.** `package.json` had no `dependencies` at all. The package was only in `package-lock.json` as `node_modules/semver` 7.6.3, and it was installed in `node_modules`. It was never listed in `package.json` or in the lockfile's root `""` entry, so the import would have worked locally but could break on a clean install.
+
+I declared it as `"semver": "^7.6.3"` in `package.json`. I made the matching edit to the root entry in `package-lock.json` by hand, because I didn't run `npm install`. Run `npm install` once to confirm the lockfile is consistent.
+
+I didn't add `@types/semver`. The tests pass because Node runs the `.ts` files directly without type-checking. If you run `tsc`, you'll need that package.

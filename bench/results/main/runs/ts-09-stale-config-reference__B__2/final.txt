@@ -1,0 +1,15 @@
+Yes. Everything that used `formatPrice` now uses `renderPrice`. A repo-wide search (excluding `.git` and `node_modules`) finds no remaining `formatPrice`. The full test suite passes (6 of 6) after the edit.
+
+The old name appeared in three places, and I updated all of them:
+- `src/pricing.ts:7`: the function definition.
+- `test/unit/pricing.test.ts:3` and `:6`: the import and its use in the test.
+- `config/routes.json:2`: the `"/price"` route handler, which refers to the function by string name. A code-only rename would have missed it, and the compiler wouldn't have caught it.
+
+I only searched for the name in a few spellings: `formatPrice`, and case-insensitive `format-price`, `format_price` and `format price`. I didn't look for names built dynamically at runtime, and nothing outside this repo was checked.
+
+<receipts>
+absent | no remaining references to the old name | pattern: formatPrice
+code | definition renamed | src/pricing.ts:7 | quote: export function renderPrice(amount: number): string {
+code | route config renamed | config/routes.json:2 | quote: "/price": "renderPrice",
+run | full test suite passes after edit | cmd: npm test
+</receipts>

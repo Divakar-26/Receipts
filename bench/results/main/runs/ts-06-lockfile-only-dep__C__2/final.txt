@@ -1,0 +1,13 @@
+Neither of the hook's two complaints changes the result. The first was a formatting mismatch in my receipt. The second was a claim I hadn't backed with a receipt.
+
+1. The `dependencies` entry is in `package.json`, but it's spread over three lines, so my one-line quote didn't match. I've fixed the receipt below.
+2. Before my change, the only mention of `semver` in `package.json` or `package-lock.json` at HEAD was the lockfile's `node_modules/semver` entry at line 11. That is the claim I'm narrowing to, and it covers only those two files. I didn't scan `node_modules` or the rest of the repo for other references.
+
+<receipts>
+run | cmd: npm test
+code | src/versions.ts:4 | quote: return semver.gt(a, b)
+dep | name: semver
+change | old: "scripts": { | new: "dependencies": {
+absent | pattern: semver | in: HEAD:package.json (the committed version, which has no mention of semver)
+code | package-lock.json:11 | quote: "node_modules/semver": {
+</receipts>

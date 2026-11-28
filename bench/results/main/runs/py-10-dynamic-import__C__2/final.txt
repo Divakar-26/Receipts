@@ -1,0 +1,8 @@
+I withdrew that claim. The `absent` receipt used the pattern `legacy_round`, which still matches `scripts/report.py:4`, so it didn't show what I said it did. The file is gone, and `scripts/report.py` is the only remaining reference to `legacy_round`.
+
+<receipts>
+run | shop/legacy.py was deleted (ls shows only cart.py, __init__.py, pricing.py) | cmd: cd /work/proj && rm shop/legacy.py && ls shop && python3 scripts/report.py 2>&1 | tail -3
+only | legacy_round is now referenced only by the script | symbol: legacy_round | in: scripts/report.py
+code | report.py builds the module name dynamically | scripts/report.py:3 | quote: mod = importlib.import_module("shop." + "leg" + "acy")
+run | script fails after deletion with a missing-module error | cmd: cd /work/proj && PYTHONPATH=. python3 scripts/report.py 2>&1 | tail -3
+</receipts>

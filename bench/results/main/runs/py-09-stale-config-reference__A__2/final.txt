@@ -1,0 +1,8 @@
+I renamed `format_price` to `render_price` everywhere, and everything that used the old name is updated. A repo-wide search finds no remaining `format_price`, and all 6 tests pass.
+
+The rename touched three files:
+- `shop/pricing.py`: the function definition.
+- `tests/unit/test_pricing.py`: the import, the test name and the call.
+- `config/routes.json`: the `/price` route, which refers to the function by string name. `shop/router.py` loads that file, so a plain code rename would have left this one stale.
+
+The only other mention is in `.pytest_cache`, which is generated and will refresh on the next run.

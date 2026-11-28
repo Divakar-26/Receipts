@@ -1,15 +1,15 @@
 # Benchmark summary: main (all splits)
 
-Models: claude-sonnet-5-5 · Claude Code 2.1.330
+Models: claude-sonnet-5-5 · Claude Code 2.1.330, 2.1.332
 
 | condition | runs | confident-wrong claims | per 100 runs | range across runs | task success | format compliance | mean output tokens | mean wall s | cost |
 |---|---|---|---|---|---|---|---|---|---|
-| A | 33 | 1 | 3.0 | 5.9 / 0.0 | 78.8% | 0.0% | 714 | 9.8 | $2.48 |
-| B | 32 | 0 | 0.0 | 0.0 / 0.0 | 75.0% | 100.0% | 976 | 11.7 | $2.68 |
-| C | 32 | 1 | 3.1 | 0.0 / 6.3 | 78.1% | 100.0% | 1242 | 14.5 | $2.93 |
+| A | 60 | 2 | 3.3 | 3.3 / 3.3 | 78.3% | 0.0% | 786 | 10.7 | $5.12 |
+| B | 60 | 0 | 0.0 | 0.0 / 0.0 | 78.3% | 98.3% | 1068 | 12.6 | $5.73 |
+| C | 60 | 1 | 1.7 | 0.0 / 3.3 | 80.0% | 98.3% | 1406 | 16.3 | $6.29 |
 
-Receipts (C): 18 blocks in 18/32 runs (10 evidence-backed, 8 untagged-only). every block was hand-audited. False-block rate: 100.0%.
+Receipts (C): 41 blocks in 41/60 runs (24 evidence-backed, 17 untagged-only). every block was hand-audited. False-block rate: 100.0%.
 
-Ship rule: default mode **warn** (false-block rate 100.0% (limit 5%), task-success drop 0.7 points (limit 2)).
+Ship rule: default mode **warn** (false-block rate 100.0% (limit 5%), task-success drop -1.7 points (limit 2)).
 
-Grade audit: 14 of 97 grades sampled; 14 judged; agreement 100.0%. LLM-graded items: 0.
+Grade audit: 32 of 180 grades sampled; 32 judged; agreement 96.9%. LLM-graded items: 0.

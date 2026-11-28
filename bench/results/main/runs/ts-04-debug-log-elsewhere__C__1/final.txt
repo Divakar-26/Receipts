@@ -1,0 +1,8 @@
+The checker's two objections are fair. My `change` claim joined two lines into one string, so it matched nothing. My `absent` claim was checked against the whole repo, and `src/admin/audit.ts:2` still has a `console.log`. That's the leftover I already reported. The edit itself is unchanged. I've narrowed the claims below.
+
+<receipts>
+code | checkout now computes the total directly, with no debug logging before it | src/checkout.ts:5 | quote: const t = total(items)
+code | checkout returns the total right after that | src/checkout.ts:6 | quote: return t
+change | removed the first debug log from checkout | old: console.log('[debug] items', items.length) | new: const t = total(items)
+code | one debug log is still left in src, in the audit module | src/admin/audit.ts:2 | quote: console.log('[debug] audit event', event)
+</receipts>
